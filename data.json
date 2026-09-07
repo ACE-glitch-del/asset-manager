@@ -4,7 +4,7 @@
       "id": 1,
       "name": "招商银行储蓄卡",
       "type": "银行储蓄",
-      "balance": 128500.0,
+      "balance": 128500,
       "color": "#c0392b"
     },
     {
@@ -32,14 +32,14 @@
       "id": 5,
       "name": "余额宝",
       "type": "货币基金",
-      "balance": 45000.0,
+      "balance": 45000,
       "color": "#ff6a00"
     },
     {
       "id": 6,
       "name": "现金",
       "type": "现金",
-      "balance": 2500.0,
+      "balance": 2500,
       "color": "#6c757d"
     }
   ],
@@ -49,7 +49,7 @@
       "name": "月工资",
       "category": "工资",
       "accountId": 1,
-      "amount": 12500.0,
+      "amount": 12500,
       "active": true
     },
     {
@@ -57,7 +57,7 @@
       "name": "公积金入账",
       "category": "公积金",
       "accountId": 2,
-      "amount": 3200.0,
+      "amount": 3200,
       "active": true
     },
     {
@@ -65,7 +65,7 @@
       "name": "理财收益",
       "category": "理财收入",
       "accountId": 5,
-      "amount": 680.0,
+      "amount": 680,
       "active": true
     },
     {
@@ -73,7 +73,7 @@
       "name": "兼职设计",
       "category": "兼职",
       "accountId": 3,
-      "amount": 2000.0,
+      "amount": 2000,
       "active": true
     }
   ],
@@ -83,7 +83,7 @@
       "name": "房租",
       "category": "房租",
       "accountId": 1,
-      "amount": 3500.0,
+      "amount": 3500,
       "active": true
     },
     {
@@ -91,7 +91,7 @@
       "name": "水电燃气",
       "category": "水电燃气",
       "accountId": 4,
-      "amount": 380.0,
+      "amount": 380,
       "active": true
     },
     {
@@ -99,7 +99,7 @@
       "name": "餐饮日常",
       "category": "餐饮",
       "accountId": 3,
-      "amount": 2800.0,
+      "amount": 2800,
       "active": true
     },
     {
@@ -107,7 +107,7 @@
       "name": "交通出行",
       "category": "交通",
       "accountId": 3,
-      "amount": 600.0,
+      "amount": 600,
       "active": true
     },
     {
@@ -115,7 +115,7 @@
       "name": "手机话费",
       "category": "通讯",
       "accountId": 3,
-      "amount": 128.0,
+      "amount": 128,
       "active": true
     },
     {
@@ -123,7 +123,7 @@
       "name": "重疾险",
       "category": "保险",
       "accountId": 1,
-      "amount": 450.0,
+      "amount": 450,
       "active": true
     }
   ],
@@ -144,7 +144,7 @@
       "category": "兼职",
       "account": "微信零钱",
       "note": "设计项目尾款",
-      "amount": 2000.0
+      "amount": 2000
     },
     {
       "id": 3,
@@ -153,7 +153,7 @@
       "category": "交通",
       "account": "支付宝余额",
       "note": "加油",
-      "amount": 420.0
+      "amount": 420
     },
     {
       "id": 4,
@@ -162,7 +162,7 @@
       "category": "理财收入",
       "account": "余额宝",
       "note": "月度收益结算",
-      "amount": 680.0
+      "amount": 680
     },
     {
       "id": 5,
@@ -171,7 +171,7 @@
       "category": "工资",
       "account": "招商银行储蓄卡",
       "note": "9月工资",
-      "amount": 12500.0
+      "amount": 12500
     },
     {
       "id": 6,
@@ -180,7 +180,7 @@
       "category": "房租",
       "account": "招商银行储蓄卡",
       "note": "9月房租",
-      "amount": 3500.0
+      "amount": 3500
     }
   ],
   "monthlyData": [
@@ -290,6 +290,87 @@
     }
   ],
   "holdings": [],
+  "macroEnvironment": {
+    "politics": {
+      "label": "国家政治",
+      "level": "neutral",
+      "levelText": "稳定",
+      "score": 70,
+      "desc": "国内政治稳定，政策连续性强；关注两会及三中全会政策定调"
+    },
+    "geopolitics": {
+      "label": "地缘风险",
+      "level": "warn",
+      "levelText": "偏高",
+      "score": 45,
+      "desc": "中美博弈持续，中东局势不稳，台海局势需关注；避险资产配置价值上升"
+    },
+    "policy": {
+      "label": "经济政策",
+      "level": "good",
+      "levelText": "偏宽松",
+      "score": 72,
+      "desc": "货币政策稳健偏宽松，财政政策积极发力；降准降息空间仍在，利好权益和债券"
+    },
+    "inflation": {
+      "label": "通胀水平",
+      "level": "neutral",
+      "levelText": "温和",
+      "score": 55,
+      "desc": "CPI温和回升，PPI转正但涨幅可控；无通胀失控风险，货币政策不受制约"
+    },
+    "summary": "当前宏观环境整体偏友好：国内政治稳定、政策偏宽松、通胀温和，为权益市场修复提供了良好的内部环境。主要风险来自外部：中美关系不确定性和地缘冲突可能引发市场波动。策略上：权益类资产可逐步加仓，但需控制节奏；维持黄金和债券的对冲仓位；关注政策窗口期的布局机会。"
+  },
+  "industryTrends": [
+    {
+      "name": "白酒/消费",
+      "score": 55,
+      "trend": "flat",
+      "trendText": "触底企稳",
+      "color": "#b8860b",
+      "note": "经过两年调整，估值已处历史低位；批价企稳但需求复苏仍需时间，关注中秋国庆动销"
+    },
+    {
+      "name": "新能源",
+      "score": 40,
+      "trend": "down",
+      "trendText": "承压调整",
+      "color": "#9c2c2c",
+      "note": "产能过剩问题突出，价格战持续；龙头企业优势扩大但行业整体盈利承压，等待出清信号"
+    },
+    {
+      "name": "银行",
+      "score": 70,
+      "trend": "up",
+      "trendText": "稳健向好",
+      "color": "#2d6a4f",
+      "note": "息差收窄但资产质量改善，高股息策略受追捧；房地产风险缓释，估值修复空间大"
+    },
+    {
+      "name": "宽基指数",
+      "score": 65,
+      "trend": "up",
+      "trendText": "底部回升",
+      "color": "#2d6a4f",
+      "note": "估值处于历史低位，盈利逐步验证；政策底已现，市场底正在构筑，坚持定投"
+    },
+    {
+      "name": "债券",
+      "score": 55,
+      "trend": "flat",
+      "trendText": "高位震荡",
+      "color": "#b8860b",
+      "note": "利率处于历史低位，资本利得空间有限；票息收益稳定，作为对冲工具继续持有"
+    },
+    {
+      "name": "黄金/贵金属",
+      "score": 75,
+      "trend": "up",
+      "trendText": "长期向好",
+      "color": "#2d6a4f",
+      "note": "央行购金+去美元化+地缘风险三重支撑；短期涨幅较大不追高，回调加仓"
+    }
+  ],
   "opinions": [],
   "macroMyView": "",
   "myViewOnVolatility": {}
