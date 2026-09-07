@@ -1,0 +1,296 @@
+{
+  "accounts": [
+    {
+      "id": 1,
+      "name": "招商银行储蓄卡",
+      "type": "银行储蓄",
+      "balance": 128500.0,
+      "color": "#c0392b"
+    },
+    {
+      "id": 2,
+      "name": "工商银行储蓄卡",
+      "type": "银行储蓄",
+      "balance": 56200.5,
+      "color": "#b03a2e"
+    },
+    {
+      "id": 3,
+      "name": "微信零钱",
+      "type": "电子钱包",
+      "balance": 8432.8,
+      "color": "#07c160"
+    },
+    {
+      "id": 4,
+      "name": "支付宝余额",
+      "type": "电子钱包",
+      "balance": 12680.3,
+      "color": "#1677ff"
+    },
+    {
+      "id": 5,
+      "name": "余额宝",
+      "type": "货币基金",
+      "balance": 45000.0,
+      "color": "#ff6a00"
+    },
+    {
+      "id": 6,
+      "name": "现金",
+      "type": "现金",
+      "balance": 2500.0,
+      "color": "#6c757d"
+    }
+  ],
+  "incomeItems": [
+    {
+      "id": 1,
+      "name": "月工资",
+      "category": "工资",
+      "accountId": 1,
+      "amount": 12500.0,
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "公积金入账",
+      "category": "公积金",
+      "accountId": 2,
+      "amount": 3200.0,
+      "active": true
+    },
+    {
+      "id": 3,
+      "name": "理财收益",
+      "category": "理财收入",
+      "accountId": 5,
+      "amount": 680.0,
+      "active": true
+    },
+    {
+      "id": 4,
+      "name": "兼职设计",
+      "category": "兼职",
+      "accountId": 3,
+      "amount": 2000.0,
+      "active": true
+    }
+  ],
+  "expenseItems": [
+    {
+      "id": 1,
+      "name": "房租",
+      "category": "房租",
+      "accountId": 1,
+      "amount": 3500.0,
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "水电燃气",
+      "category": "水电燃气",
+      "accountId": 4,
+      "amount": 380.0,
+      "active": true
+    },
+    {
+      "id": 3,
+      "name": "餐饮日常",
+      "category": "餐饮",
+      "accountId": 3,
+      "amount": 2800.0,
+      "active": true
+    },
+    {
+      "id": 4,
+      "name": "交通出行",
+      "category": "交通",
+      "accountId": 3,
+      "amount": 600.0,
+      "active": true
+    },
+    {
+      "id": 5,
+      "name": "手机话费",
+      "category": "通讯",
+      "accountId": 3,
+      "amount": 128.0,
+      "active": true
+    },
+    {
+      "id": 6,
+      "name": "重疾险",
+      "category": "保险",
+      "accountId": 1,
+      "amount": 450.0,
+      "active": true
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1,
+      "date": "2026-09-06",
+      "type": "expense",
+      "category": "餐饮",
+      "account": "微信零钱",
+      "note": "周末家庭聚餐",
+      "amount": 386.5
+    },
+    {
+      "id": 2,
+      "date": "2026-09-05",
+      "type": "income",
+      "category": "兼职",
+      "account": "微信零钱",
+      "note": "设计项目尾款",
+      "amount": 2000.0
+    },
+    {
+      "id": 3,
+      "date": "2026-09-04",
+      "type": "expense",
+      "category": "交通",
+      "account": "支付宝余额",
+      "note": "加油",
+      "amount": 420.0
+    },
+    {
+      "id": 4,
+      "date": "2026-09-02",
+      "type": "income",
+      "category": "理财收入",
+      "account": "余额宝",
+      "note": "月度收益结算",
+      "amount": 680.0
+    },
+    {
+      "id": 5,
+      "date": "2026-09-01",
+      "type": "income",
+      "category": "工资",
+      "account": "招商银行储蓄卡",
+      "note": "9月工资",
+      "amount": 12500.0
+    },
+    {
+      "id": 6,
+      "date": "2026-09-01",
+      "type": "expense",
+      "category": "房租",
+      "account": "招商银行储蓄卡",
+      "note": "9月房租",
+      "amount": 3500.0
+    }
+  ],
+  "monthlyData": [
+    {
+      "month": "1月",
+      "income": 18380,
+      "expense": 10200
+    },
+    {
+      "month": "2月",
+      "income": 18380,
+      "expense": 12800
+    },
+    {
+      "month": "3月",
+      "income": 19500,
+      "expense": 9800
+    },
+    {
+      "month": "4月",
+      "income": 18380,
+      "expense": 11500
+    },
+    {
+      "month": "5月",
+      "income": 21000,
+      "expense": 13200
+    },
+    {
+      "month": "6月",
+      "income": 18380,
+      "expense": 10800
+    },
+    {
+      "month": "7月",
+      "income": 18380,
+      "expense": 11200
+    },
+    {
+      "month": "8月",
+      "income": 17500,
+      "expense": 9600
+    },
+    {
+      "month": "9月",
+      "income": 18380,
+      "expense": 8800
+    }
+  ],
+  "expenseCategories": [
+    {
+      "name": "房租",
+      "amount": 31500,
+      "color": "#1b4332"
+    },
+    {
+      "name": "餐饮",
+      "amount": 25200,
+      "color": "#2d6a4f"
+    },
+    {
+      "name": "交通",
+      "amount": 5400,
+      "color": "#52b788"
+    },
+    {
+      "name": "水电燃气",
+      "amount": 3420,
+      "color": "#b8860b"
+    },
+    {
+      "name": "保险",
+      "amount": 4050,
+      "color": "#9c2c2c"
+    },
+    {
+      "name": "通讯",
+      "amount": 1152,
+      "color": "#6c757d"
+    },
+    {
+      "name": "其他",
+      "amount": 3078,
+      "color": "#adb5bd"
+    }
+  ],
+  "incomeCategories": [
+    {
+      "name": "工资",
+      "amount": 112500,
+      "color": "#1b4332"
+    },
+    {
+      "name": "公积金",
+      "amount": 28800,
+      "color": "#2d6a4f"
+    },
+    {
+      "name": "兼职",
+      "amount": 18000,
+      "color": "#b8860b"
+    },
+    {
+      "name": "理财收入",
+      "amount": 6120,
+      "color": "#52b788"
+    }
+  ],
+  "holdings": [],
+  "opinions": [],
+  "macroMyView": "",
+  "myViewOnVolatility": {}
+}
