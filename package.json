@@ -1,0 +1,12 @@
+{
+  "name": "asset-manager",
+  "version": "1.0.0",
+  "description": "个人资产管理系统 - 多端同步",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
