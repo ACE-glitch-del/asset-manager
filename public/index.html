@@ -1,0 +1,4074 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人资产管理系统</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@600;700;900&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" crossorigin="anonymous"></script>
+<style>
+/* ===== 设计 Token ===== */
+:root {
+  --bg: #f4f1ec;
+  --bg-deep: #ebe6dd;
+  --card: #ffffff;
+  --ink: #1a1a1a;
+  --ink-2: #555555;
+  --ink-3: #999999;
+  --line: #e5e0d6;
+  --primary: #1b4332;
+  --primary-light: #2d6a4f;
+  --primary-soft: #e8f0eb;
+  --accent: #b8860b;
+  --accent-light: #d4a843;
+  --accent-soft: #faf3e0;
+  --income: #2d6a4f;
+  --income-soft: #e8f5ee;
+  --expense: #9c2c2c;
+  --expense-soft: #fbeaea;
+  --warn: #c77d00;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Noto Serif SC', Georgia, serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--ink);
+  min-width: 1100px;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 布局 ===== */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* 侧边栏 */
+.sidebar {
+  width: 240px;
+  background: var(--primary);
+  color: #d8e0dc;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+
+.sidebar-brand {
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand h1 {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.sidebar-brand p {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 4px;
+  letter-spacing: 2px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.2s;
+  margin-bottom: 2px;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.1);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.nav-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  padding: 16px 16px 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.sidebar-footer {
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+}
+
+.sidebar-footer .total-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.sidebar-footer .total-value {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-light);
+}
+
+/* 主内容区 */
+.main {
+  flex: 1;
+  margin-left: 240px;
+  padding: 0;
+}
+
+.topbar {
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.topbar h2 {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.topbar .date-info {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.content {
+  padding: 28px 32px 48px;
+}
+
+/* 视图切换 */
+.view { display: none; }
+.view.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 通用组件 ===== */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  padding: 24px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title .sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+/* 统计卡 */
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+}
+
+.stat-card.total::before { background: var(--primary); }
+.stat-card.income::before { background: var(--income); }
+.stat-card.expense::before { background: var(--expense); }
+.stat-card.balance::before { background: var(--accent); }
+
+.stat-label {
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.stat-card.income .stat-value { color: var(--income); }
+.stat-card.expense .stat-value { color: var(--expense); }
+.stat-card.balance .stat-value { color: var(--accent); }
+
+.stat-delta {
+  font-size: 12px;
+  margin-top: 8px;
+  color: var(--ink-3);
+}
+
+.stat-delta .up { color: var(--income); }
+.stat-delta .down { color: var(--expense); }
+
+/* 表格 */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 500;
+  color: var(--ink-3);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2);
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--bg); }
+
+td.num {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  text-align: right;
+}
+
+td.income-num { color: var(--income); }
+td.expense-num { color: var(--expense); }
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.tag-active { background: var(--income-soft); color: var(--income); }
+.tag-paused { background: var(--bg-deep); color: var(--ink-3); }
+.tag-income { background: var(--income-soft); color: var(--income); }
+.tag-expense { background: var(--expense-soft); color: var(--expense); }
+
+/* 按钮 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--primary-light); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+.btn-ghost:hover { background: var(--bg); border-color: var(--ink-3); }
+
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+.btn-icon {
+  width: 30px; height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-3);
+  transition: all 0.2s;
+}
+.btn-icon:hover { background: var(--bg); color: var(--ink); }
+
+/* 图表容器 */
+.chart-box {
+  width: 100%;
+  min-height: 320px;
+}
+
+.chart-box-sm {
+  width: 100%;
+  min-height: 260px;
+}
+
+/* 账户列表 */
+.account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.account-item:last-child { border-bottom: none; }
+
+.account-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-icon {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.account-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.account-type {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.account-balance {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* 汇总行 */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0 0;
+  margin-top: 12px;
+  border-top: 2px solid var(--primary);
+}
+
+.summary-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.summary-value {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--ink-3);
+}
+
+.empty-state svg {
+  width: 48px; height: 48px;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+/* 模态框 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--card);
+  border-radius: var(--radius);
+  width: 440px;
+  max-width: 90vw;
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+}
+
+.modal h3 {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--card);
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* 进度条 */
+.progress-bar {
+  height: 6px;
+  background: var(--bg-deep);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* 分类占比条 */
+.cat-bar-item {
+  margin-bottom: 14px;
+}
+.cat-bar-item:last-child { margin-bottom: 0; }
+
+.cat-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.cat-bar-name { color: var(--ink-2); font-weight: 500; }
+.cat-bar-val { color: var(--ink-3); font-family: var(--font-serif); }
+
+/* 年度汇总 */
+.year-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.year-summary-item .label {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+.year-summary-item .value {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* 操作列 */
+.action-col {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+/* section 间距 */
+.section-gap { margin-bottom: 24px; }
+
+/* ===== 投资板块专属样式 ===== */
+.invest-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-deep);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  width: fit-content;
+}
+
+.invest-tab {
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink-3);
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+}
+
+.invest-tab:hover { color: var(--ink-2); }
+.invest-tab.active {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-weight: 600;
+}
+
+.invest-panel { display: none; }
+.invest-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+/* 投资标的卡片 */
+.holding-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.holding-card:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+}
+
+.holding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.holding-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.holding-code {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  font-family: monospace;
+}
+
+.holding-type-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.type-stock { background: #fef3e2; color: #c77d00; }
+.type-fund { background: #e8f0eb; color: #1b4332; }
+.type-bond { background: #e8eef5; color: #1a5276; }
+.type-gold { background: #faf3e0; color: #b8860b; }
+.type-reits { background: #f0e8f5; color: #6c3483; }
+.type-crypto { background: #fbeaea; color: #9c2c2c; }
+.type-other { background: var(--bg-deep); color: var(--ink-3); }
+
+.holding-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.metric-item .metric-label {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 3px;
+}
+
+.metric-item .metric-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+
+.metric-value.profit { color: var(--income); }
+.metric-value.loss { color: var(--expense); }
+
+.holding-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+/* 预测时间线 */
+.forecast-timeline {
+  position: relative;
+  padding: 20px 0;
+}
+
+.forecast-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 140px 120px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.forecast-row:last-child { border-bottom: none; }
+
+.forecast-year {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.forecast-bar-wrap {
+  height: 28px;
+  background: var(--bg-deep);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.forecast-bar {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-size: 11px;
+  color: #fff;
+  font-weight: 600;
+  transition: width 0.6s ease;
+  min-width: 40px;
+}
+
+.forecast-amount {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+}
+
+.forecast-gain {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.forecast-gain.profit { color: var(--income); }
+
+/* 观点卡片 */
+.opinion-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  transition: all 0.2s;
+}
+
+.opinion-card:hover {
+  box-shadow: var(--shadow);
+  border-left-color: var(--primary);
+}
+
+.opinion-card.bullish { border-left-color: var(--income); }
+.opinion-card.bearish { border-left-color: var(--expense); }
+.opinion-card.neutral { border-left-color: var(--accent); }
+
+.opinion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.opinion-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.opinion-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.opinion-content {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.opinion-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.opinion-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--bg);
+  border-radius: 3px;
+  color: var(--ink-3);
+}
+
+.opinion-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+/* 预测参数区 */
+.forecast-params {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+.forecast-param {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.forecast-param label {
+  font-size: 12px;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.forecast-param input {
+  width: 140px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  background: var(--card);
+}
+
+.forecast-param input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* 分析指标卡 */
+.analysis-metric {
+  text-align: center;
+  padding: 16px;
+}
+
+.analysis-metric .am-label {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+.analysis-metric .am-value {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.analysis-metric .am-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+
+/* ===== 深度分析专属样式 ===== */
+.macro-card {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  border-left: 3px solid var(--primary);
+}
+
+.macro-card.macro-good { border-left-color: var(--income); }
+.macro-card.macro-warn { border-left-color: var(--warn); }
+.macro-card.macro-bad { border-left-color: var(--expense); }
+
+.macro-label {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.macro-level {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.macro-level.level-good { background: var(--income-soft); color: var(--income); }
+.macro-level.level-warn { background: var(--accent-soft); color: var(--warn); }
+.macro-level.level-bad { background: var(--expense-soft); color: var(--expense); }
+.macro-level.level-neutral { background: var(--bg-deep); color: var(--ink-2); }
+
+.macro-score {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.macro-desc {
+  font-size: 11px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.industry-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 80px 60px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.industry-item:last-child { border-bottom: none; }
+
+.industry-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+.industry-bar-wrap {
+  height: 8px; background: var(--bg-deep); border-radius: 4px;
+  position: relative; overflow: hidden;
+}
+
+.industry-bar { height: 100%; border-radius: 4px; transition: width 0.4s; }
+
+.industry-trend { font-size: 12px; font-weight: 600; text-align: center; }
+.trend-up { color: var(--income); }
+.trend-down { color: var(--expense); }
+.trend-flat { color: var(--ink-3); }
+
+.industry-note {
+  font-size: 12px; color: var(--ink-2);
+  grid-column: 2 / -1; margin-top: -6px;
+}
+
+.selector-btn {
+  padding: 8px 16px; border: 1px solid var(--line);
+  border-radius: var(--radius-sm); background: var(--card);
+  font-size: 13px; color: var(--ink-2); cursor: pointer;
+  transition: all 0.2s; font-family: var(--font-sans);
+}
+.selector-btn:hover { border-color: var(--primary-light); color: var(--primary); }
+.selector-btn.active {
+  background: var(--primary); color: #fff;
+  border-color: var(--primary); font-weight: 500;
+}
+
+.detail-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px; background: var(--bg); border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+}
+
+.dh-left { display: flex; align-items: center; gap: 16px; }
+.dh-name {
+  font-family: var(--font-serif); font-size: 22px;
+  font-weight: 700; color: var(--ink);
+}
+.dh-code { font-size: 12px; color: var(--ink-3); font-family: monospace; margin-top: 2px; }
+.dh-right { display: flex; gap: 32px; text-align: right; }
+.dh-item .dh-label { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; }
+.dh-item .dh-value { font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--ink); }
+.dh-item .dh-value.profit { color: var(--income); }
+.dh-item .dh-value.loss { color: var(--expense); }
+
+.detail-section {
+  margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--line);
+}
+.detail-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.detail-section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 16px;
+}
+
+.ds-num {
+  font-family: var(--font-serif); font-size: 14px; font-weight: 700;
+  color: var(--accent); background: var(--accent-soft);
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.ds-sub { font-size: 12px; font-weight: 400; color: var(--ink-3); margin-left: auto; }
+
+.event-list { max-height: 280px; overflow-y: auto; padding-right: 8px; }
+.event-item { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.event-item:last-child { border-bottom: none; }
+.event-date { font-size: 11px; color: var(--ink-3); font-family: monospace; margin-bottom: 4px; }
+.event-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.event-desc { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+.event-impact { display: inline-block; font-size: 11px; font-weight: 600; margin-top: 4px; }
+.event-impact.positive { color: var(--income); }
+.event-impact.negative { color: var(--expense); }
+
+.history-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line);
+}
+.hs-item .hs-label { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; }
+.hs-item .hs-value { font-family: var(--font-serif); font-size: 16px; font-weight: 700; color: var(--ink); }
+
+.status-card {
+  background: var(--bg); border-radius: var(--radius-sm);
+  padding: 18px; text-align: center;
+}
+.status-icon { font-size: 28px; margin-bottom: 8px; }
+.status-label { font-size: 12px; color: var(--ink-3); margin-bottom: 6px; }
+.status-value { font-family: var(--font-serif); font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.status-desc { font-size: 11px; color: var(--ink-3); line-height: 1.5; }
+
+.analysis-text {
+  margin-top: 16px; padding: 16px 20px; background: var(--accent-soft);
+  border-radius: var(--radius-sm); font-size: 13px; color: var(--ink-2); line-height: 1.9;
+}
+.analysis-text .at-label { font-weight: 600; color: var(--ink); margin-right: 8px; }
+
+.forecast-mini {
+  background: var(--bg); border-radius: var(--radius-sm);
+  padding: 16px; text-align: center;
+}
+.fm-label { font-size: 11px; color: var(--ink-3); margin-bottom: 6px; }
+.fm-value { font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--primary); }
+.fm-sub { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+
+.fund-return-card {
+  background: var(--bg); border-radius: var(--radius-sm); padding: 20px;
+}
+.fr-label { font-size: 12px; color: var(--ink-3); margin-bottom: 8px; }
+.fr-value { font-family: var(--font-serif); font-size: 32px; font-weight: 700; color: var(--income); }
+.fr-sub { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+
+.range-item { margin-bottom: 10px; }
+.range-item:last-child { margin-bottom: 0; }
+.range-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+.range-name { color: var(--ink-2); }
+.range-val { color: var(--ink); font-weight: 600; font-family: var(--font-serif); }
+
+/* ===== 标的详情页（全屏overlay） ===== */
+.detail-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 200;
+  overflow-y: auto;
+}
+.detail-overlay.show { display: block; }
+
+.detail-overlay-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px 48px;
+}
+
+.detail-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+
+.detail-topbar-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.detail-content {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  padding: 28px;
+}
+
+/* 标的卡片上的深度分析按钮 */
+/* 观点收录Tab */
+.opinion-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-deep);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  width: fit-content;
+}
+
+.opinion-tab {
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink-3);
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+}
+
+.opinion-tab:hover { color: var(--ink-2); }
+.opinion-tab.active {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-weight: 600;
+}
+
+/* 观点卡片作者 */
+.opinion-author {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* 宏观我的看法 */
+.my-view-card {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: var(--primary-soft);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--primary);
+}
+
+.my-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.my-view-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.my-view-content {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.my-view-edit {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--card);
+  resize: vertical;
+  line-height: 1.8;
+}
+
+.my-view-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+/* 回撤统计卡片 */
+.dd-stat-card {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  border-bottom: 3px solid var(--expense);
+}
+
+.dd-stat-card .dd-label {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+.dd-stat-card .dd-value {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dd-stat-card .dd-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+
+/* 回撤时间线 */
+.dd-timeline-item {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.dd-timeline-item:last-child { border-bottom: none; }
+
+.dd-timeline-left {
+  border-right: 2px solid var(--expense);
+  padding-right: 16px;
+  position: relative;
+}
+
+.dd-timeline-left::before {
+  content: '';
+  position: absolute;
+  right: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  background: var(--expense);
+  border-radius: 50%;
+  border: 2px solid var(--card);
+}
+
+.dd-period {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.dd-duration {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.dd-drawdown {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--expense);
+  margin-top: 8px;
+}
+
+.dd-recovery {
+  font-size: 11px;
+  color: var(--income);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.dd-timeline-right .dd-reason-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.dd-timeline-right .dd-reason-text {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.dd-timeline-right .dd-recovery-text {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: var(--income-soft);
+  border-radius: 4px;
+}
+
+.dd-timeline-right .dd-recovery-text .rr-label {
+  font-weight: 600;
+  color: var(--income);
+  margin-right: 6px;
+}
+
+/* AI分析卡片 */
+.ai-analysis-card {
+  background: linear-gradient(135deg, #f8f5ef 0%, #f0ebe0 100%);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  border-left: 3px solid var(--accent);
+}
+
+.ai-analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ai-analysis-header .ai-icon {
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ai-analysis-header .ai-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ai-analysis-content {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.9;
+}
+
+.ai-analysis-content .ai-point {
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.ai-analysis-content .ai-point::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.ai-analysis-content .ai-point:last-child { margin-bottom: 0; }
+
+.ai-analysis-content .ai-point strong {
+  color: var(--ink);
+}
+
+.btn-detail {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid transparent;
+}
+.btn-detail:hover {
+  background: var(--primary);
+  color: #fff;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>资产管家</h1>
+      <p>PERSONAL ASSET</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">总览</div>
+      <a class="nav-item active" data-route="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        现金总览
+      </a>
+      <a class="nav-item" data-route="cashflow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+        月现金流
+      </a>
+      <div class="nav-label">管理</div>
+      <a class="nav-item" data-route="income">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        固定收入
+      </a>
+      <a class="nav-item" data-route="expense">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="7" cy="6" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="16" cy="18" r="1.5" fill="currentColor"/></svg>
+        固定支出
+      </a>
+      <div class="nav-label">投资</div>
+      <a class="nav-item" data-route="investment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/><circle cx="7" cy="14" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+        个人投资
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="total-label">总资产 (CNY)</div>
+      <div class="total-value" id="sidebarTotal">—</div>
+    </div>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="main">
+    <header class="topbar">
+      <h2 id="pageTitle">现金总览</h2>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span id="syncIndicator" style="font-size:12px;color:#999;letter-spacing:0.5px;">连接中…</span>
+        <button class="btn btn-ghost btn-sm" onclick="refreshFromCloud()" title="从云端刷新数据">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          刷新
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="exportData()" title="导出数据备份">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          备份
+        </button>
+        <span class="date-info" id="dateInfo"></span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ===== 视图：现金总览 ===== -->
+      <section class="view active" id="view-overview">
+        <div class="grid grid-4 section-gap">
+          <div class="stat-card total">
+            <div class="stat-label">总资产</div>
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-delta">较上月 <span class="up">+3.2%</span></div>
+          </div>
+          <div class="stat-card income">
+            <div class="stat-label">本月收入</div>
+            <div class="stat-value" id="statIncome">—</div>
+            <div class="stat-delta">较上月 <span class="up">+5.1%</span></div>
+          </div>
+          <div class="stat-card expense">
+            <div class="stat-label">本月支出</div>
+            <div class="stat-value" id="statExpense">—</div>
+            <div class="stat-delta">较上月 <span class="down">-8.3%</span></div>
+          </div>
+          <div class="stat-card balance">
+            <div class="stat-label">本月结余</div>
+            <div class="stat-value" id="statBalance">—</div>
+            <div class="stat-delta">储蓄率 <span class="up">42.6%</span></div>
+          </div>
+        </div>
+
+        <div class="grid section-gap" style="grid-template-columns: 1fr 1.2fr;">
+          <div class="card">
+            <div class="card-title">
+              资产构成
+              <span class="sub">按账户类型</span>
+            </div>
+            <div class="chart-box" id="chartAssetPie"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              各账户余额
+              <span style="display:flex;align-items:center;gap:12px;">
+                <span class="sub" id="accountCount"></span>
+                <button class="btn btn-ghost btn-sm" onclick="openAccountModal()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                  管理账户
+                </button>
+              </span>
+            </div>
+            <div id="accountList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            近期交易记录
+            <span style="display:flex;align-items:center;gap:12px;">
+              <span class="sub">最近 10 笔</span>
+              <button class="btn btn-ghost btn-sm" onclick="openTxModal()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                记一笔
+              </button>
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>类型</th>
+                  <th>分类</th>
+                  <th>账户</th>
+                  <th>备注</th>
+                  <th style="text-align:right">金额 (元)</th>
+                  <th style="text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="txTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：月现金流 ===== -->
+      <section class="view" id="view-cashflow">
+        <div class="card section-gap">
+          <div class="card-title">
+            年度收支趋势
+            <span class="sub">2026 年度 · 收入 / 支出 / 结余</span>
+          </div>
+          <div class="chart-box" id="chartTrend" style="min-height:380px;"></div>
+        </div>
+
+        <div class="grid section-gap" style="grid-template-columns: 1fr 1fr;">
+          <div class="card">
+            <div class="card-title">
+              支出分类占比
+              <span class="sub">本年度累计</span>
+            </div>
+            <div id="expenseCatBars"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              收入来源占比
+              <span class="sub">本年度累计</span>
+            </div>
+            <div id="incomeCatBars"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            年度汇总统计
+            <span class="sub">2026 年 1 月 — 9 月</span>
+          </div>
+          <div class="year-summary">
+            <div class="year-summary-item">
+              <div class="label">累计收入</div>
+              <div class="value" style="color:var(--income);" id="yearIncome">—</div>
+            </div>
+            <div class="year-summary-item">
+              <div class="label">累计支出</div>
+              <div class="value" style="color:var(--expense);" id="yearExpense">—</div>
+            </div>
+            <div class="year-summary-item">
+              <div class="label">累计结余</div>
+              <div class="value" style="color:var(--accent);" id="yearBalance">—</div>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:20px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>月份</th>
+                  <th style="text-align:right">收入 (元)</th>
+                  <th style="text-align:right">支出 (元)</th>
+                  <th style="text-align:right">结余 (元)</th>
+                  <th style="text-align:right">储蓄率</th>
+                </tr>
+              </thead>
+              <tbody id="monthlyTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：固定收入 ===== -->
+      <section class="view" id="view-income">
+        <div class="card section-gap">
+          <div class="card-title">
+            固定收入项
+            <span class="sub">每月自动计入 · 支持添加 / 编辑 / 删除 / 暂停</span>
+          </div>
+          <div style="margin-bottom:16px;">
+            <button class="btn btn-primary" onclick="openIncomeModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              添加收入项
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>分类</th>
+                  <th>收款账户</th>
+                  <th style="text-align:right">月金额 (元)</th>
+                  <th>状态</th>
+                  <th style="text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="incomeTableBody"></tbody>
+            </table>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">月度收入合计（生效中）</span>
+            <span class="summary-value" id="incomeTotal">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：固定支出 ===== -->
+      <section class="view" id="view-expense">
+        <div class="card section-gap">
+          <div class="card-title">
+            固定支出项
+            <span class="sub">每月自动扣除 · 支持添加 / 编辑 / 删除 / 暂停</span>
+          </div>
+          <div style="margin-bottom:16px;">
+            <button class="btn btn-primary" onclick="openExpenseModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              添加支出项
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>分类</th>
+                  <th>扣款账户</th>
+                  <th style="text-align:right">月金额 (元)</th>
+                  <th>状态</th>
+                  <th style="text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTableBody"></tbody>
+            </table>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">月度支出合计（生效中）</span>
+            <span class="summary-value" id="expenseTotal" style="color:var(--expense);">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：个人投资 ===== -->
+      <section class="view" id="view-investment">
+        <div class="invest-tabs">
+          <button class="invest-tab active" data-panel="holdings">投资标的</button>
+          <button class="invest-tab" data-panel="analysis">深度分析</button>
+          <button class="invest-tab" data-panel="forecast">回报预测</button>
+          <button class="invest-tab" data-panel="opinions">观点收录</button>
+        </div>
+
+        <!-- 子面板：投资标的 -->
+        <div class="invest-panel active" id="panel-holdings">
+          <div class="grid grid-4 section-gap">
+            <div class="stat-card total">
+              <div class="stat-label">投资总市值</div>
+              <div class="stat-value" id="invTotalValue">—</div>
+              <div class="stat-delta">占总资产 <span id="invRatio">—</span></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">累计投入</div>
+              <div class="stat-value" id="invTotalCost">—</div>
+              <div class="stat-delta">本金基数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">累计盈亏</div>
+              <div class="stat-value" id="invTotalPnl">—</div>
+              <div class="stat-delta" id="invPnlPct">—</div>
+            </div>
+            <div class="stat-card balance">
+              <div class="stat-label">年化收益率</div>
+              <div class="stat-value" id="invAnnualReturn">—</div>
+              <div class="stat-delta">加权平均</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--ink-3);" id="holdingCount"></span>
+            <button class="btn btn-primary" onclick="openHoldingModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              添加标的
+            </button>
+          </div>
+
+          <div class="grid" id="holdingsGrid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));"></div>
+        </div>
+
+        <!-- 子面板：投资分析 -->
+        <div class="invest-panel" id="panel-analysis">
+          <!-- ===== 宏观环境分析 ===== -->
+          <div class="card section-gap">
+            <div class="card-title">
+              宏观投资环境分析
+              <span class="sub">大环境 · 政治 / 地缘 / 政策 / 通胀</span>
+            </div>
+            <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;">
+              <div class="macro-card" id="macroPolitics"></div>
+              <div class="macro-card" id="macroGeopolitics"></div>
+              <div class="macro-card" id="macroPolicy"></div>
+              <div class="macro-card" id="macroInflation"></div>
+            </div>
+            <div style="padding:16px 20px;background:var(--bg);border-radius:var(--radius-sm);">
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px;">综合研判</div>
+              <div style="font-size:13px;color:var(--ink-2);line-height:1.8;" id="macroSummary"></div>
+            </div>
+            <div class="my-view-card" id="myViewCard">
+              <div class="my-view-header">
+                <div class="my-view-title">我的看法（可编辑）</div>
+                <button class="btn btn-ghost btn-sm" onclick="editMyView()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  编辑
+                </button>
+              </div>
+              <div class="my-view-content" id="myViewContent"></div>
+              <div id="myViewEditArea" style="display:none;">
+                <textarea class="my-view-edit" id="myViewTextarea"></textarea>
+                <div class="my-view-actions">
+                  <button class="btn btn-ghost btn-sm" onclick="cancelEditMyView()">取消</button>
+                  <button class="btn btn-primary btn-sm" onclick="saveMyView()">保存</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 行业趋向 ===== -->
+          <div class="card section-gap">
+            <div class="card-title">
+              行业趋向分析
+              <span class="sub">各板块景气度与政策风向</span>
+            </div>
+            <div id="industryTrends"></div>
+          </div>
+
+          <!-- ===== 操作指引 ===== -->
+          <div class="card" style="background:var(--accent-soft);border-color:var(--accent);">
+            <div style="display:flex;align-items:flex-start;gap:16px;">
+              <div style="font-size:28px;">i</div>
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px;">单个标的的深度分析在哪里？</div>
+                <div style="font-size:13px;color:var(--ink-2);line-height:1.8;">
+                  每个投资标的都有独立的专属分析页。请到「投资标的」页面，点击任意标的卡片上的「深度分析」按钮，即可进入该标的的详情页，查看它独有的历史波动原因、现状研判、回报率预测和理财收益跟踪。不同标的的分析数据完全独立，互不干扰。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 子面板：回报预测 -->
+        <div class="invest-panel" id="panel-forecast">
+          <div class="card section-gap">
+            <div class="card-title">
+              预测参数
+              <span class="sub">调整参数实时计算</span>
+            </div>
+            <div class="forecast-params">
+              <div class="forecast-param">
+                <label>当前投资总额 (元)</label>
+                <input type="number" id="fcPrincipal" value="150000" min="0" oninput="renderForecast()">
+              </div>
+              <div class="forecast-param">
+                <label>预期年化收益率 (%)</label>
+                <input type="number" id="fcRate" value="8" min="0" max="100" step="0.5" oninput="renderForecast()">
+              </div>
+              <div class="forecast-param">
+                <label>每月追加投入 (元)</label>
+                <input type="number" id="fcMonthly" value="3000" min="0" oninput="renderForecast()">
+              </div>
+              <div class="forecast-param">
+                <label>预测年限 (年)</label>
+                <input type="number" id="fcYears" value="10" min="1" max="50" oninput="renderForecast()">
+              </div>
+            </div>
+          </div>
+
+          <div class="card section-gap">
+            <div class="card-title">
+              资产增长预测
+              <span class="sub">复利效应 · 含每月定投</span>
+            </div>
+            <div class="chart-box" id="chartForecast" style="min-height:360px;"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              关键节点预测
+              <span class="sub">逐年资产与收益明细</span>
+            </div>
+            <div class="forecast-timeline" id="forecastTimeline"></div>
+          </div>
+        </div>
+
+        <!-- 子面板：观点收录 -->
+        <div class="invest-panel" id="panel-opinions">
+          <div class="opinion-tabs">
+            <button class="opinion-tab active" data-otab="master" onclick="switchOpinionTab('master')">大神观点</button>
+            <button class="opinion-tab" data-otab="self" onclick="switchOpinionTab('self')">我的观点</button>
+          </div>
+          <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--ink-3);" id="opinionCount"></span>
+            <button class="btn btn-primary" onclick="openOpinionModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              收录观点
+            </button>
+          </div>
+          <div id="opinionsList"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ===== 收入项模态框 ===== -->
+<div class="modal-overlay" id="incomeModal">
+  <div class="modal">
+    <h3 id="incomeModalTitle">添加收入项</h3>
+    <div class="form-group">
+      <label>名称</label>
+      <input type="text" id="incName" placeholder="例如：工资、公积金、理财收益">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>分类</label>
+        <select id="incCategory">
+          <option value="工资">工资</option>
+          <option value="公积金">公积金</option>
+          <option value="理财收入">理财收入</option>
+          <option value="兼职">兼职</option>
+          <option value="奖金">奖金</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>月金额 (元)</label>
+        <input type="number" id="incAmount" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>收款账户</label>
+      <select id="incAccount"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeIncomeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveIncome()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 支出项模态框 ===== -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal">
+    <h3 id="expenseModalTitle">添加支出项</h3>
+    <div class="form-group">
+      <label>名称</label>
+      <input type="text" id="expName" placeholder="例如：房租、水电、餐饮">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>分类</label>
+        <select id="expCategory">
+          <option value="房租">房租</option>
+          <option value="水电燃气">水电燃气</option>
+          <option value="餐饮">餐饮</option>
+          <option value="交通">交通</option>
+          <option value="通讯">通讯</option>
+          <option value="保险">保险</option>
+          <option value="教育">教育</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>月金额 (元)</label>
+        <input type="number" id="expAmount" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>扣款账户</label>
+      <select id="expAccount"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeExpenseModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveExpense()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 投资标的模态框 ===== -->
+<div class="modal-overlay" id="holdingModal">
+  <div class="modal">
+    <h3 id="holdingModalTitle">添加投资标的</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>标的名称</label>
+        <input type="text" id="hName" placeholder="例如：贵州茅台">
+      </div>
+      <div class="form-group">
+        <label>代码</label>
+        <input type="text" id="hCode" placeholder="例如：600519">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>标的类型</label>
+        <select id="hType">
+          <option value="stock">股票</option>
+          <option value="fund">基金</option>
+          <option value="bond">债券</option>
+          <option value="gold">黄金</option>
+          <option value="reits">REITs</option>
+          <option value="crypto">数字货币</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>所属行业</label>
+        <input type="text" id="hSector" placeholder="例如：白酒、消费">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>持仓数量</label>
+        <input type="number" id="hQty" placeholder="0" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>成本价 (元)</label>
+        <input type="number" id="hCost" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>现价 (元)</label>
+        <input type="number" id="hPrice" placeholder="0.00" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>买入日期</label>
+        <input type="date" id="hDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>备注</label>
+      <input type="text" id="hNote" placeholder="投资逻辑、目标价等">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeHoldingModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveHolding()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 观点收录模态框 ===== -->
+<div class="modal-overlay" id="opinionModal">
+  <div class="modal" style="width:520px;">
+    <h3 id="opinionModalTitle">收录投资观点</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>观点类型</label>
+        <select id="oType">
+          <option value="master">大神观点</option>
+          <option value="self">我的观点</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>作者/来源</label>
+        <input type="text" id="oAuthor" placeholder="例如：但斌、某券商研报">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>观点标题</label>
+        <input type="text" id="oTitle" placeholder="一句话概括核心观点">
+      </div>
+      <div class="form-group">
+        <label>多空倾向</label>
+        <select id="oSentiment">
+          <option value="bullish">看涨 (看多)</option>
+          <option value="bearish">看跌 (看空)</option>
+          <option value="neutral">中性 (观望)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>关联标的</label>
+      <input type="text" id="oRelated" placeholder="例如：贵州茅台、沪深300ETF">
+    </div>
+    <div class="form-group">
+      <label>观点内容</label>
+      <textarea id="oContent" rows="4" style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font-sans);resize:vertical;" placeholder="记录投资逻辑、市场判断、操作理由、反思总结等..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>标签 (逗号分隔)</label>
+      <input type="text" id="oTags" placeholder="例如：长期持有, 价值投资, 消费板块">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeOpinionModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveOpinion()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 账户管理模态框 ===== -->
+<div class="modal-overlay" id="accountModal">
+  <div class="modal">
+    <h3 id="accountModalTitle">添加账户</h3>
+    <div class="form-group">
+      <label>账户名称</label>
+      <input type="text" id="accName" placeholder="例如：招商银行储蓄卡、微信零钱">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>账户类型</label>
+        <select id="accType">
+          <option value="银行储蓄">银行储蓄</option>
+          <option value="电子钱包">电子钱包</option>
+          <option value="货币基金">货币基金</option>
+          <option value="现金">现金</option>
+          <option value="信用卡">信用卡</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>余额 (元)</label>
+        <input type="number" id="accBalance" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>标识颜色</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="accColorPicker">
+        <span class="color-dot" data-color="#c0392b" style="width:28px;height:28px;border-radius:50%;background:#c0392b;cursor:pointer;border:2px solid transparent;"></span>
+        <span class="color-dot" data-color="#b03a2e" style="width:28px;height:28px;border-radius:50%;background:#b03a2e;cursor:pointer;border:2px solid transparent;"></span>
+        <span class="color-dot" data-color="#07c160" style="width:28px;height:28px;border-radius:50%;background:#07c160;cursor:pointer;border:2px solid transparent;"></span>
+        <span class="color-dot" data-color="#1677ff" style="width:28px;height:28px;border-radius:50%;background:#1677ff;cursor:pointer;border:2px solid transparent;"></span>
+        <span class="color-dot" data-color="#ff6a00" style="width:28px;height:28px;border-radius:50%;background:#ff6a00;cursor:pointer;border:2px solid transparent;"></span>
+        <span class="color-dot" data-color="#6c757d" style="width:28px;height:28px;border-radius:50%;background:#6c757d;cursor:pointer;border:2px solid transparent;"></span>
+        <span class="color-dot" data-color="#1b4332" style="width:28px;height:28px;border-radius:50%;background:#1b4332;cursor:pointer;border:2px solid transparent;"></span>
+        <span class="color-dot" data-color="#b8860b" style="width:28px;height:28px;border-radius:50%;background:#b8860b;cursor:pointer;border:2px solid transparent;"></span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAccountModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveAccount()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 交易记录模态框 ===== -->
+<div class="modal-overlay" id="txModal">
+  <div class="modal">
+    <h3 id="txModalTitle">记一笔</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>类型</label>
+        <select id="txType" onchange="updateTxCategoryOptions()">
+          <option value="expense">支出</option>
+          <option value="income">收入</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>日期</label>
+        <input type="date" id="txDate">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>分类</label>
+        <select id="txCategory"></select>
+      </div>
+      <div class="form-group">
+        <label>金额 (元)</label>
+        <input type="number" id="txAmount" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>账户</label>
+      <select id="txAccount"></select>
+    </div>
+    <div class="form-group">
+      <label>备注</label>
+      <input type="text" id="txNote" placeholder="可选，例如：周末家庭聚餐">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeTxModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTx()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 标的详情页（全屏overlay） ===== -->
+<div class="detail-overlay" id="holdingDetailOverlay">
+  <div class="detail-overlay-inner">
+    <div class="detail-topbar">
+      <button class="btn btn-ghost btn-sm" onclick="closeHoldingDetailPage()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        返回标的列表
+      </button>
+      <div class="detail-topbar-title" id="detailPageTitle"></div>
+      <div style="width:120px;"></div>
+    </div>
+    <div class="detail-content" id="detailPageContent">
+      <div class="detail-header" id="dpHeader"></div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <span class="ds-num">01</span>
+          历史波动与回撤分析
+          <span class="ds-sub">历次最大回撤 · 原因 · 恢复 · 规律</span>
+        </div>
+
+        <!-- 回撤统计概览 -->
+        <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;" id="ddStats"></div>
+
+        <!-- 价格走势图标注回撤 -->
+        <div class="card" style="margin-bottom:20px;padding:16px;">
+          <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px;">历史价格走势（阴影区为历次回撤）</div>
+          <div class="chart-box" id="dpChartHistory" style="min-height:280px;"></div>
+        </div>
+
+        <!-- 历次回撤明细 -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px;">历次回撤明细</div>
+          <div id="ddTimeline"></div>
+        </div>
+
+        <!-- AI规律分析 -->
+        <div class="ai-analysis-card" id="ddAiAnalysis"></div>
+
+        <!-- 我的看法 -->
+        <div class="my-view-card" style="margin-top:16px;">
+          <div class="my-view-header">
+            <div class="my-view-title">我对这个标的波动特性的看法（可编辑）</div>
+            <button class="btn btn-ghost btn-sm" onclick="editDdMyView()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              编辑
+            </button>
+          </div>
+          <div class="my-view-content" id="ddMyViewContent"></div>
+          <div id="ddMyViewEditArea" style="display:none;">
+            <textarea class="my-view-edit" id="ddMyViewTextarea" style="min-height:80px;"></textarea>
+            <div class="my-view-actions">
+              <button class="btn btn-ghost btn-sm" onclick="cancelDdMyView()">取消</button>
+              <button class="btn btn-primary btn-sm" onclick="saveDdMyView()">保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <span class="ds-num">02</span>
+          现状分析
+          <span class="ds-sub">小环境 · 高低点 / 带血筹码 / 抗风险</span>
+        </div>
+        <div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:16px;">
+          <div class="status-card" id="dpStatusPosition"></div>
+          <div class="status-card" id="dpStatusBlood"></div>
+          <div class="status-card" id="dpStatusRisk"></div>
+        </div>
+        <div class="analysis-text" id="dpCurrentAnalysis"></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <span class="ds-num">03</span>
+          投资回报率预测
+          <span class="ds-sub">未来 · 何时收 / 止盈止损</span>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+          <div class="forecast-mini" id="dpFmTarget"></div>
+          <div class="forecast-mini" id="dpFmReturn"></div>
+          <div class="forecast-mini" id="dpFmPeriod"></div>
+          <div class="forecast-mini" id="dpFmStoploss"></div>
+        </div>
+        <div class="analysis-text" id="dpExitStrategy"></div>
+      </div>
+
+      <div class="detail-section" id="dpFundSection" style="display:none;">
+        <div class="detail-section-title">
+          <span class="ds-num">04</span>
+          理财产品收益跟踪
+          <span class="ds-sub">最近收益率 / 预计收益率</span>
+        </div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="fund-return-card">
+            <div class="fr-label">最近收益率（近1月）</div>
+            <div class="fr-value" id="dpFundRecentReturn">—</div>
+            <div class="fr-sub" id="dpFundRecentNote">—</div>
+            <div class="chart-box-sm" id="dpChartFundNav" style="min-height:160px;margin-top:12px;"></div>
+          </div>
+          <div class="fund-return-card">
+            <div class="fr-label">预计年化收益率</div>
+            <div class="fr-value" id="dpFundExpectedReturn">—</div>
+            <div class="fr-sub" id="dpFundExpectedNote">—</div>
+            <div style="margin-top:16px;">
+              <div style="font-size:12px;color:var(--ink-3);margin-bottom:8px;">收益区间预测</div>
+              <div id="dpFundRangeBars"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== 数据层 ===== */
+const state = {
+  accounts: [
+    { id: 1, name: '招商银行储蓄卡', type: '银行储蓄', balance: 128500.00, color: '#c0392b' },
+    { id: 2, name: '工商银行储蓄卡', type: '银行储蓄', balance: 56200.50, color: '#b03a2e' },
+    { id: 3, name: '微信零钱', type: '电子钱包', balance: 8432.80, color: '#07c160' },
+    { id: 4, name: '支付宝余额', type: '电子钱包', balance: 12680.30, color: '#1677ff' },
+    { id: 5, name: '余额宝', type: '货币基金', balance: 45000.00, color: '#ff6a00' },
+    { id: 6, name: '现金', type: '现金', balance: 2500.00, color: '#6c757d' },
+  ],
+  incomeItems: [
+    { id: 1, name: '月工资', category: '工资', accountId: 1, amount: 12500.00, active: true },
+    { id: 2, name: '公积金入账', category: '公积金', accountId: 2, amount: 3200.00, active: true },
+    { id: 3, name: '理财收益', category: '理财收入', accountId: 5, amount: 680.00, active: true },
+    { id: 4, name: '兼职设计', category: '兼职', accountId: 3, amount: 2000.00, active: true },
+    { id: 5, name: '季度奖金', category: '奖金', accountId: 1, amount: 5000.00, active: false },
+  ],
+  expenseItems: [
+    { id: 1, name: '房租', category: '房租', accountId: 1, amount: 3500.00, active: true },
+    { id: 2, name: '水电燃气', category: '水电燃气', accountId: 4, amount: 380.00, active: true },
+    { id: 3, name: '餐饮日常', category: '餐饮', accountId: 3, amount: 2800.00, active: true },
+    { id: 4, name: '交通出行', category: '交通', accountId: 3, amount: 600.00, active: true },
+    { id: 5, name: '手机话费', category: '通讯', accountId: 3, amount: 128.00, active: true },
+    { id: 6, name: '重疾险', category: '保险', accountId: 1, amount: 450.00, active: true },
+    { id: 7, name: '孩子学费', category: '教育', accountId: 1, amount: 1500.00, active: false },
+  ],
+  transactions: [
+    { date: '2026-09-06', type: 'expense', category: '餐饮', account: '微信零钱', note: '周末家庭聚餐', amount: 386.50 },
+    { date: '2026-09-05', type: 'income', category: '兼职', account: '微信零钱', note: '设计项目尾款', amount: 2000.00 },
+    { date: '2026-09-04', type: 'expense', category: '交通', account: '支付宝余额', note: '加油', amount: 420.00 },
+    { date: '2026-09-03', type: 'expense', category: '水电燃气', account: '支付宝余额', note: '8月电费', amount: 186.30 },
+    { date: '2026-09-02', type: 'income', category: '理财收入', account: '余额宝', note: '月度收益结算', amount: 680.00 },
+    { date: '2026-09-01', type: 'income', category: '工资', account: '招商银行储蓄卡', note: '9月工资', amount: 12500.00 },
+    { date: '2026-09-01', type: 'expense', category: '房租', account: '招商银行储蓄卡', note: '9月房租', amount: 3500.00 },
+    { date: '2026-08-30', type: 'expense', category: '餐饮', account: '微信零钱', note: '超市采购', amount: 256.80 },
+    { date: '2026-08-28', type: 'expense', category: '通讯', account: '微信零钱', note: '话费充值', amount: 100.00 },
+    { date: '2026-08-25', type: 'income', category: '公积金', account: '工商银行储蓄卡', note: '公积金缴存', amount: 3200.00 },
+  ],
+  monthlyData: [
+    { month: '1月', income: 18380, expense: 10200 },
+    { month: '2月', income: 18380, expense: 12800 },
+    { month: '3月', income: 19500, expense: 9800 },
+    { month: '4月', income: 18380, expense: 11500 },
+    { month: '5月', income: 21000, expense: 13200 },
+    { month: '6月', income: 18380, expense: 10800 },
+    { month: '7月', income: 18380, expense: 11200 },
+    { month: '8月', income: 17500, expense: 9600 },
+    { month: '9月', income: 18380, expense: 8800 },
+  ],
+  expenseCategories: [
+    { name: '房租', amount: 31500, color: '#1b4332' },
+    { name: '餐饮', amount: 25200, color: '#2d6a4f' },
+    { name: '交通', amount: 5400, color: '#52b788' },
+    { name: '水电燃气', amount: 3420, color: '#b8860b' },
+    { name: '保险', amount: 4050, color: '#9c2c2c' },
+    { name: '通讯', amount: 1152, color: '#6c757d' },
+    { name: '其他', amount: 3078, color: '#adb5bd' },
+  ],
+  incomeCategories: [
+    { name: '工资', amount: 112500, color: '#1b4332' },
+    { name: '公积金', amount: 28800, color: '#2d6a4f' },
+    { name: '兼职', amount: 18000, color: '#b8860b' },
+    { name: '理财收入', amount: 6120, color: '#52b788' },
+    { name: '奖金', amount: 5000, color: '#9c2c2c' },
+  ],
+  holdings: [
+    { id: 1, name: '阿里巴巴-W', code: '09988.HK', type: 'stock', sector: '互联网/电商', qty: 200, cost: 85.00, price: 95.50, date: '2024-05-20', note: '港股互联网龙头，AI+电商双驱动，目标价120',
+      analysis: {
+        history: { high52: 110, low52: 72, volatility: '高', maxDrawdown: '-34.5%',
+          events: [
+            { date: '2025-03', title: 'AI大模型通义千问升级', desc: 'Qwen系列模型性能追平GPT-4，云业务AI收入增长超100%', impact: 'positive', change: '+15%' },
+            { date: '2025-06', title: '电商价格战加剧', desc: '拼多多和抖音电商持续蚕食市场份额，淘天用户增长放缓', impact: 'negative', change: '-10%' },
+            { date: '2025-09', title: '回购力度加大', desc: '宣布新增250亿美元回购计划，彰显管理层信心', impact: 'positive', change: '+8%' },
+            { date: '2026-01', title: '云业务分拆预期', desc: '市场传闻阿里云将单独分拆上市，估值重估', impact: 'positive', change: '+12%' },
+          ],
+          priceHistory: [{m:'2025-10',p:82},{m:'2025-11',p:88},{m:'2025-12',p:92},{m:'2026-01',p:105},{m:'2026-02',p:98},{m:'2026-03',p:90},{m:'2026-04',p:85},{m:'2026-05',p:80},{m:'2026-06',p:78},{m:'2026-07',p:82},{m:'2026-08',p:90},{m:'2026-09',p:95.5}],
+          drawdowns: [
+            { period: '2020.10 - 2022.10', duration: '24个月', drawdown: '-78.5%', peakPrice: 309, troughPrice: 66, reason: '蚂蚁集团上市被叫停，互联网反垄断政策出台，阿里被罚款182亿；随后疫情反复导致电商增速放缓，中概股退市风险引发外资抛售；2022年美联储激进加息进一步压制成长股估值。政策杀+业绩杀+流动性杀三重打击。', recoveryStatus: '恢复中', recoveryTime: '尚未恢复', recoveryPath: '2022年10月见底66港元后，随着政策底出现、经济复苏、AI概念催化，股价缓慢回升至95.5港元，较底部反弹45%，但距前高仍有69%空间。预计需要3-5年业绩增长才能重回前高。' },
+            { period: '2018.01 - 2018.10', duration: '9个月', drawdown: '-32.1%', peakPrice: 210, troughPrice: 143, reason: '中美贸易战爆发，中概股整体承压；同时市场担忧电商行业增速放缓，拼多多崛起冲击阿里基本盘。', recoveryStatus: '已恢复', recoveryTime: '6个月', recoveryPath: '2018年10月见底后，随着贸易战缓和和电商旺季催化，股价快速反弹，2019年4月收复前高并开启上涨行情。' },
+          ],
+          aiAnalysis: [
+            '<strong>回撤规律：</strong>阿里两次大回撤（-32%、-78%）均由"政策风险+行业竞争加剧"触发。2020年那轮回撤是史诗级的，因为反垄断政策直接改变了互联网行业的估值逻辑，从"成长股"重新定价为"价值股"。',
+            '<strong>恢复特征：</strong>2018年那轮回撤只用了6个月恢复，因为当时政策环境友好，行业仍在快速增长。2020年这轮回撤已超过3年仍未恢复一半，因为政策底虽现，但电商行业竞争格局恶化，增长逻辑需要重建。',
+            '<strong>底部信号：</strong>阿里底部信号是"政策底明确+回购力度加大+云业务AI转型见效+电商份额企稳"。当前政策底已现，回购力度大，AI转型初见成效，但电商份额仍在流失，尚未到最确定性的底部。',
+            '<strong>应对策略：</strong>中概互联网股适合在政策最悲观、估值最低时分批建仓，在政策转向宽松、市场狂热时卖出。阿里当前估值合理（PE约12倍），可持有等待AI和云业务价值重估，但需警惕电商份额持续流失的风险。'
+          ]
+        },
+        current: { position: '合理偏低', positionScore: 38, bloodChips: true, riskResistance: '中',
+          analysis: '当前价95.5港元处于52周区间（72-110）的中下部，PE约12倍，处于历史20%分位。经过2020-2022年史诗级回撤后，恐慌盘和外资已基本出清，当前位置属于"带血的筹码"区间。抗风险能力中等：现金流充沛、回购力度大，但电商基本盘面临拼多多和抖音的持续冲击，云业务AI转型仍在投入期。核心变量是AI能否成为第二增长曲线。' },
+        forecast: { targetPrice: 120, expectedReturn: '+25.7%', holdPeriod: '12-18个月', exitStrategy: '目标价120港元或云业务AI收入占比超过30%时分批止盈；若电商份额连续3个季度下滑超过2个百分点则减仓', stopLoss: '72（-24.6%），跌破52周低点且基本面恶化时止损' }
+      }
+    },
+    { id: 2, name: '顺丰控股', code: '002352', type: 'stock', sector: '物流/快递', qty: 300, cost: 40.00, price: 45.80, date: '2024-08-15', note: '物流龙头，时效件护城河深，目标价55',
+      analysis: {
+        history: { high52: 52, low52: 36, volatility: '中等', maxDrawdown: '-22.4%',
+          events: [
+            { date: '2025-02', title: '春节业务量超预期', desc: '春节不打烊策略见效，时效件业务量同比增长25%', impact: 'positive', change: '+10%' },
+            { date: '2025-05', title: '价格战担忧重燃', desc: '极兔和圆通降价抢量，市场担忧顺丰被迫跟进', impact: 'negative', change: '-8%' },
+            { date: '2025-09', title: '国际业务突破', desc: '嘉里物流整合见效，国际快递收入增长超40%', impact: 'positive', change: '+7%' },
+            { date: '2026-03', title: '一季报毛利率提升', desc: '规模效应显现，单票成本下降，毛利率环比提升1.5个百分点', impact: 'positive', change: '+9%' },
+          ],
+          priceHistory: [{m:'2025-10',p:42},{m:'2025-11',p:44},{m:'2025-12',p:46},{m:'2026-01',p:48},{m:'2026-02',p:45},{m:'2026-03',p:43},{m:'2026-04',p:40},{m:'2026-05',p:38},{m:'2026-06',p:39},{m:'2026-07',p:41},{m:'2026-08',p:44},{m:'2026-09',p:45.8}],
+          drawdowns: [
+            { period: '2021.02 - 2022.04', duration: '14个月', drawdown: '-62.3%', peakPrice: 124, troughPrice: 47, reason: '2020年疫情期间顺丰时效件需求暴增，股价被炒至历史高位，PE高达60倍；随后疫情缓解后时效件增速回落，同时顺丰主动降价抢量导致毛利率大幅下滑，2021年一季度业绩暴雷亏损9.8亿；估值杀+业绩杀双杀。', recoveryStatus: '已恢复', recoveryTime: '尚未恢复', recoveryPath: '2022年4月见底47元后，随着业绩逐季改善、毛利率回升、国际业务突破，股价缓慢回升至45.8元（注：当前价仍低于底部，因后续还有下跌）。距前高仍有63%空间，预计需要3-4年才能重回前高。' },
+            { period: '2017.03 - 2017.12', duration: '9个月', drawdown: '-35.8%', peakPrice: 73, troughPrice: 47, reason: '借壳上市后估值过高，PE超过50倍；同时快递行业价格战加剧，市场担忧顺丰盈利能力。', recoveryStatus: '已恢复', recoveryTime: '18个月', recoveryPath: '2017年12月见底后，随着时效件业务稳定增长和新业务逐步落地，股价缓慢回升，2019年6月收复前高。' },
+          ],
+          aiAnalysis: [
+            '<strong>回撤规律：</strong>顺丰两次大回撤（-36%、-62%）均发生在"估值过高+业绩增速放缓"的组合期。物流股本质是周期成长股，经济好时业务量增长快，经济差时价格战加剧。2021年那轮回撤特别大，因为业绩暴雷超出市场预期。',
+            '<strong>恢复特征：</strong>顺丰恢复速度较慢，因为物流行业需要时间消化产能和修复价格体系。2017年那轮回撤用了18个月恢复，2021年这轮回撤已超过3年仍未恢复一半。物流股的恢复需要"业务量增长+毛利率提升+价格战缓和"三个条件同时满足。',
+            '<strong>底部信号：</strong>顺丰底部信号是"单票收入企稳+毛利率环比提升+价格战缓和+国际业务突破"。当前单票收入企稳，毛利率逐季提升，价格战有所缓和，国际业务增长快，符合底部特征。',
+            '<strong>应对策略：</strong>顺丰适合在行业最悲观、PE低于20倍时建仓，在经济过热、PE超过40倍时卖出。当前PE约25倍，处于合理偏低位置，可持有等待业绩复苏。重点关注国际业务和供应链业务能否成为第二增长曲线。'
+          ]
+        },
+        current: { position: '合理偏低', positionScore: 40, bloodChips: false, riskResistance: '强',
+          analysis: '当前价45.8元处于52周区间（36-52）的中下部，PE约25倍，处于历史30%分位。虽然估值不贵，但物流行业仍处于价格战尾声，不算典型的"带血筹码"。抗风险能力强：时效件护城河深、现金流稳定、资产负债率合理，即使经济下行也能保持盈利。核心变量是经济复苏力度和国际业务进展。' },
+        forecast: { targetPrice: 55, expectedReturn: '+20.1%', holdPeriod: '12-18个月', exitStrategy: '目标价55元或PE修复至35倍时分批止盈；若价格战重燃且毛利率连续2个季度下滑则减仓', stopLoss: '36（-21.4%），跌破52周低点且行业恶化时止损' }
+      }
+    },
+    { id: 3, name: '小米集团-W', code: '01810.HK', type: 'stock', sector: '消费电子/智能汽车', qty: 500, cost: 15.00, price: 22.80, date: '2024-03-10', note: '手机+汽车+AIoT生态，目标价30',
+      analysis: {
+        history: { high52: 28, low52: 14, volatility: '高', maxDrawdown: '-38.6%',
+          events: [
+            { date: '2025-03', title: 'SU7交付量超预期', desc: '小米汽车首月交付破万，产能爬坡顺利，市场信心大增', impact: 'positive', change: '+25%' },
+            { date: '2025-07', title: '手机业务疲软', desc: '全球智能手机市场萎缩，小米手机出货量同比下滑8%', impact: 'negative', change: '-12%' },
+            { date: '2025-10', title: 'YU7 SUV发布', desc: '第二款车型YU7正式发布，定价25-35万，对标特斯拉Model Y', impact: 'positive', change: '+18%' },
+            { date: '2026-02', title: '汽车业务亏损收窄', desc: '2025年汽车业务毛利率转正，亏损大幅收窄，超市场预期', impact: 'positive', change: '+15%' },
+          ],
+          priceHistory: [{m:'2025-10',p:18},{m:'2025-11',p:20},{m:'2025-12',p:22},{m:'2026-01',p:25},{m:'2026-02',p:28},{m:'2026-03',p:24},{m:'2026-04',p:20},{m:'2026-05',p:17},{m:'2026-06',p:16},{m:'2026-07',p:18},{m:'2026-08',p:21},{m:'2026-09',p:22.8}],
+          drawdowns: [
+            { period: '2021.01 - 2022.10', duration: '21个月', drawdown: '-76.2%', peakPrice: 35.9, troughPrice: 8.5, reason: '2020年疫情后小米手机出货量全球第三，股价被炒至历史高位，PE超过50倍；随后全球智能手机市场萎缩，小米手机出货量下滑；同时宣布造车引发市场对资本开支和亏损的担忧；美联储加息压制成长股估值。估值杀+业绩杀+逻辑杀三重打击。', recoveryStatus: '恢复中', recoveryTime: '尚未恢复', recoveryPath: '2022年10月见底8.5港元后，随着汽车业务进展超预期、AIoT生态稳定、手机业务回暖，股价回升至22.8港元，较底部反弹168%，但距前高仍有37%空间。汽车业务盈利是收复前高的关键。' },
+            { period: '2018.07 - 2019.01', duration: '6个月', drawdown: '-46.8%', peakPrice: 22.2, troughPrice: 11.8, reason: '上市后估值过高，PE超过40倍；同时智能手机市场竞争加剧，小米手机出货量下滑，市场质疑其"互联网公司"估值逻辑。', recoveryStatus: '已恢复', recoveryTime: '24个月', recoveryPath: '2019年1月见底后，随着AIoT业务增长和手机业务回暖，股价缓慢回升，2021年1月收复前高并创历史新高。' },
+          ],
+          aiAnalysis: [
+            '<strong>回撤规律：</strong>小米两次大回撤（-47%、-76%）均发生在"估值泡沫+新业务投入期"。小米的特点是业务跨度大（手机+AIoT+汽车），市场对其估值逻辑经常摇摆：手机好时按消费电子估值，汽车好时按新能源车企估值，AIoT好时按互联网公司估值。',
+            '<strong>恢复特征：</strong>小米恢复速度取决于新业务能否兑现。2018年那轮回撤用了24个月恢复，因为AIoT业务逐步兑现。2021年这轮回撤目前已恢复大半，因为汽车业务进展超预期。小米的股价弹性很大，底部到顶部可以涨3-4倍。',
+            '<strong>底部信号：</strong>小米底部信号是"手机出货量企稳+新业务进展明确+估值低于15倍PE+管理层回购"。当前汽车业务超预期，手机业务企稳，估值约20倍PE，处于合理偏低位置。',
+            '<strong>应对策略：</strong>小米适合在市场最悲观、新业务被质疑时逆向布局，在新业务兑现、市场狂热时卖出。这是一只高弹性的股票，适合用部分仓位做波段。当前汽车业务是核心催化剂，密切关注交付量和毛利率。'
+          ]
+        },
+        current: { position: '合理', positionScore: 50, bloodChips: false, riskResistance: '中',
+          analysis: '当前价22.8港元处于52周区间（14-28）的中部，PE约20倍，处于历史40%分位。汽车业务超预期后股价已从底部反弹较多，当前位置不算便宜也不算贵，不属于"带血的筹码"。抗风险能力中等：手机和AIoT业务现金流稳定，但汽车业务仍在投入期，需要持续烧钱。核心变量是汽车交付量和毛利率能否持续超预期。' },
+        forecast: { targetPrice: 30, expectedReturn: '+31.6%', holdPeriod: '12个月', exitStrategy: '目标价30港元或汽车月交付突破3万辆时分批止盈；若汽车交付量连续2个月不及预期则减仓', stopLoss: '16（-29.8%），跌破关键支撑且汽车业务恶化时止损' }
+      }
+    },
+    { id: 4, name: '恒生科技ETF', code: '513130', type: 'fund', sector: '港股科技指数', qty: 10000, cost: 0.55, price: 0.62, date: '2024-06-01', note: '港股科技指数定投，分散个股风险',
+      analysis: {
+        history: { high52: 0.72, low52: 0.48, volatility: '高', maxDrawdown: '-28.3%',
+          events: [
+            { date: '2025-03', title: 'AI概念催化', desc: '中概互联AI转型加速，恒生科技指数大涨', impact: 'positive', change: '+18%' },
+            { date: '2025-06', title: '美联储加息预期', desc: '美国通胀反弹，市场预期美联储推迟降息，港股承压', impact: 'negative', change: '-10%' },
+            { date: '2025-09', title: '南向资金持续流入', desc: '内地资金通过港股通持续买入港股科技股', impact: 'positive', change: '+8%' },
+            { date: '2026-02', title: '业绩验证期', desc: '头部互联网公司财报超预期，AI收入增长快', impact: 'positive', change: '+12%' },
+          ],
+          priceHistory: [{m:'2025-10',p:0.55},{m:'2025-11',p:0.58},{m:'2025-12',p:0.60},{m:'2026-01',p:0.65},{m:'2026-02',p:0.70},{m:'2026-03',p:0.62},{m:'2026-04',p:0.56},{m:'2026-05',p:0.52},{m:'2026-06',p:0.50},{m:'2026-07',p:0.54},{m:'2026-08',p:0.59},{m:'2026-09',p:0.62}],
+          drawdowns: [
+            { period: '2021.02 - 2022.10', duration: '20个月', drawdown: '-72.5%', peakPrice: 1.25, troughPrice: 0.34, reason: '恒生科技指数从2020年成立后一路上涨，2021年初达到顶峰；随后互联网反垄断政策出台，中概股退市风险，美联储加息，三重利空导致指数暴跌72%，是历史上最惨烈的指数回撤之一。', recoveryStatus: '恢复中', recoveryTime: '尚未恢复', recoveryPath: '2022年10月见底0.34元后，随着政策底出现、经济复苏、AI概念催化，指数回升至0.62元，较底部反弹82%，但距前高仍有50%空间。港股科技指数的恢复需要业绩持续验证和外资回流。' },
+          ],
+          aiAnalysis: [
+            '<strong>回撤规律：</strong>恒生科技指数作为行业指数，回撤主要由"政策风险+流动性收紧+行业基本面恶化"共同导致。2021-2022年那轮回撤72%，是史诗级的，因为同时遭遇了反垄断政策、中概股退市风险、美联储加息三重打击。',
+            '<strong>恢复特征：</strong>行业指数恢复速度取决于行业整体盈利改善和估值修复。恒生科技指数目前已从底部反弹82%，但仍只有前高的一半。港股市场的恢复需要外资持续回流，而外资回流需要中美关系缓和和中国经济明确复苏。',
+            '<strong>底部信号：</strong>恒生科技指数底部信号是"政策底明确+估值低于历史10%分位+南向资金持续流入+头部公司业绩企稳"。当前政策底已现，估值处于历史30%分位，南向资金持续流入，头部公司业绩改善，处于底部回升阶段。',
+            '<strong>应对策略：</strong>恒生科技ETF适合在政策最悲观、估值最低时分批定投，在市场狂热、估值过高时分批卖出。当前处于底部回升阶段，可继续定投，但需控制仓位，因为港股波动大、受外部因素影响多。'
+          ]
+        },
+        current: { position: '合理偏低', positionScore: 42, bloodChips: true, riskResistance: '中',
+          analysis: '当前价0.62元处于52周区间（0.48-0.72）的中下部，PE约15倍，处于历史30%分位。经过史诗级回撤后，港股科技指数的估值已大幅压缩，当前位置属于"带血的筹码"区间。抗风险能力中等：指数分散了个股风险，但港股整体受外资流动和中美关系影响大，波动剧烈。核心变量是美联储降息节奏和中国经济复苏力度。' },
+        forecast: { targetPrice: 0.80, expectedReturn: '+29.0%', holdPeriod: '18-24个月', exitStrategy: '目标价0.80元或PE修复至25倍时分批止盈；若反垄断政策重新收紧则减仓', stopLoss: '0.48（-22.6%），跌破52周低点且政策恶化时止损' },
+        fundInfo: { recentReturn: '+12.7%', recentNote: '近3个月收益，受益于AI概念和业绩验证', expectedReturn: '15-25%', expectedNote: '未来1年预期收益，取决于经济复苏和外资回流', navHistory: [{q:'2025Q4',v:0.58},{q:'2026Q1',v:0.65},{q:'2026Q2',v:0.54},{q:'2026Q3',v:0.62}] }
+      }
+    },
+    { id: 5, name: '登海种业', code: '002041', type: 'stock', sector: '农业/种业', qty: 200, cost: 18.00, price: 22.50, date: '2024-09-20', note: '种业龙头，转基因商业化受益，目标价28',
+      analysis: {
+        history: { high52: 26, low52: 16, volatility: '高', maxDrawdown: '-30.2%',
+          events: [
+            { date: '2025-01', title: '转基因品种审定加速', desc: '农业农村部加快转基因玉米品种审定，商业化进程超预期', impact: 'positive', change: '+20%' },
+            { date: '2025-05', title: '粮价下跌担忧', desc: '国际粮价持续下跌，市场担忧种子需求和价格', impact: 'negative', change: '-12%' },
+            { date: '2025-08', title: '中报业绩超预期', desc: '玉米种子销量增长30%，毛利率提升，业绩超市场预期', impact: 'positive', change: '+15%' },
+            { date: '2026-03', title: '转基因推广面积扩大', desc: '2026年转基因玉米推广面积扩大至5000万亩，公司先发优势明显', impact: 'positive', change: '+10%' },
+          ],
+          priceHistory: [{m:'2025-10',p:20},{m:'2025-11',p:22},{m:'2025-12',p:24},{m:'2026-01',p:26},{m:'2026-02',p:23},{m:'2026-03',p:21},{m:'2026-04',p:19},{m:'2026-05',p:17},{m:'2026-06',p:18},{m:'2026-07',p:20},{m:'2026-08',p:21},{m:'2026-09',p:22.5}],
+          drawdowns: [
+            { period: '2021.09 - 2022.04', duration: '7个月', drawdown: '-51.2%', peakPrice: 32, troughPrice: 15.6, reason: '2020-2021年粮食危机概念炒作，登海种业作为种业龙头被炒至高位，PE超过80倍；随后转基因商业化进度不及预期，粮价回落，估值泡沫破裂，股价腰斩。', recoveryStatus: '恢复中', recoveryTime: '尚未恢复', recoveryPath: '2022年4月见底15.6元后，随着转基因商业化进程加速、业绩逐步改善，股价回升至22.5元，较底部反弹44%，但距前高仍有30%空间。转基因大规模商业化是收复前高的关键催化剂。' },
+            { period: '2015.06 - 2016.01', duration: '7个月', drawdown: '-55.8%', peakPrice: 28.5, troughPrice: 12.6, reason: 'A股股灾，杠杆资金爆仓，所有板块无差别下跌。登海种业作为小盘股流动性差，跌幅更大。', recoveryStatus: '已恢复', recoveryTime: '36个月', recoveryPath: '2016年1月见底后，随着供给侧改革和农业政策支持，股价缓慢回升，直到2019年才收复前高，用了3年时间。' },
+          ],
+          aiAnalysis: [
+            '<strong>回撤规律：</strong>登海种业两次大回撤（-56%、-51%）均发生在"概念炒作泡沫破裂"期。种业股的特点是政策驱动强，转基因、粮食安全等概念容易引发炒作，但业绩兑现需要时间，泡沫破裂后跌幅巨大。',
+            '<strong>恢复特征：</strong>种业股恢复速度慢，因为农业行业周期长，业绩兑现需要时间。2015年股灾后用了36个月才恢复，2021年这轮回撤目前已超过3年仍未恢复。种业股的恢复需要政策明确落地和业绩持续验证。',
+            '<strong>底部信号：</strong>登海种业底部信号是"估值低于30倍PE+转基因政策明确落地+业绩连续2个季度增长+机构持仓低位"。当前转基因商业化加速，业绩开始改善，估值约35倍PE，处于底部回升阶段。',
+            '<strong>应对策略：</strong>种业股适合在政策预期最低、估值合理时布局，在概念炒作狂热、估值过高时坚决卖出。这是典型的政策驱动型股票，不适合长期持有，适合做政策周期波段。当前转基因商业化是核心催化剂，可持有等待业绩兑现。'
+          ]
+        },
+        current: { position: '合理', positionScore: 48, bloodChips: false, riskResistance: '中',
+          analysis: '当前价22.5元处于52周区间（16-26）的中部，PE约35倍，处于历史40%分位。转基因商业化加速后股价已从底部反弹较多，当前位置估值合理，不算"带血的筹码"。抗风险能力中等：种业是刚需行业，受经济周期影响小，但公司体量小、产品线单一，抗风险能力不如龙头企业。核心变量是转基因推广进度和公司市场份额。' },
+        forecast: { targetPrice: 28, expectedReturn: '+24.4%', holdPeriod: '12个月', exitStrategy: '目标价28元或转基因推广面积突破1亿亩时分批止盈；若转基因政策进度不及预期则减仓', stopLoss: '16（-28.9%），跌破52周低点且政策转向时止损' }
+      }
+    },
+    { id: 6, name: '机器人ETF', code: '562500', type: 'fund', sector: '机器人/人工智能', qty: 5000, cost: 0.95, price: 1.08, date: '2025-01-15', note: '人形机器人主题，AI+制造双驱动',
+      analysis: {
+        history: { high52: 1.35, low52: 0.85, volatility: '高', maxDrawdown: '-37.0%',
+          events: [
+            { date: '2025-03', title: '特斯拉Optimus进展', desc: '特斯拉发布人形机器人最新进展，量产预期升温', impact: 'positive', change: '+25%' },
+            { date: '2025-06', title: '商业化不及预期', desc: '人形机器人量产时间推迟，成本下降慢于预期', impact: 'negative', change: '-18%' },
+            { date: '2025-09', title: '国内厂商突破', desc: '宇树、智元等国内人形机器人厂商发布新品，性能超预期', impact: 'positive', change: '+15%' },
+            { date: '2026-02', title: 'AI大模型赋能', desc: '具身智能大模型突破，机器人自主决策能力大幅提升', impact: 'positive', change: '+12%' },
+          ],
+          priceHistory: [{m:'2025-10',p:1.15},{m:'2025-11',p:1.25},{m:'2025-12',p:1.35},{m:'2026-01',p:1.20},{m:'2026-02',p:1.10},{m:'2026-03',p:0.98},{m:'2026-04',p:0.90},{m:'2026-05',p:0.88},{m:'2026-06',p:0.92},{m:'2026-07',p:0.98},{m:'2026-08',p:1.05},{m:'2026-09',p:1.08}],
+          drawdowns: [
+            { period: '2023.06 - 2024.01', duration: '7个月', drawdown: '-42.3%', peakPrice: 1.45, troughPrice: 0.84, reason: '2023年AI概念炒作，机器人ETF作为AI+制造的交叉主题被炒至高位；随后AI概念退潮，人形机器人商业化进度不及预期，估值泡沫破裂，指数大幅回撤。', recoveryStatus: '恢复中', recoveryTime: '尚未恢复', recoveryPath: '2024年1月见底0.84元后，随着特斯拉Optimus进展、国内厂商突破、AI大模型赋能，指数回升至1.08元，较底部反弹29%，但距前高仍有26%空间。人形机器人大规模商业化是收复前高的关键。' },
+          ],
+          aiAnalysis: [
+            '<strong>回撤规律：</strong>机器人ETF作为主题指数，回撤主要由"概念炒作泡沫破裂+商业化进度不及预期"导致。主题指数的特点是波动极大，涨的时候涨过头，跌的时候也跌过头。2023年那轮回撤42%，是典型的概念退潮。',
+            '<strong>恢复特征：</strong>主题指数恢复速度取决于产业进展和业绩兑现。机器人ETF目前已从底部反弹29%，但仍只有前高的74%。人形机器人产业仍处于早期阶段，业绩兑现需要时间，恢复可能是一个漫长的过程。',
+            '<strong>底部信号：</strong>机器人ETF底部信号是"估值回到合理区间+产业有实质性进展+龙头公司订单增长+机构持仓低位"。当前产业进展加速，估值合理，处于底部回升阶段。',
+            '<strong>应对策略：</strong>主题ETF适合在产业早期、估值合理时分批布局，在概念狂热、估值过高时坚决卖出。机器人是长期赛道，但波动极大，适合用小仓位定投，不适合重仓。当前可继续持有，但需密切关注商业化进度。'
+          ]
+        },
+        current: { position: '合理偏低', positionScore: 45, bloodChips: false, riskResistance: '弱',
+          analysis: '当前价1.08元处于52周区间（0.85-1.35）的中下部，PE约40倍（成分股加权），处于历史35%分位。经过概念退潮后，估值已大幅压缩，但人形机器人产业仍处于早期，业绩兑现不足，不算典型的"带血的筹码"。抗风险能力弱：主题指数成分股多为小盘成长股，盈利不稳定，受市场情绪影响大。核心变量是人形机器人商业化进度和AI技术突破。' },
+        forecast: { targetPrice: 1.35, expectedReturn: '+25.0%', holdPeriod: '18-24个月', exitStrategy: '目标价1.35元或人形机器人量产突破时分批止盈；若商业化进度严重不及预期则减仓', stopLoss: '0.85（-21.3%），跌破52周低点且产业逻辑破坏时止损' },
+        fundInfo: { recentReturn: '+8.5%', recentNote: '近3个月收益，受益于国内厂商突破和AI赋能', expectedReturn: '20-30%', expectedNote: '未来1年预期收益，取决于商业化进度和市场情绪', navHistory: [{q:'2025Q4',v:1.20},{q:'2026Q1',v:1.05},{q:'2026Q2',v:0.92},{q:'2026Q3',v:1.08}] }
+      }
+    },
+    { id: 7, name: '紫金矿业', code: '601899', type: 'stock', sector: '有色金属/黄金铜', qty: 500, cost: 12.00, price: 16.80, date: '2024-04-10', note: '金铜龙头，资源品涨价受益，目标价20',
+      analysis: {
+        history: { high52: 19, low52: 12, volatility: '中等', maxDrawdown: '-25.8%',
+          events: [
+            { date: '2025-02', title: '金价创历史新高', desc: '地缘冲突+央行购金推动金价突破2800美元/盎司', impact: 'positive', change: '+15%' },
+            { date: '2025-06', title: '铜价回调', desc: '全球经济复苏不及预期，铜价从高位回落15%', impact: 'negative', change: '-10%' },
+            { date: '2025-09', title: '海外矿山投产', desc: '卡莫阿-卡库拉铜矿扩建投产，铜产量增长超预期', impact: 'positive', change: '+8%' },
+            { date: '2026-03', title: '一季报业绩大增', desc: '金铜价格高位运行，公司净利润同比增长40%，超预期', impact: 'positive', change: '+12%' },
+          ],
+          priceHistory: [{m:'2025-10',p:14.5},{m:'2025-11',p:15.2},{m:'2025-12',p:16.0},{m:'2026-01',p:17.5},{m:'2026-02',p:18.5},{m:'2026-03',p:17.0},{m:'2026-04',p:15.5},{m:'2026-05',p:14.0},{m:'2026-06',p:13.5},{m:'2026-07',p:14.5},{m:'2026-08',p:15.8},{m:'2026-09',p:16.8}],
+          drawdowns: [
+            { period: '2021.02 - 2022.10', duration: '20个月', drawdown: '-45.6%', peakPrice: 15.0, troughPrice: 8.16, reason: '2020-2021年大宗商品超级周期，紫金矿业作为金铜龙头被炒至高位；随后美联储激进加息，美元走强，大宗商品价格暴跌；同时疫情反复影响矿山生产，业绩增速放缓。估值杀+商品价格杀双杀。', recoveryStatus: '已恢复', recoveryTime: '14个月', recoveryPath: '2022年10月见底8.16元后，随着美联储加息见顶、金价创新高、铜价回升、公司产量增长，股价快速反弹，2024年1月收复前高并持续创新高。当前16.8元较底部上涨106%。' },
+            { period: '2015.06 - 2016.01', duration: '7个月', drawdown: '-52.3%', peakPrice: 7.5, troughPrice: 3.58, reason: 'A股股灾+大宗商品熊市，金价铜价持续下跌，紫金矿业作为周期股跌幅巨大。', recoveryStatus: '已恢复', recoveryTime: '30个月', recoveryPath: '2016年1月见底后，随着供给侧改革推动大宗商品价格回升，金价铜价逐步上涨，公司业绩改善，2018年7月收复前高。' },
+          ],
+          aiAnalysis: [
+            '<strong>回撤规律：</strong>紫金矿业作为资源周期股，回撤主要由"大宗商品价格下跌+美联储加息+经济下行"导致。周期股的特点是盈利波动大，股价与商品价格高度相关。2015年和2021年两次大回撤均伴随大宗商品熊市。',
+            '<strong>恢复特征：</strong>资源股恢复速度取决于商品价格周期。2015年股灾后用了30个月恢复，因为大宗商品熊市持续时间长。2021年这轮回撤只用了14个月就恢复并创新高，因为金价快速创新高，铜价也很快回升。紫金矿业的产量增长也加速了恢复。',
+            '<strong>底部信号：</strong>紫金矿业底部信号是"美联储加息见顶+金价铜价企稳+公司产量增长+估值低于15倍PE"。当前金价处于历史高位，铜价合理，公司产量持续增长，估值约18倍PE，处于合理偏高位置。',
+            '<strong>应对策略：</strong>资源周期股适合在大宗商品熊市末期、估值最低时逆向布局，在商品价格高位、市场狂热时卖出。紫金矿业是资源股中的优质标的，产量持续增长，可在金价回调时加仓。当前金价高位，不建议追高，可持有等待铜价上涨催化。'
+          ]
+        },
+        current: { position: '合理偏高', positionScore: 58, bloodChips: false, riskResistance: '强',
+          analysis: '当前价16.8元处于52周区间（12-19）的中上部，PE约18倍，处于历史55%分位。金价创历史新高后，公司股价已从底部翻倍，当前位置估值合理偏高，不属于"带血的筹码"。抗风险能力强：金铜双主业，资源储量丰富，成本控制优秀，即使商品价格下跌也能保持盈利。核心变量是金价能否维持高位和铜价能否上涨。' },
+        forecast: { targetPrice: 20, expectedReturn: '+19.0%', holdPeriod: '12个月', exitStrategy: '目标价20元或金价突破3500美元/盎司时分批止盈；若金价跌破2500美元/盎司且铜价持续下跌则减仓', stopLoss: '13（-22.6%），跌破关键支撑且商品价格恶化时止损' }
+      }
+    },
+  ],
+  macroEnvironment: {
+    politics: { label: '国家政治', level: 'neutral', levelText: '稳定', score: 70, desc: '国内政治稳定，政策连续性强；关注两会及三中全会政策定调' },
+    geopolitics: { label: '地缘风险', level: 'warn', levelText: '偏高', score: 45, desc: '中美博弈持续，中东局势不稳，台海局势需关注；避险资产配置价值上升' },
+    policy: { label: '经济政策', level: 'good', levelText: '偏宽松', score: 72, desc: '货币政策稳健偏宽松，财政政策积极发力；降准降息空间仍在，利好权益和债券' },
+    inflation: { label: '通胀水平', level: 'neutral', levelText: '温和', score: 55, desc: 'CPI温和回升，PPI转正但涨幅可控；无通胀失控风险，货币政策不受制约' },
+    summary: '当前宏观环境整体偏友好：国内政治稳定、政策偏宽松、通胀温和，为权益市场修复提供了良好的内部环境。主要风险来自外部：中美关系不确定性和地缘冲突可能引发市场波动。策略上：权益类资产可逐步加仓，但需控制节奏；维持黄金和债券的对冲仓位；关注政策窗口期的布局机会。',
+  },
+  industryTrends: [
+    { name: '白酒/消费', score: 55, trend: 'flat', trendText: '触底企稳', color: '#b8860b', note: '经过两年调整，估值已处历史低位；批价企稳但需求复苏仍需时间，关注中秋国庆动销' },
+    { name: '新能源', score: 40, trend: 'down', trendText: '承压调整', color: '#9c2c2c', note: '产能过剩问题突出，价格战持续；龙头企业优势扩大但行业整体盈利承压，等待出清信号' },
+    { name: '银行', score: 70, trend: 'up', trendText: '稳健向好', color: '#2d6a4f', note: '息差收窄但资产质量改善，高股息策略受追捧；房地产风险缓释，估值修复空间大' },
+    { name: '宽基指数', score: 65, trend: 'up', trendText: '底部回升', color: '#2d6a4f', note: '估值处于历史低位，盈利逐步验证；政策底已现，市场底正在构筑，坚持定投' },
+    { name: '债券', score: 55, trend: 'flat', trendText: '高位震荡', color: '#b8860b', note: '利率处于历史低位，资本利得空间有限；票息收益稳定，作为对冲工具继续持有' },
+    { name: '黄金/贵金属', score: 75, trend: 'up', trendText: '长期向好', color: '#2d6a4f', note: '央行购金+去美元化+地缘风险三重支撑；短期涨幅较大不追高，回调加仓' },
+  ],
+  selectedHoldingId: 1,
+  opinions: [
+    { id: 1, type: 'master', author: '但斌', title: '白酒板块底部信号渐显', sentiment: 'bullish', related: '贵州茅台, 五粮液', content: '经过近两年调整，白酒板块估值已回落至历史低位区间。茅台批价企稳、渠道库存去化接近尾声，叠加中秋国庆旺季催化，板块有望迎来估值修复。核心逻辑不变：高端白酒的品牌壁垒和定价权仍在，短期情绪杀跌不改变长期价值。', tags: ['白酒', '价值投资', '底部布局'], date: '2026-09-01' },
+    { id: 2, type: 'master', author: '某券商首席', title: '新能源产能过剩问题需警惕', sentiment: 'bearish', related: '宁德时代, 光伏板块', content: '动力电池和光伏行业的产能过剩问题比预期更严重。虽然龙头企业凭借成本优势和技术迭代仍能保持盈利，但二三线厂商的出清过程会非常痛苦。对宁德时代保持谨慎乐观，但其估值需要下修以反映增速放缓的现实。建议控制仓位，等待更明确的出清信号。', tags: ['新能源', '风险提示', '产能过剩'], date: '2026-08-25' },
+    { id: 3, type: 'master', author: '桥水基金研报', title: '黄金长期配置价值凸显', sentiment: 'bullish', related: '黄金ETF, 实物黄金', content: '全球央行持续购金、去美元化趋势、地缘政治不确定性三重因素支撑黄金长期牛市。美联储降息周期开启后，实际利率下行将进一步利好金价。黄金在组合中的作用不是追求高收益，而是对冲尾部风险和货币贬值。建议维持10-15%的配置比例，逢回调加仓。', tags: ['黄金', '资产配置', '抗通胀'], date: '2026-08-18' },
+    { id: 4, type: 'self', author: '我', title: '当前市场整体估值偏低，坚持定投', sentiment: 'neutral', related: '沪深300, 中证500', content: '沪深300市盈率处于历史30%分位以下，中证500更低。从估值角度看，当前位置下行空间有限，但上行需要催化剂。经济复苏力度偏弱、政策预期反复，市场可能维持震荡格局。策略上：坚持定投宽基指数，不追高、不恐慌，利用波动摊薄成本。等待基本面明确改善信号后再考虑加仓。', tags: ['市场策略', '定投', '宽基指数'], date: '2026-09-05' },
+    { id: 5, type: 'self', author: '我', title: '茅台这笔投资的反思', sentiment: 'neutral', related: '贵州茅台', content: '1680买入茅台，现在1520，浮亏9.5%。反思一下：买入时估值并不便宜，PE还有28倍，当时觉得核心资产可以给溢价，但实际上即使是好公司，买贵了也要承受时间成本。好消息是基本面没有恶化，批价企稳，现在的位置反而是加仓的好机会。教训：以后买股票一定要等估值合理甚至偏低的时候再动手，不要因为"好公司"就忽视价格。', tags: ['投资反思', '贵州茅台', '估值'], date: '2026-09-03' },
+    { id: 6, type: 'self', author: '我', title: '下一步操作计划', sentiment: 'bullish', related: '沪深300ETF, 中证500ETF', content: '9月份计划：1. 继续每周定投沪深300ETF 2000元；2. 中证500如果跌到5元以下，加仓5000元；3. 茅台如果跌到1450以下，加仓10股；4. 黄金ETF持有不动，不追高；5. 国债ETF作为底仓继续持有。整体思路：现在是底部区域，越跌越买，但要控制节奏，不要一把梭。留足现金，等待极端机会。', tags: ['操作计划', '定投', '仓位管理'], date: '2026-09-06' },
+  ],
+  currentOpinionTab: 'master',
+  macroMyView: '当前宏观环境整体偏友好，国内政策宽松、通胀温和，为权益市场修复提供了基础。但外部风险不容忽视，中美关系和地缘冲突可能随时引发波动。我的判断：现在是权益资产的底部布局区域，但不要期待快速上涨，需要有耐心持有2-3年。策略上以定投宽基为主，个股精选消费和新能源龙头，同时维持黄金和债券的对冲仓位。重点关注四季度政策窗口期和经济数据验证。',
+  myViewOnVolatility: {
+    1: '阿里巴巴是我持仓里最纠结的一只。85的成本，现在95.5，赚了12%，但中间坐了好几次过山车。这只股票让我深刻理解了中概股的残酷：政策风险是最大的不确定性，反垄断那波直接把估值逻辑从"成长股"打成了"价值股"。我的策略是：90以下加仓，120以上减仓，中间拿着不动。核心逻辑是AI和云业务能否成为第二增长曲线，如果能，120只是起点；如果不能，100就是天花板。',
+    2: '顺丰控股是我比较看好的一只，40的成本，现在45.8，赚了14%。物流这个行业我研究了很久，顺丰的时效件护城河确实深，竞争对手很难撼动。这只股票波动比我想象的大，2021年那波从124跌到47，跌了62%，确实恐怖。我的策略是：40以下加仓，55以上减仓，中间拿着。核心变量是经济复苏力度和国际业务进展，如果经济复苏，顺丰的业绩弹性很大。',
+    3: '小米集团是我持仓里弹性最大的一只，15的成本，现在22.8，赚了52%。这只股票让我赚了钱，但也让我见识了什么叫"业务跨度大"：手机、AIoT、汽车，市场对它的估值逻辑经常变。汽车业务是最大的催化剂，SU7交付超预期后股价直接翻倍。我的策略是：18以下加仓，30以上减仓，中间拿着。汽车业务如果能持续超预期，30只是起点；如果交付不及预期，20都守不住。',
+    4: '恒生科技ETF是我定投的品种之一，0.55的成本，现在0.62，赚了13%。这个指数波动极大，2021-2022年那波跌了72%，是史诗级的回撤。定投的好处是不用择时，越跌越买，摊薄成本。我的策略是：0.5以下加倍定投，0.8以上停止定投并分批卖出，中间正常定投。港股科技的核心变量是美联储降息和中国经济复苏，这两个如果同时出现，0.8很快就能到。',
+    5: '登海种业是我组合里的"冷门股"，18的成本，现在22.5，赚了25%。种业这个行业很少有人关注，但转基因商业化是一个大趋势。这只股票波动很大，2021年那波从32跌到15.6，跌了51%，典型的概念炒作泡沫破裂。我的策略是：18以下加仓，28以上减仓，中间拿着。核心变量是转基因推广进度，如果推广面积超预期，28很快就能到；如果进度不及预期，20都守不住。',
+    6: '机器人ETF是我最新建仓的品种，0.95的成本，现在1.08，赚了14%。人形机器人是长期赛道，但现在还处于早期，业绩兑现不足，波动极大。这个ETF我只配了小仓位，因为主题指数的风险很高。我的策略是：0.9以下加仓，1.35以上减仓，中间拿着。核心变量是人形机器人商业化进度，如果特斯拉Optimus能量产，1.35只是起点；如果商业化一直推迟，0.8都可能跌破。',
+    7: '紫金矿业是我组合里的"压舱石"之一，12的成本，现在16.8，赚了40%。金铜双主业，资源储量丰富，成本控制优秀，是资源股里的优质标的。这只股票让我理解了周期股的魅力：底部买入，顶部卖出，一轮周期可以翻倍。我的策略是：13以下加仓，20以上减仓，中间拿着。核心变量是金价和铜价，金价如果能维持高位，铜价再涨一波，20很快就能到。',
+  },
+  editingIncomeId: null,
+  editingExpenseId: null,
+  editingHoldingId: null,
+  editingOpinionId: null,
+  investmentChartsRendered: false,
+};
+
+/* ===== 云端同步 + 本地降级存储 ===== */
+const STORAGE_KEY = 'asset_manager_data_v1';
+let cloudMode = false;   // true=云端同步, false=本地localStorage
+let syncStatus = 'idle'; // idle / syncing / ok / error
+
+function buildDataPayload() {
+  return {
+    accounts: state.accounts,
+    incomeItems: state.incomeItems,
+    expenseItems: state.expenseItems,
+    transactions: state.transactions,
+    monthlyData: state.monthlyData,
+    expenseCategories: state.expenseCategories,
+    incomeCategories: state.incomeCategories,
+    holdings: state.holdings,
+    macroEnvironment: state.macroEnvironment,
+    industryTrends: state.industryTrends,
+    opinions: state.opinions,
+    macroMyView: state.macroMyView,
+    myViewOnVolatility: state.myViewOnVolatility,
+  };
+}
+
+function applyData(data) {
+  if (!data || typeof data !== 'object') return;
+  if (data.accounts) state.accounts = data.accounts;
+  if (data.incomeItems) state.incomeItems = data.incomeItems;
+  if (data.expenseItems) state.expenseItems = data.expenseItems;
+  if (data.transactions) state.transactions = data.transactions;
+  if (data.monthlyData) state.monthlyData = data.monthlyData;
+  if (data.expenseCategories) state.expenseCategories = data.expenseCategories;
+  if (data.incomeCategories) state.incomeCategories = data.incomeCategories;
+  if (data.holdings) state.holdings = data.holdings;
+  if (data.macroEnvironment) state.macroEnvironment = data.macroEnvironment;
+  if (data.industryTrends) state.industryTrends = data.industryTrends;
+  if (data.opinions) state.opinions = data.opinions;
+  if (data.macroMyView !== undefined) state.macroMyView = data.macroMyView;
+  if (data.myViewOnVolatility) state.myViewOnVolatility = data.myViewOnVolatility;
+}
+
+function updateSyncIndicator(text, color) {
+  const el = document.getElementById('syncIndicator');
+  if (el) {
+    el.textContent = text;
+    el.style.color = color || '';
+  }
+}
+
+async function saveState() {
+  const data = buildDataPayload();
+  syncStatus = 'syncing';
+  updateSyncIndicator('同步中…', '#999');
+
+  if (cloudMode) {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        syncStatus = 'ok';
+        updateSyncIndicator('已同步', '#2d6a4f');
+        // 同时写本地缓存作为离线备份
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+        return;
+      }
+      throw new Error('HTTP ' + res.status);
+    } catch (e) {
+      console.warn('云端保存失败，降级本地:', e);
+      syncStatus = 'error';
+      updateSyncIndicator('离线模式', '#c77d00');
+    }
+  }
+  // 本地存储
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (!cloudMode) updateSyncIndicator('本地模式', '#999');
+  } catch (e) {
+    console.warn('本地保存失败:', e);
+  }
+}
+
+async function loadState() {
+  // 先检测是否运行在云端环境
+  try {
+    const res = await fetch('/api/health', { method: 'GET' });
+    cloudMode = res.ok;
+  } catch (e) {
+    cloudMode = false;
+  }
+
+  if (cloudMode) {
+    try {
+      const res = await fetch('/api/data');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Object.keys(data).length > 0) {
+          applyData(data);
+          updateSyncIndicator('已同步', '#2d6a4f');
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('云端读取失败，尝试本地缓存:', e);
+    }
+  }
+
+  // 降级到本地localStorage
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      applyData(JSON.parse(raw));
+    }
+    updateSyncIndicator(cloudMode ? '云端无数据' : '本地模式', cloudMode ? '#c77d00' : '#999');
+  } catch (e) {
+    console.warn('本地读取失败:', e);
+  }
+}
+
+// 手动刷新（从云端重新拉取）
+async function refreshFromCloud() {
+  if (!cloudMode) { alert('当前为本地模式，无法从云端刷新'); return; }
+  await loadState();
+  populateAccountSelects();
+  renderOverview();
+  renderIncomeTable();
+  renderExpenseTable();
+  renderHoldings();
+  renderOpinions();
+}
+
+// 导出备份
+function exportData() {
+  if (cloudMode) {
+    window.open('/api/export', '_blank');
+  } else {
+    const data = buildDataPayload();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'asset-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
+/* ===== 颜色选择器 ===== */
+let selectedAccColor = '#1b4332';
+function initColorPicker() {
+  document.querySelectorAll('#accColorPicker .color-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      document.querySelectorAll('#accColorPicker .color-dot').forEach(d => d.style.borderColor = 'transparent');
+      dot.style.borderColor = '#1a1a1a';
+      selectedAccColor = dot.dataset.color;
+    });
+  });
+}
+
+/* ===== 工具函数 ===== */
+function fmt(n) {
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function getAccountName(id) {
+  const a = state.accounts.find(x => x.id === id);
+  return a ? a.name : '—';
+}
+
+function getActiveIncomeTotal() {
+  return state.incomeItems.filter(i => i.active).reduce((s, i) => s + i.amount, 0);
+}
+
+function getActiveExpenseTotal() {
+  return state.expenseItems.filter(i => i.active).reduce((s, i) => s + i.amount, 0);
+}
+
+function getTotalAssets() {
+  return state.accounts.reduce((s, a) => s + a.balance, 0);
+}
+
+/* ===== 路由 ===== */
+const routeTitles = {
+  overview: '现金总览',
+  cashflow: '月现金流',
+  income: '固定收入',
+  expense: '固定支出',
+  investment: '个人投资',
+};
+
+function navigate(route) {
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.route === route);
+  });
+  document.querySelectorAll('.view').forEach(el => {
+    el.classList.toggle('active', el.id === 'view-' + route);
+  });
+  document.getElementById('pageTitle').textContent = routeTitles[route] || '';
+  if (route === 'cashflow') setTimeout(renderCashflowCharts, 50);
+  if (route === 'investment') setTimeout(renderInvestmentCharts, 50);
+}
+
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => navigate(el.dataset.route));
+});
+
+/* ===== 渲染：总览 ===== */
+function renderOverview() {
+  const total = getTotalAssets();
+  const monthIncome = state.monthlyData[8].income;
+  const monthExpense = state.monthlyData[8].expense;
+  const balance = monthIncome - monthExpense;
+
+  document.getElementById('statTotal').textContent = '¥' + fmt(total);
+  document.getElementById('statIncome').textContent = '¥' + fmt(monthIncome);
+  document.getElementById('statExpense').textContent = '¥' + fmt(monthExpense);
+  document.getElementById('statBalance').textContent = '¥' + fmt(balance);
+  document.getElementById('sidebarTotal').textContent = '¥' + fmt(total);
+
+  // 账户列表
+  document.getElementById('accountCount').textContent = state.accounts.length + ' 个账户';
+  const listEl = document.getElementById('accountList');
+  listEl.innerHTML = state.accounts.map(a => `
+    <div class="account-item">
+      <div class="account-left">
+        <div class="account-icon" style="background:${a.color}">${a.name.charAt(0)}</div>
+        <div>
+          <div class="account-name">${a.name}</div>
+          <div class="account-type">${a.type}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="account-balance">¥${fmt(a.balance)}</div>
+        <div style="display:flex;gap:2px;">
+          <button class="btn-icon" title="编辑" onclick="editAccount(${a.id})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon" title="删除" onclick="deleteAccount(${a.id})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // 交易记录（按日期倒序，取最近10笔）
+  const tbody = document.getElementById('txTableBody');
+  const sortedTx = [...state.transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
+  tbody.innerHTML = sortedTx.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td><span class="tag ${t.type === 'income' ? 'tag-income' : 'tag-expense'}">${t.type === 'income' ? '收入' : '支出'}</span></td>
+      <td>${t.category}</td>
+      <td>${t.account}</td>
+      <td style="color:var(--ink-3)">${t.note || '—'}</td>
+      <td class="num ${t.type === 'income' ? 'income-num' : 'expense-num'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</td>
+      <td>
+        <div class="action-col">
+          <button class="btn-icon" title="编辑" onclick="editTx(${t.id})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon" title="删除" onclick="deleteTx(${t.id})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  // 资产构成饼图
+  renderAssetPie();
+}
+
+function renderAssetPie() {
+  const el = document.getElementById('chartAssetPie');
+  if (!el) return;
+  const chart = echarts.init(el);
+  const data = state.accounts.map(a => ({ name: a.name, value: a.balance, itemStyle: { color: a.color } }));
+  chart.setOption({
+    tooltip: {
+      trigger: 'item',
+      formatter: (p) => `${p.name}<br/>¥${fmt(p.value)} (${p.percent}%)`,
+      confine: true,
+    },
+    legend: {
+      type: 'scroll',
+      bottom: 0,
+      textStyle: { fontSize: 11, color: '#666' },
+      itemWidth: 10,
+      itemHeight: 10,
+    },
+    series: [{
+      type: 'pie',
+      radius: ['45%', '70%'],
+      center: ['50%', '42%'],
+      avoidLabelOverlap: true,
+      label: {
+        show: true,
+        position: 'inside',
+        formatter: (p) => p.percent >= 8 ? `${p.percent}%` : '',
+        fontSize: 11,
+        color: '#fff',
+        fontWeight: 600,
+      },
+      labelLine: { show: false },
+      data: data,
+    }],
+  });
+  new ResizeObserver(() => chart.resize()).observe(el);
+}
+
+/* ===== 渲染：现金流 ===== */
+let cashflowRendered = false;
+function renderCashflowCharts() {
+  if (cashflowRendered) return;
+  cashflowRendered = true;
+
+  // 趋势图
+  const trendEl = document.getElementById('chartTrend');
+  const trendChart = echarts.init(trendEl);
+  const months = state.monthlyData.map(d => d.month);
+  const incomes = state.monthlyData.map(d => d.income);
+  const expenses = state.monthlyData.map(d => d.expense);
+  const balances = state.monthlyData.map(d => d.income - d.expense);
+
+  trendChart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      confine: true,
+      axisPointer: { type: 'shadow' },
+    },
+    legend: {
+      data: ['收入', '支出', '结余'],
+      bottom: 0,
+      textStyle: { fontSize: 12, color: '#555' },
+      itemWidth: 14,
+      itemHeight: 8,
+    },
+    grid: { left: '6%', right: '4%', top: '8%', bottom: '18%' },
+    xAxis: {
+      type: 'category',
+      data: months,
+      axisLine: { lineStyle: { color: '#ddd' } },
+      axisLabel: { color: '#888', fontSize: 12 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: '#eee', type: 'dashed' } },
+      axisLabel: { color: '#888', fontSize: 11, formatter: (v) => v >= 10000 ? (v/10000) + '万' : v },
+    },
+    series: [
+      {
+        name: '收入',
+        type: 'bar',
+        data: incomes,
+        barWidth: '28%',
+        itemStyle: { color: '#2d6a4f', borderRadius: [3, 3, 0, 0] },
+      },
+      {
+        name: '支出',
+        type: 'bar',
+        data: expenses,
+        barWidth: '28%',
+        itemStyle: { color: '#9c2c2c', borderRadius: [3, 3, 0, 0] },
+      },
+      {
+        name: '结余',
+        type: 'line',
+        data: balances,
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 7,
+        lineStyle: { color: '#b8860b', width: 2.5 },
+        itemStyle: { color: '#b8860b', borderColor: '#fff', borderWidth: 2 },
+      },
+    ],
+  });
+  new ResizeObserver(() => trendChart.resize()).observe(trendEl);
+
+  // 支出分类条
+  const expTotal = state.expenseCategories.reduce((s, c) => s + c.amount, 0);
+  document.getElementById('expenseCatBars').innerHTML = state.expenseCategories.map(c => {
+    const pct = (c.amount / expTotal * 100).toFixed(1);
+    return `
+      <div class="cat-bar-item">
+        <div class="cat-bar-header">
+          <span class="cat-bar-name">${c.name}</span>
+          <span class="cat-bar-val">¥${fmt(c.amount)} · ${pct}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${pct}%;background:${c.color};"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 收入分类条
+  const incTotal = state.incomeCategories.reduce((s, c) => s + c.amount, 0);
+  document.getElementById('incomeCatBars').innerHTML = state.incomeCategories.map(c => {
+    const pct = (c.amount / incTotal * 100).toFixed(1);
+    return `
+      <div class="cat-bar-item">
+        <div class="cat-bar-header">
+          <span class="cat-bar-name">${c.name}</span>
+          <span class="cat-bar-val">¥${fmt(c.amount)} · ${pct}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${pct}%;background:${c.color};"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 年度汇总
+  const yIncome = state.monthlyData.reduce((s, d) => s + d.income, 0);
+  const yExpense = state.monthlyData.reduce((s, d) => s + d.expense, 0);
+  document.getElementById('yearIncome').textContent = '¥' + fmt(yIncome);
+  document.getElementById('yearExpense').textContent = '¥' + fmt(yExpense);
+  document.getElementById('yearBalance').textContent = '¥' + fmt(yIncome - yExpense);
+
+  // 月度表格
+  document.getElementById('monthlyTableBody').innerHTML = state.monthlyData.map(d => {
+    const bal = d.income - d.expense;
+    const rate = (bal / d.income * 100).toFixed(1);
+    return `
+      <tr>
+        <td style="font-weight:500;color:var(--ink)">${d.month}</td>
+        <td class="num income-num">${fmt(d.income)}</td>
+        <td class="num expense-num">${fmt(d.expense)}</td>
+        <td class="num" style="color:var(--accent)">${fmt(bal)}</td>
+        <td class="num" style="color:var(--ink-2)">${rate}%</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ===== 渲染：固定收入 ===== */
+function renderIncomeTable() {
+  const tbody = document.getElementById('incomeTableBody');
+  if (state.incomeItems.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">暂无收入项，点击上方按钮添加</div></td></tr>';
+  } else {
+    tbody.innerHTML = state.incomeItems.map(item => `
+      <tr>
+        <td style="font-weight:500;color:var(--ink)">${item.name}</td>
+        <td><span class="tag tag-income">${item.category}</span></td>
+        <td>${getAccountName(item.accountId)}</td>
+        <td class="num income-num">${fmt(item.amount)}</td>
+        <td><span class="tag ${item.active ? 'tag-active' : 'tag-paused'}">${item.active ? '生效中' : '已暂停'}</span></td>
+        <td>
+          <div class="action-col">
+            <button class="btn-icon" title="${item.active ? '暂停' : '启用'}" onclick="toggleIncome(${item.id})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${item.active ? '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>' : '<path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/>'}</svg>
+            </button>
+            <button class="btn-icon" title="编辑" onclick="editIncome(${item.id})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-icon" title="删除" onclick="deleteIncome(${item.id})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+  document.getElementById('incomeTotal').textContent = '¥' + fmt(getActiveIncomeTotal());
+}
+
+/* ===== 渲染：固定支出 ===== */
+function renderExpenseTable() {
+  const tbody = document.getElementById('expenseTableBody');
+  if (state.expenseItems.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">暂无支出项，点击上方按钮添加</div></td></tr>';
+  } else {
+    tbody.innerHTML = state.expenseItems.map(item => `
+      <tr>
+        <td style="font-weight:500;color:var(--ink)">${item.name}</td>
+        <td><span class="tag tag-expense">${item.category}</span></td>
+        <td>${getAccountName(item.accountId)}</td>
+        <td class="num expense-num">${fmt(item.amount)}</td>
+        <td><span class="tag ${item.active ? 'tag-active' : 'tag-paused'}">${item.active ? '生效中' : '已暂停'}</span></td>
+        <td>
+          <div class="action-col">
+            <button class="btn-icon" title="${item.active ? '暂停' : '启用'}" onclick="toggleExpense(${item.id})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${item.active ? '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>' : '<path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/>'}</svg>
+            </button>
+            <button class="btn-icon" title="编辑" onclick="editExpense(${item.id})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-icon" title="删除" onclick="deleteExpense(${item.id})">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+  document.getElementById('expenseTotal').textContent = '¥' + fmt(getActiveExpenseTotal());
+}
+
+/* ===== 收入项 CRUD ===== */
+function populateAccountSelects() {
+  const options = state.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  document.getElementById('incAccount').innerHTML = options;
+  document.getElementById('expAccount').innerHTML = options;
+}
+
+function openIncomeModal() {
+  state.editingIncomeId = null;
+  document.getElementById('incomeModalTitle').textContent = '添加收入项';
+  document.getElementById('incName').value = '';
+  document.getElementById('incCategory').value = '工资';
+  document.getElementById('incAmount').value = '';
+  document.getElementById('incAccount').value = state.accounts[0].id;
+  document.getElementById('incomeModal').classList.add('show');
+}
+
+function closeIncomeModal() {
+  document.getElementById('incomeModal').classList.remove('show');
+}
+
+function editIncome(id) {
+  const item = state.incomeItems.find(i => i.id === id);
+  if (!item) return;
+  state.editingIncomeId = id;
+  document.getElementById('incomeModalTitle').textContent = '编辑收入项';
+  document.getElementById('incName').value = item.name;
+  document.getElementById('incCategory').value = item.category;
+  document.getElementById('incAmount').value = item.amount;
+  document.getElementById('incAccount').value = item.accountId;
+  document.getElementById('incomeModal').classList.add('show');
+}
+
+function saveIncome() {
+  const name = document.getElementById('incName').value.trim();
+  const category = document.getElementById('incCategory').value;
+  const amount = parseFloat(document.getElementById('incAmount').value);
+  const accountId = parseInt(document.getElementById('incAccount').value);
+
+  if (!name) { alert('请输入名称'); return; }
+  if (isNaN(amount) || amount <= 0) { alert('请输入有效金额'); return; }
+
+  if (state.editingIncomeId) {
+    const item = state.incomeItems.find(i => i.id === state.editingIncomeId);
+    if (item) { Object.assign(item, { name, category, amount, accountId }); }
+  } else {
+    const newId = Math.max(0, ...state.incomeItems.map(i => i.id)) + 1;
+    state.incomeItems.push({ id: newId, name, category, accountId, amount, active: true });
+  }
+  closeIncomeModal();
+  renderIncomeTable();
+  saveState();
+}
+
+function toggleIncome(id) {
+  const item = state.incomeItems.find(i => i.id === id);
+  if (item) { item.active = !item.active; renderIncomeTable(); saveState(); }
+}
+
+function deleteIncome(id) {
+  if (!confirm('确定删除该收入项？')) return;
+  state.incomeItems = state.incomeItems.filter(i => i.id !== id);
+  renderIncomeTable();
+  saveState();
+}
+
+/* ===== 支出项 CRUD ===== */
+function openExpenseModal() {
+  state.editingExpenseId = null;
+  document.getElementById('expenseModalTitle').textContent = '添加支出项';
+  document.getElementById('expName').value = '';
+  document.getElementById('expCategory').value = '房租';
+  document.getElementById('expAmount').value = '';
+  document.getElementById('expAccount').value = state.accounts[0].id;
+  document.getElementById('expenseModal').classList.add('show');
+}
+
+function closeExpenseModal() {
+  document.getElementById('expenseModal').classList.remove('show');
+}
+
+function editExpense(id) {
+  const item = state.expenseItems.find(i => i.id === id);
+  if (!item) return;
+  state.editingExpenseId = id;
+  document.getElementById('expenseModalTitle').textContent = '编辑支出项';
+  document.getElementById('expName').value = item.name;
+  document.getElementById('expCategory').value = item.category;
+  document.getElementById('expAmount').value = item.amount;
+  document.getElementById('expAccount').value = item.accountId;
+  document.getElementById('expenseModal').classList.add('show');
+}
+
+function saveExpense() {
+  const name = document.getElementById('expName').value.trim();
+  const category = document.getElementById('expCategory').value;
+  const amount = parseFloat(document.getElementById('expAmount').value);
+  const accountId = parseInt(document.getElementById('expAccount').value);
+
+  if (!name) { alert('请输入名称'); return; }
+  if (isNaN(amount) || amount <= 0) { alert('请输入有效金额'); return; }
+
+  if (state.editingExpenseId) {
+    const item = state.expenseItems.find(i => i.id === state.editingExpenseId);
+    if (item) { Object.assign(item, { name, category, amount, accountId }); }
+  } else {
+    const newId = Math.max(0, ...state.expenseItems.map(i => i.id)) + 1;
+    state.expenseItems.push({ id: newId, name, category, accountId, amount, active: true });
+  }
+  closeExpenseModal();
+  renderExpenseTable();
+  saveState();
+}
+
+function toggleExpense(id) {
+  const item = state.expenseItems.find(i => i.id === id);
+  if (item) { item.active = !item.active; renderExpenseTable(); saveState(); }
+}
+
+function deleteExpense(id) {
+  if (!confirm('确定删除该支出项？')) return;
+  state.expenseItems = state.expenseItems.filter(i => i.id !== id);
+  renderExpenseTable();
+  saveState();
+}
+
+/* ===== 账户管理 CRUD ===== */
+let editingAccountId = null;
+
+function openAccountModal() {
+  editingAccountId = null;
+  document.getElementById('accountModalTitle').textContent = '添加账户';
+  document.getElementById('accName').value = '';
+  document.getElementById('accType').value = '银行储蓄';
+  document.getElementById('accBalance').value = '';
+  selectedAccColor = '#1b4332';
+  document.querySelectorAll('#accColorPicker .color-dot').forEach(d => {
+    d.style.borderColor = d.dataset.color === selectedAccColor ? '#1a1a1a' : 'transparent';
+  });
+  document.getElementById('accountModal').classList.add('show');
+}
+
+function closeAccountModal() {
+  document.getElementById('accountModal').classList.remove('show');
+}
+
+function editAccount(id) {
+  const a = state.accounts.find(x => x.id === id);
+  if (!a) return;
+  editingAccountId = id;
+  document.getElementById('accountModalTitle').textContent = '编辑账户';
+  document.getElementById('accName').value = a.name;
+  document.getElementById('accType').value = a.type;
+  document.getElementById('accBalance').value = a.balance;
+  selectedAccColor = a.color || '#1b4332';
+  document.querySelectorAll('#accColorPicker .color-dot').forEach(d => {
+    d.style.borderColor = d.dataset.color === selectedAccColor ? '#1a1a1a' : 'transparent';
+  });
+  document.getElementById('accountModal').classList.add('show');
+}
+
+function saveAccount() {
+  const name = document.getElementById('accName').value.trim();
+  const type = document.getElementById('accType').value;
+  const balance = parseFloat(document.getElementById('accBalance').value);
+  if (!name) { alert('请输入账户名称'); return; }
+  if (isNaN(balance) || balance < 0) { alert('请输入有效余额'); return; }
+
+  if (editingAccountId) {
+    const a = state.accounts.find(x => x.id === editingAccountId);
+    if (a) { Object.assign(a, { name, type, balance, color: selectedAccColor }); }
+  } else {
+    const newId = Math.max(0, ...state.accounts.map(x => x.id)) + 1;
+    state.accounts.push({ id: newId, name, type, balance, color: selectedAccColor });
+  }
+  closeAccountModal();
+  populateAccountSelects();
+  renderOverview();
+  saveState();
+}
+
+function deleteAccount(id) {
+  if (state.accounts.length <= 1) { alert('至少保留一个账户'); return; }
+  if (!confirm('确定删除该账户？关联的收支项账户将变为第一个账户。')) return;
+  const remaining = state.accounts.filter(x => x.id !== id);
+  const fallbackId = remaining[0].id;
+  state.incomeItems.forEach(i => { if (i.accountId === id) i.accountId = fallbackId; });
+  state.expenseItems.forEach(i => { if (i.accountId === id) i.accountId = fallbackId; });
+  state.accounts = remaining;
+  populateAccountSelects();
+  renderOverview();
+  saveState();
+}
+
+document.getElementById('accountModal').addEventListener('click', (e) => {
+  if (e.target.id === 'accountModal') closeAccountModal();
+});
+
+/* ===== 交易记录 CRUD ===== */
+let editingTxId = null;
+
+const txExpenseCategories = ['房租', '水电燃气', '餐饮', '交通', '通讯', '保险', '教育', '购物', '医疗', '其他'];
+const txIncomeCategories = ['工资', '公积金', '理财收入', '兼职', '奖金', '红包', '其他'];
+
+function updateTxCategoryOptions() {
+  const type = document.getElementById('txType').value;
+  const cats = type === 'income' ? txIncomeCategories : txExpenseCategories;
+  document.getElementById('txCategory').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function populateTxAccountSelect() {
+  document.getElementById('txAccount').innerHTML = state.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+}
+
+function openTxModal() {
+  editingTxId = null;
+  document.getElementById('txModalTitle').textContent = '记一笔';
+  document.getElementById('txType').value = 'expense';
+  updateTxCategoryOptions();
+  document.getElementById('txDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('txAmount').value = '';
+  populateTxAccountSelect();
+  document.getElementById('txNote').value = '';
+  document.getElementById('txModal').classList.add('show');
+}
+
+function closeTxModal() {
+  document.getElementById('txModal').classList.remove('show');
+}
+
+function editTx(id) {
+  const t = state.transactions.find(x => x.id === id);
+  if (!t) return;
+  editingTxId = id;
+  document.getElementById('txModalTitle').textContent = '编辑交易';
+  document.getElementById('txType').value = t.type;
+  updateTxCategoryOptions();
+  document.getElementById('txCategory').value = t.category;
+  document.getElementById('txDate').value = t.date;
+  document.getElementById('txAmount').value = t.amount;
+  populateTxAccountSelect();
+  const acc = state.accounts.find(a => a.name === t.account);
+  document.getElementById('txAccount').value = acc ? acc.id : state.accounts[0].id;
+  document.getElementById('txNote').value = t.note || '';
+  document.getElementById('txModal').classList.add('show');
+}
+
+function saveTx() {
+  const type = document.getElementById('txType').value;
+  const category = document.getElementById('txCategory').value;
+  const date = document.getElementById('txDate').value;
+  const amount = parseFloat(document.getElementById('txAmount').value);
+  const accountId = parseInt(document.getElementById('txAccount').value);
+  const note = document.getElementById('txNote').value.trim();
+  const accountName = getAccountName(accountId);
+
+  if (!date) { alert('请选择日期'); return; }
+  if (isNaN(amount) || amount <= 0) { alert('请输入有效金额'); return; }
+
+  if (editingTxId) {
+    const t = state.transactions.find(x => x.id === editingTxId);
+    if (t) { Object.assign(t, { type, category, date, amount, account: accountName, note }); }
+  } else {
+    const newId = Math.max(0, ...state.transactions.map(x => x.id || 0)) + 1;
+    state.transactions.push({ id: newId, type, category, date, amount, account: accountName, note });
+  }
+  closeTxModal();
+  renderOverview();
+  saveState();
+}
+
+function deleteTx(id) {
+  if (!confirm('确定删除该交易记录？')) return;
+  state.transactions = state.transactions.filter(x => x.id !== id);
+  renderOverview();
+  saveState();
+}
+
+document.getElementById('txModal').addEventListener('click', (e) => {
+  if (e.target.id === 'txModal') closeTxModal();
+});
+
+// 点击遮罩关闭模态框
+document.getElementById('incomeModal').addEventListener('click', (e) => {
+  if (e.target.id === 'incomeModal') closeIncomeModal();
+});
+document.getElementById('expenseModal').addEventListener('click', (e) => {
+  if (e.target.id === 'expenseModal') closeExpenseModal();
+});
+
+/* ===== 投资板块：类型映射 ===== */
+const typeNames = {
+  stock: '股票', fund: '基金', bond: '债券', gold: '黄金',
+  reits: 'REITs', crypto: '数字货币', other: '其他',
+};
+const typeColors = {
+  stock: '#c77d00', fund: '#1b4332', bond: '#1a5276', gold: '#b8860b',
+  reits: '#6c3483', crypto: '#9c2c2c', other: '#6c757d',
+};
+const sentimentNames = { bullish: '看涨', bearish: '看跌', neutral: '中性' };
+
+/* ===== 投资板块：Tab切换 ===== */
+document.querySelectorAll('.invest-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.invest-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.invest-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    if (tab.dataset.panel === 'analysis') setTimeout(renderInvestmentCharts, 50);
+    if (tab.dataset.panel === 'forecast') setTimeout(renderForecast, 50);
+  });
+});
+
+/* ===== 投资板块：计算辅助 ===== */
+function getHoldingValue(h) { return h.qty * h.price; }
+function getHoldingCost(h) { return h.qty * h.cost; }
+function getHoldingPnl(h) { return getHoldingValue(h) - getHoldingCost(h); }
+function getHoldingPnlPct(h) { return h.cost > 0 ? (getHoldingPnl(h) / getHoldingCost(h) * 100) : 0; }
+
+function getTotalInvestValue() { return state.holdings.reduce((s, h) => s + getHoldingValue(h), 0); }
+function getTotalInvestCost() { return state.holdings.reduce((s, h) => s + getHoldingCost(h), 0); }
+
+/* ===== 投资板块：渲染标的列表 ===== */
+function renderHoldings() {
+  const totalValue = getTotalInvestValue();
+  const totalCost = getTotalInvestCost();
+  const totalPnl = totalValue - totalCost;
+  const pnlPct = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
+  const totalAssets = getTotalAssets() + totalValue;
+  const invRatio = totalAssets > 0 ? (totalValue / totalAssets * 100).toFixed(1) : 0;
+
+  document.getElementById('invTotalValue').textContent = '¥' + fmt(totalValue);
+  document.getElementById('invTotalCost').textContent = '¥' + fmt(totalCost);
+  const pnlEl = document.getElementById('invTotalPnl');
+  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + '¥' + fmt(totalPnl);
+  pnlEl.style.color = totalPnl >= 0 ? 'var(--income)' : 'var(--expense)';
+  document.getElementById('invPnlPct').innerHTML = '收益率 <span class="' + (totalPnl >= 0 ? 'up' : 'down') + '">' + (totalPnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%</span>';
+  document.getElementById('invAnnualReturn').textContent = (pnlPct * 0.6).toFixed(2) + '%';
+  document.getElementById('invRatio').textContent = invRatio + '%';
+  document.getElementById('holdingCount').textContent = '共 ' + state.holdings.length + ' 个标的';
+
+  const grid = document.getElementById('holdingsGrid');
+  if (state.holdings.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">暂无投资标的，点击上方按钮添加</div>';
+    return;
+  }
+  grid.innerHTML = state.holdings.map(h => {
+    const value = getHoldingValue(h);
+    const pnl = getHoldingPnl(h);
+    const pnlPct = getHoldingPnlPct(h);
+    const isProfit = pnl >= 0;
+    return `
+      <div class="holding-card">
+        <div class="holding-header">
+          <div>
+            <div class="holding-name">${h.name}</div>
+            <div class="holding-code">${h.code || '—'} · ${h.sector || '未分类'}</div>
+          </div>
+          <span class="holding-type-tag type-${h.type}">${typeNames[h.type] || h.type}</span>
+        </div>
+        <div class="holding-metrics">
+          <div class="metric-item">
+            <div class="metric-label">持仓数量</div>
+            <div class="metric-value">${h.qty.toLocaleString()}</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">当前市值</div>
+            <div class="metric-value">¥${fmt(value)}</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">成本价 / 现价</div>
+            <div class="metric-value" style="font-size:13px;">¥${fmt(h.cost)} / ¥${fmt(h.price)}</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">累计盈亏</div>
+            <div class="metric-value ${isProfit ? 'profit' : 'loss'}">${isProfit ? '+' : ''}¥${fmt(pnl)} (${isProfit ? '+' : ''}${pnlPct.toFixed(2)}%)</div>
+          </div>
+        </div>
+        ${h.note ? `<div style="font-size:12px;color:var(--ink-3);margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">${h.note}</div>` : ''}
+        <div class="holding-actions">
+          <button class="btn btn-detail btn-sm" onclick="showHoldingDetailPage(${h.id})">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            深度分析
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="editHolding(${h.id})">编辑</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--expense);" onclick="deleteHolding(${h.id})">删除</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ===== 投资板块：渲染分析图表 ===== */
+function renderInvestmentCharts() {
+  renderMacroEnvironment();
+  renderIndustryTrends();
+}
+
+/* ===== 深度分析：宏观环境 ===== */
+function renderMacroEnvironment() {
+  const m = state.macroEnvironment;
+  const items = [
+    { key: 'politics', el: 'macroPolitics' },
+    { key: 'geopolitics', el: 'macroGeopolitics' },
+    { key: 'policy', el: 'macroPolicy' },
+    { key: 'inflation', el: 'macroInflation' },
+  ];
+  items.forEach(item => {
+    const d = m[item.key];
+    const levelClass = d.level === 'good' ? 'macro-good' : d.level === 'warn' ? 'macro-warn' : d.level === 'bad' ? 'macro-bad' : '';
+    const levelTagClass = d.level === 'good' ? 'level-good' : d.level === 'warn' ? 'level-warn' : d.level === 'bad' ? 'level-bad' : 'level-neutral';
+    document.getElementById(item.el).innerHTML = `
+      <div class="macro-card ${levelClass}">
+        <div class="macro-label">${d.label}<span class="macro-level ${levelTagClass}">${d.levelText}</span></div>
+        <div class="macro-score">${d.score}<span style="font-size:14px;color:var(--ink-3);">/100</span></div>
+        <div class="macro-desc">${d.desc}</div>
+      </div>
+    `;
+  });
+  document.getElementById('macroSummary').textContent = m.summary;
+  document.getElementById('myViewContent').textContent = state.macroMyView || '暂无看法，点击编辑写下你的判断...';
+}
+
+/* ===== 宏观我的看法：编辑/保存 ===== */
+function editMyView() {
+  document.getElementById('myViewContent').style.display = 'none';
+  document.getElementById('myViewEditArea').style.display = 'block';
+  document.getElementById('myViewTextarea').value = state.macroMyView || '';
+  document.getElementById('myViewTextarea').focus();
+}
+
+function cancelEditMyView() {
+  document.getElementById('myViewContent').style.display = 'block';
+  document.getElementById('myViewEditArea').style.display = 'none';
+}
+
+function saveMyView() {
+  state.macroMyView = document.getElementById('myViewTextarea').value.trim();
+  document.getElementById('myViewContent').textContent = state.macroMyView || '暂无看法，点击编辑写下你的判断...';
+  document.getElementById('myViewContent').style.display = 'block';
+  document.getElementById('myViewEditArea').style.display = 'none';
+  saveState();
+}
+
+/* ===== 深度分析：行业趋向 ===== */
+function renderIndustryTrends() {
+  const maxScore = 100;
+  document.getElementById('industryTrends').innerHTML = state.industryTrends.map(t => {
+    const pct = (t.score / maxScore * 100).toFixed(0);
+    const trendClass = t.trend === 'up' ? 'trend-up' : t.trend === 'down' ? 'trend-down' : 'trend-flat';
+    const trendIcon = t.trend === 'up' ? '↑' : t.trend === 'down' ? '↓' : '→';
+    return `
+      <div class="industry-item">
+        <div class="industry-name">${t.name}</div>
+        <div class="industry-bar-wrap">
+          <div class="industry-bar" style="width:${pct}%;background:${t.color};"></div>
+        </div>
+        <div class="industry-trend ${trendClass}">${trendIcon} ${t.trendText}</div>
+        <div style="text-align:right;font-family:var(--font-serif);font-weight:600;color:var(--ink);">${t.score}</div>
+        <div class="industry-note">${t.note}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ===== 标的详情页（全屏overlay） ===== */
+let currentDetailHoldingId = null;
+
+function showHoldingDetailPage(id) {
+  currentDetailHoldingId = id;
+  const h = state.holdings.find(x => x.id === id);
+  if (!h) return;
+  document.getElementById('detailPageTitle').textContent = h.name + ' · 深度分析';
+  document.getElementById('holdingDetailOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  renderHoldingDetailPage();
+}
+
+function closeHoldingDetailPage() {
+  document.getElementById('holdingDetailOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  currentDetailHoldingId = null;
+}
+
+function renderHoldingDetailPage() {
+  const h = state.holdings.find(x => x.id === currentDetailHoldingId);
+  if (!h) return;
+
+  if (!h.analysis) {
+    document.getElementById('dpHeader').innerHTML = `<div class="dh-left"><div><div class="dh-name">${h.name}</div><div class="dh-code">${h.code || ''} · ${typeNames[h.type] || h.type}</div></div></div>`;
+    document.getElementById('ddStats').innerHTML = '';
+    document.getElementById('ddTimeline').innerHTML = '<div class="empty-state">暂无历史波动数据</div>';
+    document.getElementById('ddAiAnalysis').innerHTML = '';
+    document.getElementById('ddMyViewContent').textContent = '暂无看法，点击编辑写下你的理解...';
+    document.getElementById('dpStatusPosition').innerHTML = '<div class="status-label">暂无分析</div>';
+    document.getElementById('dpStatusBlood').innerHTML = '<div class="status-label">暂无分析</div>';
+    document.getElementById('dpStatusRisk').innerHTML = '<div class="status-label">暂无分析</div>';
+    document.getElementById('dpCurrentAnalysis').innerHTML = '<span class="at-label">提示：</span>该标的暂无深度分析数据。';
+    document.getElementById('dpFmTarget').innerHTML = '<div class="fm-label">—</div>';
+    document.getElementById('dpFmReturn').innerHTML = '<div class="fm-label">—</div>';
+    document.getElementById('dpFmPeriod').innerHTML = '<div class="fm-label">—</div>';
+    document.getElementById('dpFmStoploss').innerHTML = '<div class="fm-label">—</div>';
+    document.getElementById('dpExitStrategy').innerHTML = '';
+    document.getElementById('dpFundSection').style.display = 'none';
+    return;
+  }
+
+  const a = h.analysis;
+  const pnl = getHoldingPnl(h);
+  const pnlPct = getHoldingPnlPct(h);
+  const isProfit = pnl >= 0;
+
+  // 详情头部
+  document.getElementById('dpHeader').innerHTML = `
+    <div class="dh-left">
+      <div>
+        <div class="dh-name">${h.name}</div>
+        <div class="dh-code">${h.code || ''} · ${typeNames[h.type] || h.type} · ${h.sector || ''}</div>
+      </div>
+    </div>
+    <div class="dh-right">
+      <div class="dh-item"><div class="dh-label">现价</div><div class="dh-value">¥${fmt(h.price)}</div></div>
+      <div class="dh-item"><div class="dh-label">成本价</div><div class="dh-value">¥${fmt(h.cost)}</div></div>
+      <div class="dh-item"><div class="dh-label">持仓市值</div><div class="dh-value">¥${fmt(getHoldingValue(h))}</div></div>
+      <div class="dh-item"><div class="dh-label">累计盈亏</div><div class="dh-value ${isProfit ? 'profit' : 'loss'}">${isProfit ? '+' : ''}¥${fmt(pnl)} (${isProfit ? '+' : ''}${pnlPct.toFixed(2)}%)</div></div>
+    </div>
+  `;
+
+  // 历史回撤分析 - 统计概览
+  const dds = a.history.drawdowns || [];
+  const maxDd = dds.length ? Math.min(...dds.map(d => parseFloat(d.drawdown))) : 0;
+  const avgDd = dds.length ? dds.reduce((s, d) => s + parseFloat(d.drawdown), 0) / dds.length : 0;
+  const recovered = dds.filter(d => d.recoveryStatus === '已恢复').length;
+  const avgRecovery = dds.filter(d => d.recoveryStatus === '已恢复').reduce((s, d) => {
+    const months = parseInt(d.recoveryTime) || 0;
+    return s + months;
+  }, 0) / (recovered || 1);
+
+  document.getElementById('ddStats').innerHTML = `
+    <div class="dd-stat-card">
+      <div class="dd-label">历史大回撤次数</div>
+      <div class="dd-value">${dds.length}</div>
+      <div class="dd-sub">已恢复 ${recovered} 次</div>
+    </div>
+    <div class="dd-stat-card">
+      <div class="dd-label">最大回撤幅度</div>
+      <div class="dd-value" style="color:var(--expense);">${maxDd.toFixed(1)}%</div>
+      <div class="dd-sub">平均回撤 ${avgDd.toFixed(1)}%</div>
+    </div>
+    <div class="dd-stat-card">
+      <div class="dd-label">平均恢复时间</div>
+      <div class="dd-value">${avgRecovery.toFixed(0)}<span style="font-size:14px;">个月</span></div>
+      <div class="dd-sub">已恢复标的的均值</div>
+    </div>
+    <div class="dd-stat-card">
+      <div class="dd-label">52周最大回撤</div>
+      <div class="dd-value" style="color:var(--expense);">${a.history.maxDrawdown}</div>
+      <div class="dd-sub">波动率：${a.history.volatility}</div>
+    </div>
+  `;
+
+  // 历次回撤明细 - 时间线
+  document.getElementById('ddTimeline').innerHTML = dds.length ? dds.map((d, i) => `
+    <div class="dd-timeline-item">
+      <div class="dd-timeline-left">
+        <div class="dd-period">第${i + 1}次回撤</div>
+        <div class="dd-duration">${d.period}</div>
+        <div class="dd-duration">持续 ${d.duration}</div>
+        <div class="dd-drawdown">${d.drawdown}</div>
+        <div class="dd-recovery">${d.recoveryStatus} · ${d.recoveryTime}</div>
+      </div>
+      <div class="dd-timeline-right">
+        <div class="dd-reason-title">回撤原因</div>
+        <div class="dd-reason-text">${d.reason}</div>
+        <div class="dd-recovery-text"><span class="rr-label">恢复路径：</span>${d.recoveryPath}</div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state">暂无回撤数据</div>';
+
+  // AI规律分析
+  const aiPoints = a.history.aiAnalysis || [];
+  document.getElementById('ddAiAnalysis').innerHTML = `
+    <div class="ai-analysis-header">
+      <div class="ai-icon">AI</div>
+      <div class="ai-title">回撤规律深度分析</div>
+    </div>
+    <div class="ai-analysis-content">
+      ${aiPoints.map(p => `<div class="ai-point">${p}</div>`).join('')}
+    </div>
+  `;
+
+  // 我的看法
+  const myView = state.myViewOnVolatility[h.id] || '暂无看法，点击编辑写下你对这个标的波动特性的理解和应对策略...';
+  document.getElementById('ddMyViewContent').textContent = myView;
+  document.getElementById('ddMyViewContent').style.display = 'block';
+  document.getElementById('ddMyViewEditArea').style.display = 'none';
+
+  // 现状分析 - 三个状态卡
+  const posColor = a.current.positionScore <= 40 ? 'var(--income)' : a.current.positionScore <= 60 ? 'var(--warn)' : 'var(--expense)';
+  document.getElementById('dpStatusPosition').innerHTML = `
+    <div class="status-icon" style="color:${posColor};">${a.current.positionScore <= 40 ? '◎' : a.current.positionScore <= 60 ? '◐' : '◑'}</div>
+    <div class="status-label">当前位置判断</div>
+    <div class="status-value" style="color:${posColor};">${a.current.position}</div>
+    <div class="status-desc">位置评分 ${a.current.positionScore}/100（越低越便宜）</div>
+  `;
+  document.getElementById('dpStatusBlood').innerHTML = `
+    <div class="status-icon" style="color:${a.current.bloodChips ? 'var(--income)' : 'var(--ink-3)'};">${a.current.bloodChips ? '◆' : '◇'}</div>
+    <div class="status-label">带血的筹码？</div>
+    <div class="status-value" style="color:${a.current.bloodChips ? 'var(--income)' : 'var(--ink-3)'};">${a.current.bloodChips ? '是' : '否'}</div>
+    <div class="status-desc">${a.current.bloodChips ? '恐慌盘出清，底部区域' : '估值合理，非极端底部'}</div>
+  `;
+  document.getElementById('dpStatusRisk').innerHTML = `
+    <div class="status-icon" style="color:var(--primary);">${a.current.riskResistance === '强' ? '■' : a.current.riskResistance === '中' ? '▣' : '□'}</div>
+    <div class="status-label">抗风险能力</div>
+    <div class="status-value" style="color:var(--primary);">${a.current.riskResistance}</div>
+    <div class="status-desc">${a.current.riskResistance === '强' ? '护城河深，抗压能力强' : a.current.riskResistance === '中' ? '有一定抗压能力' : '周期性强，波动大'}</div>
+  `;
+  document.getElementById('dpCurrentAnalysis').innerHTML = `<span class="at-label">现状研判：</span>${a.current.analysis}`;
+
+  // 回报率预测
+  document.getElementById('dpFmTarget').innerHTML = `<div class="fm-label">目标价</div><div class="fm-value">¥${fmt(a.forecast.targetPrice)}</div>`;
+  document.getElementById('dpFmReturn').innerHTML = `<div class="fm-label">预期回报</div><div class="fm-value" style="color:var(--income);">${a.forecast.expectedReturn}</div>`;
+  document.getElementById('dpFmPeriod').innerHTML = `<div class="fm-label">预计持有期</div><div class="fm-value" style="font-size:15px;">${a.forecast.holdPeriod}</div>`;
+  document.getElementById('dpFmStoploss').innerHTML = `<div class="fm-label">止损位</div><div class="fm-value" style="color:var(--expense);font-size:14px;">${a.forecast.stopLoss}</div>`;
+  document.getElementById('dpExitStrategy').innerHTML = `<span class="at-label">止盈退出策略：</span>${a.forecast.exitStrategy}`;
+
+  // 理财产品专属区域
+  const fundSection = document.getElementById('dpFundSection');
+  if (a.fundInfo) {
+    fundSection.style.display = 'block';
+    const fi = a.fundInfo;
+    const recentEl = document.getElementById('dpFundRecentReturn');
+    recentEl.textContent = fi.recentReturn;
+    recentEl.style.color = fi.recentReturn.startsWith('-') ? 'var(--expense)' : 'var(--income)';
+    document.getElementById('dpFundRecentNote').textContent = fi.recentNote;
+    document.getElementById('dpFundExpectedReturn').textContent = fi.expectedReturn;
+    document.getElementById('dpFundExpectedNote').textContent = fi.expectedNote;
+
+    const rangeParts = fi.expectedReturn.split('-');
+    const low = parseFloat(rangeParts[0]) || 0;
+    const high = parseFloat(rangeParts[1]) || low;
+    document.getElementById('dpFundRangeBars').innerHTML = `
+      <div class="range-item">
+        <div class="range-header"><span class="range-name">悲观情景</span><span class="range-val">${(low * 0.6).toFixed(1)}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(low * 0.6 / 20 * 100).toFixed(0)}%;background:var(--expense);"></div></div>
+      </div>
+      <div class="range-item">
+        <div class="range-header"><span class="range-name">中性预期</span><span class="range-val">${((low + high) / 2).toFixed(1)}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${((low + high) / 2 / 20 * 100).toFixed(0)}%;background:var(--accent);"></div></div>
+      </div>
+      <div class="range-item">
+        <div class="range-header"><span class="range-name">乐观情景</span><span class="range-val">${high}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(high / 20 * 100).toFixed(0)}%;background:var(--income);"></div></div>
+      </div>
+    `;
+
+    setTimeout(() => renderFundNavChart(fi.navHistory, 'dpChartFundNav'), 80);
+  } else {
+    fundSection.style.display = 'none';
+  }
+
+  // 历史价格走势图
+  setTimeout(() => renderHistoryPriceChart(a.history.priceHistory, h.price, 'dpChartHistory'), 80);
+}
+
+/* ===== 标的详情：我的看法编辑 ===== */
+function editDdMyView() {
+  document.getElementById('ddMyViewContent').style.display = 'none';
+  document.getElementById('ddMyViewEditArea').style.display = 'block';
+  document.getElementById('ddMyViewTextarea').value = state.myViewOnVolatility[currentDetailHoldingId] || '';
+  document.getElementById('ddMyViewTextarea').focus();
+}
+
+function cancelDdMyView() {
+  document.getElementById('ddMyViewContent').style.display = 'block';
+  document.getElementById('ddMyViewEditArea').style.display = 'none';
+}
+
+function saveDdMyView() {
+  const val = document.getElementById('ddMyViewTextarea').value.trim();
+  state.myViewOnVolatility[currentDetailHoldingId] = val;
+  document.getElementById('ddMyViewContent').textContent = val || '暂无看法，点击编辑写下你的理解...';
+  document.getElementById('ddMyViewContent').style.display = 'block';
+  document.getElementById('ddMyViewEditArea').style.display = 'none';
+  saveState();
+}
+
+/* ===== 深度分析：历史价格走势图 ===== */
+function renderHistoryPriceChart(priceHistory, currentPrice, elementId) {
+  const el = document.getElementById(elementId || 'chartHistoryPrice');
+  if (!el) return;
+  if (el._chart) { el._chart.dispose(); }
+  const chart = echarts.init(el);
+  const labels = priceHistory.map(p => p.m);
+  const prices = priceHistory.map(p => p.p);
+  const minPrice = Math.min(...prices) * 0.98;
+  const maxPrice = Math.max(...prices) * 1.02;
+
+  chart.setOption({
+    tooltip: { trigger: 'axis', confine: true, formatter: (p) => `${p[0].axisValue}<br/>价格: ¥${fmt(p[0].value)}` },
+    grid: { left: '8%', right: '5%', top: '8%', bottom: '12%' },
+    xAxis: { type: 'category', data: labels, axisLine: { lineStyle: { color: '#ddd' } }, axisLabel: { color: '#888', fontSize: 11 }, axisTick: { show: false } },
+    yAxis: { type: 'value', min: minPrice, max: maxPrice, axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: '#eee', type: 'dashed' } }, axisLabel: { color: '#888', fontSize: 11 } },
+    series: [{
+      type: 'line', data: prices, smooth: true, symbol: 'circle', symbolSize: 5,
+      lineStyle: { color: '#1b4332', width: 2 },
+      itemStyle: { color: '#1b4332' },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(27,67,50,0.12)' }, { offset: 1, color: 'rgba(27,67,50,0.01)' }]) },
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        data: [{ yAxis: currentPrice, lineStyle: { color: '#b8860b', type: 'dashed', width: 1.5 }, label: { formatter: '现价 ¥' + fmt(currentPrice), position: 'end', fontSize: 11, color: '#b8860b' } }],
+      },
+    }],
+  });
+  new ResizeObserver(() => chart.resize()).observe(el);
+  el._chart = chart;
+}
+
+/* ===== 深度分析：理财净值走势图 ===== */
+function renderFundNavChart(navHistory, elementId) {
+  const el = document.getElementById(elementId || 'chartFundNav');
+  if (!el || !navHistory) return;
+  if (el._chart) { el._chart.dispose(); }
+  const chart = echarts.init(el);
+  const labels = navHistory.map(n => n.m);
+  const values = navHistory.map(n => n.v);
+
+  chart.setOption({
+    tooltip: { trigger: 'axis', confine: true, formatter: (p) => `${p[0].axisValue}<br/>收益率: ${p[0].value}%` },
+    grid: { left: '12%', right: '8%', top: '10%', bottom: '15%' },
+    xAxis: { type: 'category', data: labels, axisLine: { lineStyle: { color: '#ddd' } }, axisLabel: { color: '#888', fontSize: 10 }, axisTick: { show: false } },
+    yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: '#eee', type: 'dashed' } }, axisLabel: { color: '#888', fontSize: 10, formatter: '{value}%' } },
+    series: [{
+      type: 'bar', data: values, barWidth: '50%',
+      itemStyle: { color: (p) => p.value >= 0 ? '#2d6a4f' : '#9c2c2c', borderRadius: [3, 3, 0, 0] },
+      label: { show: true, position: 'top', fontSize: 10, color: '#666', formatter: '{c}%' },
+    }],
+  });
+  new ResizeObserver(() => chart.resize()).observe(el);
+  el._chart = chart;
+}
+
+/* ===== 投资板块：回报预测 ===== */
+let forecastChart = null;
+function renderForecast() {
+  const principal = parseFloat(document.getElementById('fcPrincipal').value) || 0;
+  const rate = (parseFloat(document.getElementById('fcRate').value) || 0) / 100;
+  const monthly = parseFloat(document.getElementById('fcMonthly').value) || 0;
+  const years = parseInt(document.getElementById('fcYears').value) || 10;
+
+  const months = years * 12;
+  const labels = [];
+  const assetLine = [];
+  const principalLine = [];
+  const yearlyData = [];
+
+  let balance = principal;
+  let totalContributed = principal;
+
+  for (let m = 1; m <= months; m++) {
+    balance = balance * (1 + rate / 12) + monthly;
+    totalContributed += monthly;
+    if (m % 12 === 0) {
+      const yr = m / 12;
+      labels.push('第' + yr + '年');
+      assetLine.push(Math.round(balance));
+      principalLine.push(Math.round(totalContributed));
+      yearlyData.push({ year: yr, asset: balance, contributed: totalContributed, gain: balance - totalContributed });
+    }
+  }
+
+  // 预测图表
+  const chartEl = document.getElementById('chartForecast');
+  if (chartEl) {
+    if (!forecastChart) forecastChart = echarts.init(chartEl);
+    forecastChart.setOption({
+      tooltip: { trigger: 'axis', confine: true, formatter: (params) => {
+        let s = params[0].axisValue + '<br/>';
+        params.forEach(p => { s += p.marker + p.seriesName + ': ¥' + fmt(p.value) + '<br/>'; });
+        return s;
+      }},
+      legend: { data: ['总资产', '累计投入'], bottom: 0, textStyle: { fontSize: 12, color: '#555' }, itemWidth: 14, itemHeight: 8 },
+      grid: { left: '5%', right: '4%', top: '8%', bottom: '15%' },
+      xAxis: { type: 'category', data: labels, axisLine: { lineStyle: { color: '#ddd' } }, axisLabel: { color: '#888', fontSize: 12 }, axisTick: { show: false } },
+      yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: '#eee', type: 'dashed' } }, axisLabel: { color: '#888', fontSize: 11, formatter: (v) => v >= 10000 ? (v/10000) + '万' : v } },
+      series: [
+        { name: '总资产', type: 'line', data: assetLine, smooth: true, symbol: 'circle', symbolSize: 6, lineStyle: { color: '#1b4332', width: 2.5 }, itemStyle: { color: '#1b4332' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(27,67,50,0.15)' }, { offset: 1, color: 'rgba(27,67,50,0.02)' }]) } },
+        { name: '累计投入', type: 'line', data: principalLine, smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { color: '#b8860b', width: 2, type: 'dashed' }, itemStyle: { color: '#b8860b' } },
+      ],
+    });
+    new ResizeObserver(() => forecastChart.resize()).observe(chartEl);
+  }
+
+  // 时间线
+  const maxAsset = yearlyData.length > 0 ? yearlyData[yearlyData.length - 1].asset : 1;
+  document.getElementById('forecastTimeline').innerHTML = yearlyData.map(d => {
+    const pct = (d.asset / maxAsset * 100).toFixed(1);
+    return `
+      <div class="forecast-row">
+        <div class="forecast-year">第${d.year}年</div>
+        <div class="forecast-bar-wrap">
+          <div class="forecast-bar" style="width:${pct}%;background:linear-gradient(90deg,#1b4332,#2d6a4f);">${pct >= 15 ? '¥' + fmt(d.asset) : ''}</div>
+        </div>
+        <div class="forecast-amount">¥${fmt(d.asset)}</div>
+        <div class="forecast-gain profit">+¥${fmt(d.gain)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ===== 投资板块：观点收录渲染 ===== */
+function switchOpinionTab(tab) {
+  state.currentOpinionTab = tab;
+  document.querySelectorAll('.opinion-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.otab === tab);
+  });
+  renderOpinions();
+}
+
+function renderOpinions() {
+  const filtered = state.opinions.filter(o => o.type === state.currentOpinionTab);
+  const tabName = state.currentOpinionTab === 'master' ? '大神观点' : '我的观点';
+  document.getElementById('opinionCount').textContent = tabName + ' · 共 ' + filtered.length + ' 条';
+  const list = document.getElementById('opinionsList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">暂无' + tabName + '，点击上方按钮收录</div>';
+    return;
+  }
+  const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
+  list.innerHTML = sorted.map(o => `
+    <div class="opinion-card ${o.sentiment}">
+      <div class="opinion-header">
+        <div>
+          <div class="opinion-author">${o.author || (o.type === 'master' ? '大神' : '我')}</div>
+          <div class="opinion-title">${o.title}</div>
+        </div>
+        <div class="opinion-meta">
+          <span class="tag ${o.sentiment === 'bullish' ? 'tag-income' : o.sentiment === 'bearish' ? 'tag-expense' : 'tag-paused'}">${sentimentNames[o.sentiment]}</span>
+          <span>${o.date}</span>
+        </div>
+      </div>
+      ${o.related ? `<div style="font-size:12px;color:var(--accent);margin-bottom:8px;">关联标的：${o.related}</div>` : ''}
+      <div class="opinion-content">${o.content}</div>
+      ${o.tags && o.tags.length ? `<div class="opinion-tags">${o.tags.map(t => `<span class="opinion-tag">${t}</span>`).join('')}</div>` : ''}
+      <div class="opinion-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editOpinion(${o.id})">编辑</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--expense);" onclick="deleteOpinion(${o.id})">删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ===== 投资板块：标的 CRUD ===== */
+function openHoldingModal() {
+  state.editingHoldingId = null;
+  document.getElementById('holdingModalTitle').textContent = '添加投资标的';
+  ['hName', 'hCode', 'hSector', 'hQty', 'hCost', 'hPrice', 'hNote', 'hDate'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('hType').value = 'stock';
+  document.getElementById('holdingModal').classList.add('show');
+}
+
+function closeHoldingModal() {
+  document.getElementById('holdingModal').classList.remove('show');
+}
+
+function editHolding(id) {
+  const h = state.holdings.find(x => x.id === id);
+  if (!h) return;
+  state.editingHoldingId = id;
+  document.getElementById('holdingModalTitle').textContent = '编辑投资标的';
+  document.getElementById('hName').value = h.name;
+  document.getElementById('hCode').value = h.code || '';
+  document.getElementById('hType').value = h.type;
+  document.getElementById('hSector').value = h.sector || '';
+  document.getElementById('hQty').value = h.qty;
+  document.getElementById('hCost').value = h.cost;
+  document.getElementById('hPrice').value = h.price;
+  document.getElementById('hDate').value = h.date || '';
+  document.getElementById('hNote').value = h.note || '';
+  document.getElementById('holdingModal').classList.add('show');
+}
+
+function saveHolding() {
+  const name = document.getElementById('hName').value.trim();
+  if (!name) { alert('请输入标的名称'); return; }
+  const data = {
+    name,
+    code: document.getElementById('hCode').value.trim(),
+    type: document.getElementById('hType').value,
+    sector: document.getElementById('hSector').value.trim(),
+    qty: parseFloat(document.getElementById('hQty').value) || 0,
+    cost: parseFloat(document.getElementById('hCost').value) || 0,
+    price: parseFloat(document.getElementById('hPrice').value) || 0,
+    date: document.getElementById('hDate').value,
+    note: document.getElementById('hNote').value.trim(),
+  };
+  if (state.editingHoldingId) {
+    const h = state.holdings.find(x => x.id === state.editingHoldingId);
+    if (h) Object.assign(h, data);
+  } else {
+    const newId = Math.max(0, ...state.holdings.map(x => x.id)) + 1;
+    state.holdings.push({ id: newId, ...data });
+  }
+  closeHoldingModal();
+  renderHoldings();
+  if (document.getElementById('holdingDetailOverlay').classList.contains('show') && currentDetailHoldingId) {
+    renderHoldingDetailPage();
+  }
+  saveState();
+}
+
+function deleteHolding(id) {
+  if (!confirm('确定删除该投资标的？')) return;
+  state.holdings = state.holdings.filter(x => x.id !== id);
+  if (currentDetailHoldingId === id) {
+    closeHoldingDetailPage();
+  }
+  renderHoldings();
+  saveState();
+}
+
+document.getElementById('holdingModal').addEventListener('click', (e) => {
+  if (e.target.id === 'holdingModal') closeHoldingModal();
+});
+
+/* ===== 投资板块：观点 CRUD ===== */
+function openOpinionModal() {
+  state.editingOpinionId = null;
+  document.getElementById('opinionModalTitle').textContent = '收录投资观点';
+  ['oTitle', 'oRelated', 'oContent', 'oTags', 'oAuthor'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('oSentiment').value = 'neutral';
+  document.getElementById('oType').value = state.currentOpinionTab;
+  document.getElementById('opinionModal').classList.add('show');
+}
+
+function closeOpinionModal() {
+  document.getElementById('opinionModal').classList.remove('show');
+}
+
+function editOpinion(id) {
+  const o = state.opinions.find(x => x.id === id);
+  if (!o) return;
+  state.editingOpinionId = id;
+  document.getElementById('opinionModalTitle').textContent = '编辑观点';
+  document.getElementById('oType').value = o.type || 'self';
+  document.getElementById('oAuthor').value = o.author || '';
+  document.getElementById('oTitle').value = o.title;
+  document.getElementById('oSentiment').value = o.sentiment;
+  document.getElementById('oRelated').value = o.related || '';
+  document.getElementById('oContent').value = o.content;
+  document.getElementById('oTags').value = (o.tags || []).join(', ');
+  document.getElementById('opinionModal').classList.add('show');
+}
+
+function saveOpinion() {
+  const title = document.getElementById('oTitle').value.trim();
+  const content = document.getElementById('oContent').value.trim();
+  if (!title) { alert('请输入观点标题'); return; }
+  if (!content) { alert('请输入观点内容'); return; }
+  const tagsStr = document.getElementById('oTags').value.trim();
+  const type = document.getElementById('oType').value;
+  const author = document.getElementById('oAuthor').value.trim() || (type === 'master' ? '大神' : '我');
+  const data = {
+    type,
+    author,
+    title,
+    sentiment: document.getElementById('oSentiment').value,
+    related: document.getElementById('oRelated').value.trim(),
+    content,
+    tags: tagsStr ? tagsStr.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [],
+    date: new Date().toISOString().slice(0, 10),
+  };
+  if (state.editingOpinionId) {
+    const o = state.opinions.find(x => x.id === state.editingOpinionId);
+    if (o) Object.assign(o, data);
+  } else {
+    const newId = Math.max(0, ...state.opinions.map(x => x.id)) + 1;
+    state.opinions.push({ id: newId, ...data });
+  }
+  closeOpinionModal();
+  state.currentOpinionTab = type;
+  document.querySelectorAll('.opinion-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.otab === type);
+  });
+  renderOpinions();
+  saveState();
+}
+
+function deleteOpinion(id) {
+  if (!confirm('确定删除该观点？')) return;
+  state.opinions = state.opinions.filter(x => x.id !== id);
+  renderOpinions();
+  saveState();
+}
+
+document.getElementById('opinionModal').addEventListener('click', (e) => {
+  if (e.target.id === 'opinionModal') closeOpinionModal();
+});
+
+/* ===== 初始化 ===== */
+async function init() {
+  // 加载数据（云端优先，本地降级）
+  await loadState();
+
+  // 为旧版交易记录补全id
+  let maxTxId = 0;
+  state.transactions.forEach(t => {
+    if (!t.id) { t.id = ++maxTxId; }
+    else { maxTxId = Math.max(maxTxId, t.id); }
+  });
+
+  const now = new Date();
+  document.getElementById('dateInfo').textContent =
+    now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日 · ' +
+    ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+
+  initColorPicker();
+  populateAccountSelects();
+  renderOverview();
+  renderIncomeTable();
+  renderExpenseTable();
+  renderHoldings();
+  renderOpinions();
+}
+
+init();
+</script>
+</body>
+</html>
