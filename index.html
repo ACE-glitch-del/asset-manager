@@ -2892,6 +2892,7 @@ const state = {
       { id: 1, title: 'MACD（指数平滑异同移动平均线）', content: '用法：DIF上穿DEA为金叉（买入信号），下穿为死叉（卖出信号）。顶背离（股价新高但MACD未新高）预示见顶，底背离预示见底。概率判断：在趋势行情中准确率较高，震荡行情中容易反复假信号。' },
       { id: 2, title: 'RSI（相对强弱指标）', content: '0-100区间。>70为超买（可能回调），<30为超卖（可能反弹）。用法：超买区结合死叉卖出，超卖区结合金叉买入。概率判断：在极端值时反转概率较高，但强势行情中RSI可以长期超买/超卖。' },
     ],
+    jottings: [],
   },
   currentLearningTab: 'concepts',
   currentStockAnalysisId: null,
@@ -4503,7 +4504,8 @@ function renderLearning() {
   types.forEach(t => {
     const list = document.getElementById(t.listId);
     if (!list) return;
-    const items = state.learning[t.key] || [];
+    if (!state.learning[t.key]) state.learning[t.key] = [];
+    const items = state.learning[t.key];
     if (items.length === 0) {
       list.innerHTML = '<div class="empty-state">暂无内容，点击上方按钮添加</div>';
       return;
@@ -4549,6 +4551,8 @@ function saveLearningItem() {
   const content = document.getElementById('learningContent').value.trim();
   if (!title) { alert('请填写标题'); return; }
   const type = editingLearningType;
+  // 确保对应类型的数组存在
+  if (!state.learning[type]) state.learning[type] = [];
   if (editingLearningId) {
     const item = state.learning[type].find(i => i.id === editingLearningId);
     if (item) { item.title = title; item.content = content; }
