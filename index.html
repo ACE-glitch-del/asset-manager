@@ -2964,9 +2964,9 @@ function applyData(data) {
   if (data.stockAnalysis) state.stockAnalysis = data.stockAnalysis;
   if (data.experiencePrinciples !== undefined) state.experiencePrinciples = data.experiencePrinciples;
   if (data.learning) state.learning = Object.assign({}, state.learning, data.learning);
-  // 数据加载完成后重新渲染宏观和学习笔记
-  if (typeof renderMacro === 'function') renderMacro();
-  if (typeof renderLearning === 'function') renderLearning();
+  // 数据加载完成后重新渲染宏观和学习笔记（延迟确保DOM就绪）
+  if (typeof renderMacro === 'function') setTimeout(() => renderMacro(), 100);
+  if (typeof renderLearning === 'function') setTimeout(() => renderLearning(), 100);
 }
 
 function updateSyncIndicator(text, color) {
@@ -4493,6 +4493,7 @@ function switchLearningTab(tab) {
   document.querySelectorAll('.learning-panel').forEach(p => p.classList.remove('active'));
   document.querySelector(`.learning-tab[data-ltab="${tab}"]`).classList.add('active');
   document.getElementById('learning-' + tab).classList.add('active');
+  if (typeof renderLearning === 'function') renderLearning();
 }
 function renderLearning() {
   const types = [
