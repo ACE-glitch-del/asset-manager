@@ -13,6 +13,14 @@
       "type": "银行储蓄",
       "balance": 3714.33,
       "color": "#7e3af2"
+    },
+    {
+      "id": 3,
+      "name": "公积金账户",
+      "type": "公积金",
+      "balance": 0,
+      "color": "#6c5ce7",
+      "locked": true
     }
   ],
   "incomeItems": [
@@ -46,6 +54,14 @@
       "category": "其他",
       "accountId": 1,
       "amount": 1500,
+      "active": true
+    },
+    {
+      "id": 5,
+      "name": "公积金入账",
+      "category": "公积金",
+      "accountId": null,
+      "amount": 2718.24,
       "active": true
     }
   ],
@@ -9042,7 +9058,92 @@
       "color": "#2d6a4f"
     }
   ],
-  "holdings": [],
+  "holdings": [
+    {
+      "id": 1,
+      "name": "登海种业",
+      "code": "002041",
+      "type": "stock",
+      "sector": "农业/种业",
+      "qty": 7400,
+      "cost": 10.372,
+      "price": 12.02,
+      "note": "转基因商业化趋势",
+      "date": ""
+    },
+    {
+      "id": 2,
+      "name": "机器人",
+      "code": "300024",
+      "type": "stock",
+      "sector": "机器人/AI",
+      "qty": 2100,
+      "cost": 18.645,
+      "price": 14.33,
+      "note": "人形机器人赛道",
+      "date": ""
+    },
+    {
+      "id": 3,
+      "name": "恒生科技ETF",
+      "code": "513180",
+      "type": "etf",
+      "sector": "港股科技",
+      "qty": 19000,
+      "cost": 1.463,
+      "price": 1.081,
+      "note": "汇添富恒生科技ETF",
+      "date": ""
+    },
+    {
+      "id": 4,
+      "name": "紫金矿业",
+      "code": "601899",
+      "type": "stock",
+      "sector": "有色金属/黄金",
+      "qty": 500,
+      "cost": 38.172,
+      "price": 33.86,
+      "note": "金铜双主业",
+      "date": ""
+    },
+    {
+      "id": 5,
+      "name": "小米集团-W",
+      "code": "01810.HK",
+      "type": "stock",
+      "sector": "消费电子/汽车",
+      "qty": 3600,
+      "cost": 40.93,
+      "price": 26.92,
+      "note": "港股，港币计价",
+      "date": ""
+    },
+    {
+      "id": 6,
+      "name": "顺丰控股",
+      "code": "06936.HK",
+      "type": "stock",
+      "sector": "物流",
+      "qty": 7600,
+      "cost": 39.46,
+      "price": 30.98,
+      "note": "港股，港币计价",
+      "date": ""
+    },
+    {
+      "id": 7,
+      "name": "阿里巴巴-W",
+      "code": "09988.HK",
+      "type": "stock",
+      "sector": "互联网/电商",
+      "qty": 3600,
+      "cost": 169.949,
+      "price": 109.5,
+      "note": "港股，港币计价",
+      "date": ""
+    }
+  ],
   "macroEnvironment": {
     "politics": "",
     "geopolitics": "",
