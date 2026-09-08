@@ -1941,7 +1941,6 @@ td.expense-num { color: var(--expense); }
       <section class="view" id="view-investment">
         <div class="invest-tabs">
           <button class="invest-tab active" data-panel="macro">宏观环境</button>
-          <button class="invest-tab" data-panel="stock">个股分析</button>
           <button class="invest-tab" data-panel="experience">经验原则</button>
           <button class="invest-tab" data-panel="learning">学习笔记</button>
           <button class="invest-tab" data-panel="holdings">持仓总览</button>
@@ -1996,15 +1995,6 @@ td.expense-num { color: var(--expense); }
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- ===== 板块2：个股分析 ===== -->
-        <div class="invest-panel" id="panel-stock">
-          <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <span style="font-size:13px;color:var(--ink-3);">选择标的：</span>
-            <select id="stockAnalysisSelect" onchange="switchStockAnalysis()" style="padding:6px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;"></select>
-          </div>
-          <div id="stockAnalysisContent"></div>
         </div>
 
         <!-- ===== 板块3：经验原则 ===== -->
