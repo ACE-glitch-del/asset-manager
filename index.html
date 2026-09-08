@@ -2964,8 +2964,9 @@ function applyData(data) {
   if (data.stockAnalysis) state.stockAnalysis = data.stockAnalysis;
   if (data.experiencePrinciples !== undefined) state.experiencePrinciples = data.experiencePrinciples;
   if (data.learning) state.learning = Object.assign({}, state.learning, data.learning);
-  // 数据加载完成后重新渲染宏观内容
+  // 数据加载完成后重新渲染宏观和学习笔记
   if (typeof renderMacro === 'function') renderMacro();
+  if (typeof renderLearning === 'function') renderLearning();
 }
 
 function updateSyncIndicator(text, color) {
