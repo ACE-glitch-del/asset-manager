@@ -1745,9 +1745,9 @@ td.expense-num { color: var(--expense); }
             <div class="stat-delta">较上月 <span class="down">-8.3%</span></div>
           </div>
           <div class="stat-card balance">
-            <div class="stat-label">投资市值</div>
-            <div class="stat-value" id="statInvest">—</div>
-            <div class="stat-delta" id="statInvestPnl">—</div>
+            <div class="stat-label">本月结余</div>
+            <div class="stat-value" id="statBalance">—</div>
+            <div class="stat-delta">储蓄率 <span class="up">42.6%</span></div>
           </div>
         </div>
 
@@ -3119,7 +3119,6 @@ document.querySelectorAll('.nav-item').forEach(el => {
 function renderOverview() {
   const liquid = getLiquidAssets();
   const locked = getLockedAssets();
-  const investVal = getInvestmentValue();
   const monthIncome = state.monthlyData[8].income;
   const monthExpense = state.monthlyData[8].expense;
   const balance = monthIncome - monthExpense;
@@ -3127,14 +3126,7 @@ function renderOverview() {
   document.getElementById('statTotal').textContent = '¥' + fmt(liquid);
   document.getElementById('statIncome').textContent = '¥' + fmt(monthIncome);
   document.getElementById('statExpense').textContent = '¥' + fmt(monthExpense);
-  const investCost = getInvestmentCost();
-  const investPnl = investVal - investCost;
-  const investPnlPct = investCost > 0 ? (investPnl / investCost * 100) : 0;
-  document.getElementById('statInvest').textContent = '¥' + fmt(investVal);
-  const pnlEl = document.getElementById('statInvestPnl');
-  if (pnlEl) {
-    pnlEl.innerHTML = '盈亏 <span class="' + (investPnl >= 0 ? 'up' : 'down') + '">' + (investPnl >= 0 ? '+' : '') + fmt(investPnl) + ' (' + (investPnlPct >= 0 ? '+' : '') + investPnlPct.toFixed(1) + '%)</span>';
-  }
+  document.getElementById('statBalance').textContent = '¥' + fmt(balance);
   document.getElementById('sidebarTotal').textContent = '¥' + fmt(liquid);
 
   // 账户列表
