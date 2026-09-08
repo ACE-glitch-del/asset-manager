@@ -1730,9 +1730,9 @@ td.expense-num { color: var(--expense); }
       <section class="view active" id="view-overview">
         <div class="grid grid-4 section-gap">
           <div class="stat-card total">
-            <div class="stat-label">总资产</div>
+            <div class="stat-label">活钱资产</div>
             <div class="stat-value" id="statTotal">—</div>
-            <div class="stat-delta">较上月 <span class="up">+3.2%</span></div>
+            <div class="stat-delta">可支配现金</div>
           </div>
           <div class="stat-card income">
             <div class="stat-label">本月收入</div>
@@ -1745,9 +1745,9 @@ td.expense-num { color: var(--expense); }
             <div class="stat-delta">较上月 <span class="down">-8.3%</span></div>
           </div>
           <div class="stat-card balance">
-            <div class="stat-label">本月结余</div>
-            <div class="stat-value" id="statBalance">—</div>
-            <div class="stat-delta">储蓄率 <span class="up">42.6%</span></div>
+            <div class="stat-label">投资市值</div>
+            <div class="stat-value" id="statInvest">—</div>
+            <div class="stat-delta" id="statInvestPnl">—</div>
           </div>
         </div>
 
@@ -3127,7 +3127,14 @@ function renderOverview() {
   document.getElementById('statTotal').textContent = '¥' + fmt(liquid);
   document.getElementById('statIncome').textContent = '¥' + fmt(monthIncome);
   document.getElementById('statExpense').textContent = '¥' + fmt(monthExpense);
-  document.getElementById('statBalance').textContent = '¥' + fmt(balance);
+  const investCost = getInvestmentCost();
+  const investPnl = investVal - investCost;
+  const investPnlPct = investCost > 0 ? (investPnl / investCost * 100) : 0;
+  document.getElementById('statInvest').textContent = '¥' + fmt(investVal);
+  const pnlEl = document.getElementById('statInvestPnl');
+  if (pnlEl) {
+    pnlEl.innerHTML = '盈亏 <span class="' + (investPnl >= 0 ? 'up' : 'down') + '">' + (investPnl >= 0 ? '+' : '') + fmt(investPnl) + ' (' + (investPnlPct >= 0 ? '+' : '') + investPnlPct.toFixed(1) + '%)</span>';
+  }
   document.getElementById('sidebarTotal').textContent = '¥' + fmt(liquid);
 
   // 账户列表
