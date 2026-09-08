@@ -2085,10 +2085,16 @@ td.expense-num { color: var(--expense); }
 
           <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:13px;color:var(--ink-3);" id="holdingCount"></span>
-            <button class="btn btn-primary" onclick="openHoldingModal()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-              添加标的
-            </button>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost" onclick="refreshStockPrices()" id="refreshPricesBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                刷新最新价
+              </button>
+              <button class="btn btn-primary" onclick="openHoldingModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                添加标的
+              </button>
+            </div>
           </div>
 
           <div class="grid" id="holdingsGrid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));"></div>
@@ -4666,6 +4672,69 @@ async function saveToken() {
 }
 
 init();
+
+/* ===== 刷新持仓最新价格 ===== */
+async function refreshStockPrices() {
+  const btn = document.getElementById('refreshPricesBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '更新中...'; }
+  
+  try {
+    const codeMap = {
+      '002041': 'sz002041', '300024': 'sz300024',
+      '513180': 'sh513180', '601899': 'sh601899',
+      '01810.HK': 'hk01810', '06936.HK': 'hk06936', '09988.HK': 'hk09988'
+    };
+    
+    const codes = state.holdings.map(h => codeMap[h.code] || '').filter(c => c);
+    if (codes.length === 0) { alert('没有可更新的持仓'); return; }
+    
+    const url = 'https://corsproxy.io/?' + encodeURIComponent('http://qt.gtimg.cn/q=' + codes.join(','));
+    const resp = await fetch(url);
+    const text = await resp.text();
+    
+    const lines = text.split('\n');
+    const prices = {};
+    for (let i = 0; i < lines.length && i < codes.length; i++) {
+      const match = lines[i].match(/"([^"]+)"/);
+      if (!match) continue;
+      const data = match[1].split('~');
+      if (data.length > 3) {
+        const code = codes[i];
+        const name = data[1];
+        const price = parseFloat(data[3]);
+        if (price > 0) {
+          prices[code] = { name: name, price: price };
+        }
+      }
+    }
+    
+    let updated = 0;
+    for (const h of state.holdings) {
+      const sinaCode = codeMap[h.code];
+      if (sinaCode && prices[sinaCode]) {
+        h.price = prices[sinaCode].price;
+        updated++;
+      }
+    }
+    
+    if (updated > 0) {
+      await saveState();
+      renderHoldings();
+      alert('成功更新 ' + updated + ' 只持仓的最新价格！');
+    } else {
+      alert('未获取到最新价格，请稍后重试');
+    }
+  } catch (e) {
+    console.error('刷新价格失败:', e);
+    alert('刷新价格失败：' + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '刷新最新价';
+    }
+  }
+}
+
 </script>
   <!-- Token 设置弹窗 -->
   <div id="tokenModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
