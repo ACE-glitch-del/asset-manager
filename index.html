@@ -1940,10 +1940,10 @@ td.expense-num { color: var(--expense); }
       <!-- ===== 视图：个人投资 ===== -->
       <section class="view" id="view-investment">
         <div class="invest-tabs">
-          <button class="invest-tab active" data-panel="macro">宏观环境</button>
+          <button class="invest-tab active" data-panel="holdings">持仓总览</button>
+          <button class="invest-tab" data-panel="macro">宏观环境</button>
           <button class="invest-tab" data-panel="experience">经验原则</button>
           <button class="invest-tab" data-panel="learning">学习笔记</button>
-          <button class="invest-tab" data-panel="holdings">持仓总览</button>
         </div>
 
         <!-- ===== 板块1：宏观环境 ===== -->
@@ -2412,9 +2412,55 @@ td.expense-num { color: var(--expense); }
     <div class="detail-content" id="detailPageContent">
       <div class="detail-header" id="dpHeader"></div>
 
+      <!-- 我的看法 -->
       <div class="detail-section">
         <div class="detail-section-title">
           <span class="ds-num">01</span>
+          我的看法
+          <span class="ds-sub">对这个标的波动特性的理解（可编辑）</span>
+        </div>
+        <div class="my-view-card">
+          <div class="my-view-header">
+            <div class="my-view-title">我对这个标的波动特性的看法</div>
+            <button class="btn btn-ghost btn-sm" onclick="editDdMyView()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              编辑
+            </button>
+          </div>
+          <div class="my-view-content" id="ddMyViewContent"></div>
+          <div id="ddMyViewEditArea" style="display:none;">
+            <textarea class="my-view-edit" id="ddMyViewTextarea" style="min-height:100px;"></textarea>
+            <div class="my-view-actions">
+              <button class="btn btn-ghost btn-sm" onclick="cancelDdMyView()">取消</button>
+              <button class="btn btn-primary btn-sm" onclick="saveDdMyView()">保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 基本面与财报分析 -->
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <span class="ds-num">02</span>
+          基本面与财报分析
+          <span class="ds-sub">主营业务 · 近几年财报 · 公司风格</span>
+        </div>
+        <div id="dpFundamentalContent"></div>
+      </div>
+
+      <!-- 投资逻辑链 -->
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <span class="ds-num">03</span>
+          投资逻辑链
+          <span class="ds-sub">事件传导逻辑链条 · 为什么买这家</span>
+        </div>
+        <div id="dpLogicChainContent"></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">
+          <span class="ds-num">04</span>
           历史波动与回撤分析
           <span class="ds-sub">历次最大回撤 · 原因 · 恢复 · 规律</span>
         </div>
@@ -2437,29 +2483,11 @@ td.expense-num { color: var(--expense); }
         <!-- AI规律分析 -->
         <div class="ai-analysis-card" id="ddAiAnalysis"></div>
 
-        <!-- 我的看法 -->
-        <div class="my-view-card" style="margin-top:16px;">
-          <div class="my-view-header">
-            <div class="my-view-title">我对这个标的波动特性的看法（可编辑）</div>
-            <button class="btn btn-ghost btn-sm" onclick="editDdMyView()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              编辑
-            </button>
-          </div>
-          <div class="my-view-content" id="ddMyViewContent"></div>
-          <div id="ddMyViewEditArea" style="display:none;">
-            <textarea class="my-view-edit" id="ddMyViewTextarea" style="min-height:80px;"></textarea>
-            <div class="my-view-actions">
-              <button class="btn btn-ghost btn-sm" onclick="cancelDdMyView()">取消</button>
-              <button class="btn btn-primary btn-sm" onclick="saveDdMyView()">保存</button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="detail-section">
         <div class="detail-section-title">
-          <span class="ds-num">02</span>
+          <span class="ds-num">05</span>
           现状分析
           <span class="ds-sub">小环境 · 高低点 / 带血筹码 / 抗风险</span>
         </div>
@@ -2473,7 +2501,7 @@ td.expense-num { color: var(--expense); }
 
       <div class="detail-section">
         <div class="detail-section-title">
-          <span class="ds-num">03</span>
+          <span class="ds-num">06</span>
           投资回报率预测
           <span class="ds-sub">未来 · 何时收 / 止盈止损</span>
         </div>
@@ -2488,7 +2516,7 @@ td.expense-num { color: var(--expense); }
 
       <div class="detail-section" id="dpFundSection" style="display:none;">
         <div class="detail-section-title">
-          <span class="ds-num">04</span>
+          <span class="ds-num">07</span>
           理财产品收益跟踪
           <span class="ds-sub">最近收益率 / 预计收益率</span>
         </div>
@@ -3939,6 +3967,12 @@ function renderHoldingDetailPage() {
     </div>
   `;
 
+  // 基本面与财报分析
+  renderFundamental(a);
+  
+  // 投资逻辑链
+  renderLogicChain(a);
+  
   // 历史回撤分析 - 统计概览
   const dds = a.history.drawdowns || [];
   const maxDd = dds.length ? Math.min(...dds.map(d => parseFloat(d.drawdown))) : 0;
@@ -4733,6 +4767,133 @@ async function refreshStockPrices() {
       btn.innerHTML = '刷新最新价';
     }
   }
+}
+
+
+/* ===== 深度分析：基本面与财报分析 ===== */
+function renderFundamental(a) {
+  const el = document.getElementById('dpFundamentalContent');
+  if (!el) return;
+  
+  const f = a.fundamental || {};
+  const financials = f.financials || [];
+  
+  let html = '';
+  
+  // 主营业务
+  html += '<div style="margin-bottom:20px;">';
+  html += '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;">主营业务</div>';
+  html += '<div style="font-size:13px;color:var(--ink-2);line-height:1.8;">' + (f.business || '暂无数据') + '</div>';
+  html += '</div>';
+  
+  // 公司风格
+  html += '<div style="margin-bottom:20px;">';
+  html += '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;">公司行事风格</div>';
+  html += '<div style="font-size:13px;color:var(--ink-2);line-height:1.8;">' + (f.style || '暂无数据') + '</div>';
+  html += '</div>';
+  
+  // 近几年财报表格
+  if (financials.length > 0) {
+    html += '<div style="margin-bottom:16px;">';
+    html += '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px;">近几年财报数据</div>';
+    html += '<div style="overflow-x:auto;">';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+    html += '<thead><tr style="background:var(--bg-soft);">';
+    html += '<th style="padding:8px 10px;text-align:left;border:1px solid var(--line);">指标</th>';
+    financials.forEach(fy => {
+      html += '<th style="padding:8px 10px;text-align:center;border:1px solid var(--line);">' + fy.year + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    
+    const rows = [
+      { key: 'revenue', label: '营业收入' },
+      { key: 'revenueGrowth', label: '营收增速' },
+      { key: 'netProfit', label: '净利润' },
+      { key: 'profitGrowth', label: '净利润增速' },
+      { key: 'grossMargin', label: '毛利率' },
+      { key: 'roe', label: 'ROE' },
+    ];
+    
+    rows.forEach(row => {
+      html += '<tr>';
+      html += '<td style="padding:8px 10px;border:1px solid var(--line);font-weight:500;">' + row.label + '</td>';
+      financials.forEach(fy => {
+        const val = fy[row.key] || '—';
+        const isGrowth = row.key.includes('Growth') || row.key === 'roe';
+        const color = isGrowth && val !== '—' ? (val.startsWith('-') ? 'var(--expense)' : 'var(--income)') : 'var(--ink-2)';
+        html += '<td style="padding:8px 10px;text-align:center;border:1px solid var(--line);color:' + color + ';">' + val + '</td>';
+      });
+      html += '</tr>';
+    });
+    
+    html += '</tbody></table></div></div>';
+  }
+  
+  // 财报点评
+  html += '<div>';
+  html += '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;">财报点评</div>';
+  html += '<div style="font-size:13px;color:var(--ink-2);line-height:1.8;">' + (f.comment || '暂无数据') + '</div>';
+  html += '</div>';
+  
+  el.innerHTML = html;
+}
+
+/* ===== 深度分析：投资逻辑链 ===== */
+function renderLogicChain(a) {
+  const el = document.getElementById('dpLogicChainContent');
+  if (!el) return;
+  
+  const lc = a.logicChain || {};
+  const nodes = lc.nodes || [];
+  const reason = lc.reason || '';
+  const peers = lc.peers || '';
+  
+  let html = '';
+  
+  // 逻辑链图
+  if (nodes.length > 0) {
+    html += '<div style="margin-bottom:20px;overflow-x:auto;padding:10px 0;">';
+    html += '<div style="display:flex;align-items:center;gap:0;min-width:max-content;">';
+    
+    nodes.forEach((node, i) => {
+      // 节点
+      const bgColor = node.type === 'event' ? 'var(--accent-soft)' : 
+                      node.type === 'transmission' ? '#fff3cd' : 
+                      node.type === 'result' ? 'var(--income-soft)' : 'var(--bg-soft)';
+      const borderColor = node.type === 'event' ? 'var(--accent)' : 
+                          node.type === 'transmission' ? '#f0ad4e' : 
+                          node.type === 'result' ? 'var(--income)' : 'var(--line)';
+      
+      html += '<div style="min-width:140px;max-width:180px;padding:12px 14px;background:' + bgColor + ';border:2px solid ' + borderColor + ';border-radius:8px;text-align:center;">';
+      html += '<div style="font-size:11px;color:var(--ink-3);margin-bottom:4px;">' + (node.stage || ('环节' + (i+1))) + '</div>';
+      html += '<div style="font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;">' + node.title + '</div>';
+      if (node.desc) {
+        html += '<div style="font-size:11px;color:var(--ink-3);margin-top:6px;line-height:1.4;">' + node.desc + '</div>';
+      }
+      html += '</div>';
+      
+      // 箭头
+      if (i < nodes.length - 1) {
+        html += '<div style="font-size:20px;color:var(--ink-3);padding:0 6px;">→</div>';
+      }
+    });
+    
+    html += '</div></div>';
+  }
+  
+  // 为什么买这家
+  html += '<div style="margin-bottom:16px;">';
+  html += '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;">为什么买这家（买入逻辑）</div>';
+  html += '<div style="font-size:13px;color:var(--ink-2);line-height:1.8;">' + (reason || '暂无数据') + '</div>';
+  html += '</div>';
+  
+  // 同类公司对比
+  html += '<div>';
+  html += '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;">同类公司有哪些</div>';
+  html += '<div style="font-size:13px;color:var(--ink-2);line-height:1.8;">' + (peers || '暂无数据') + '</div>';
+  html += '</div>';
+  
+  el.innerHTML = html;
 }
 
 </script>
