@@ -2023,6 +2023,7 @@ td.expense-num { color: var(--expense); }
             <button class="learning-tab" data-ltab="books" onclick="switchLearningTab('books')">书本学习</button>
             <button class="learning-tab" data-ltab="cases" onclick="switchLearningTab('cases')">案例与大神</button>
             <button class="learning-tab" data-ltab="indicators" onclick="switchLearningTab('indicators')">技术指标</button>
+            <button class="learning-tab" data-ltab="jottings" onclick="switchLearningTab('jottings')">随笔</button>
           </div>
 
           <div id="learning-concepts" class="learning-panel active">
@@ -2055,6 +2056,14 @@ td.expense-num { color: var(--expense); }
               <button class="btn btn-primary btn-sm" onclick="openLearningModal('indicators')">+ 添加指标</button>
             </div>
             <div id="indicatorsList"></div>
+          </div>
+
+          <div id="learning-jottings" class="learning-panel">
+            <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:var(--ink-3);">随时记录投资感受、感想、心路历程</span>
+              <button class="btn btn-primary btn-sm" onclick="openLearningModal('jottings')">+ 写随笔</button>
+            </div>
+            <div id="jottingsList"></div>
           </div>
         </div>
 
@@ -4376,6 +4385,7 @@ function renderLearning() {
     { key: 'books', listId: 'booksList', titleField: 'title' },
     { key: 'cases', listId: 'casesList', titleField: 'title' },
     { key: 'indicators', listId: 'indicatorsList', titleField: 'title' },
+    { key: 'jottings', listId: 'jottingsList', titleField: 'title' },
   ];
   types.forEach(t => {
     const list = document.getElementById(t.listId);
@@ -4404,7 +4414,7 @@ let editingLearningId = null;
 function openLearningModal(type) {
   editingLearningType = type;
   editingLearningId = null;
-  const titles = { concepts: '添加基础概念', books: '添加读书笔记', cases: '添加案例/大神经验', indicators: '添加技术指标' };
+  const titles = { concepts: '添加基础概念', books: '添加读书笔记', cases: '添加案例/大神经验', indicators: '添加技术指标', jottings: '写随笔' };
   document.getElementById('learningModalTitle').textContent = titles[type];
   document.getElementById('learningTitle').value = '';
   document.getElementById('learningContent').value = '';
@@ -4415,7 +4425,7 @@ function editLearningItem(type, id) {
   editingLearningId = id;
   const item = state.learning[type].find(i => i.id === id);
   if (!item) return;
-  const titles = { concepts: '编辑概念', books: '编辑读书笔记', cases: '编辑案例', indicators: '编辑指标' };
+  const titles = { concepts: '编辑概念', books: '编辑读书笔记', cases: '编辑案例', indicators: '编辑指标', jottings: '编辑随笔' };
   document.getElementById('learningModalTitle').textContent = titles[type];
   document.getElementById('learningTitle').value = item.title;
   document.getElementById('learningContent').value = item.content;
