@@ -3066,6 +3066,22 @@ function getActiveExpenseTotal() {
 function getTotalAssets() {
   return state.accounts.reduce((s, a) => s + a.balance, 0);
 }
+// 活钱（可支配，不含公积金等锁定账户）
+function getLiquidAssets() {
+  return state.accounts.filter(a => !a.locked).reduce((s, a) => s + a.balance, 0);
+}
+// 死钱（动不了的，如公积金）
+function getLockedAssets() {
+  return state.accounts.filter(a => a.locked).reduce((s, a) => s + a.balance, 0);
+}
+// 投资总市值
+function getInvestmentValue() {
+  return state.holdings.reduce((s, h) => s + (h.price * h.qty), 0);
+}
+// 投资总成本
+function getInvestmentCost() {
+  return state.holdings.reduce((s, h) => s + (h.cost * h.qty), 0);
+}
 
 /* ===== 路由 ===== */
 const routeTitles = {
@@ -3101,16 +3117,18 @@ document.querySelectorAll('.nav-item').forEach(el => {
 
 /* ===== 渲染：总览 ===== */
 function renderOverview() {
-  const total = getTotalAssets();
+  const liquid = getLiquidAssets();
+  const locked = getLockedAssets();
+  const investVal = getInvestmentValue();
   const monthIncome = state.monthlyData[8].income;
   const monthExpense = state.monthlyData[8].expense;
   const balance = monthIncome - monthExpense;
 
-  document.getElementById('statTotal').textContent = '¥' + fmt(total);
+  document.getElementById('statTotal').textContent = '¥' + fmt(liquid);
   document.getElementById('statIncome').textContent = '¥' + fmt(monthIncome);
   document.getElementById('statExpense').textContent = '¥' + fmt(monthExpense);
   document.getElementById('statBalance').textContent = '¥' + fmt(balance);
-  document.getElementById('sidebarTotal').textContent = '¥' + fmt(total);
+  document.getElementById('sidebarTotal').textContent = '¥' + fmt(liquid);
 
   // 账户列表
   document.getElementById('accountCount').textContent = state.accounts.length + ' 个账户';
@@ -3170,7 +3188,23 @@ function renderAssetPie() {
   const el = document.getElementById('chartAssetPie');
   if (!el) return;
   const chart = echarts.init(el);
-  const data = state.accounts.map(a => ({ name: a.name, value: a.balance, itemStyle: { color: a.color } }));
+  const liquidAccounts = state.accounts.filter(a => !a.locked);
+  const lockedAccounts = state.accounts.filter(a => a.locked);
+  const liquidTotal = liquidAccounts.reduce((s, a) => s + a.balance, 0);
+  const lockedTotal = lockedAccounts.reduce((s, a) => s + a.balance, 0);
+
+  // 内圈：活钱/死钱分类
+  const innerData = [];
+  if (liquidTotal > 0) innerData.push({ name: '活钱（可支配）', value: liquidTotal, itemStyle: { color: '#2d6a4f' } });
+  if (lockedTotal > 0) innerData.push({ name: '死钱（锁定）', value: lockedTotal, itemStyle: { color: '#6c5ce7' } });
+
+  // 外圈：具体账户
+  const outerData = state.accounts.map(a => ({
+    name: a.name + (a.locked ? '（锁定）' : ''),
+    value: a.balance,
+    itemStyle: { color: a.color }
+  }));
+
   chart.setOption({
     tooltip: {
       trigger: 'item',
@@ -3184,22 +3218,42 @@ function renderAssetPie() {
       itemWidth: 10,
       itemHeight: 10,
     },
-    series: [{
-      type: 'pie',
-      radius: ['45%', '70%'],
-      center: ['50%', '42%'],
-      avoidLabelOverlap: true,
-      label: {
-        show: true,
-        position: 'inside',
-        formatter: (p) => p.percent >= 8 ? `${p.percent}%` : '',
-        fontSize: 11,
-        color: '#fff',
-        fontWeight: 600,
+    series: [
+      {
+        name: '资金性质',
+        type: 'pie',
+        radius: ['0%', '35%'],
+        center: ['50%', '42%'],
+        label: {
+          show: true,
+          position: 'inside',
+          formatter: (p) => p.name.replace('（可支配）','').replace('（锁定）','') + '\n' + p.percent + '%',
+          fontSize: 10,
+          color: '#fff',
+          fontWeight: 600,
+          lineHeight: 14,
+        },
+        labelLine: { show: false },
+        data: innerData,
       },
-      labelLine: { show: false },
-      data: data,
-    }],
+      {
+        name: '具体账户',
+        type: 'pie',
+        radius: ['45%', '70%'],
+        center: ['50%', '42%'],
+        avoidLabelOverlap: true,
+        label: {
+          show: true,
+          position: 'inside',
+          formatter: (p) => p.percent >= 8 ? `${p.percent}%` : '',
+          fontSize: 11,
+          color: '#fff',
+          fontWeight: 600,
+        },
+        labelLine: { show: false },
+        data: outerData,
+      }
+    ],
   });
   new ResizeObserver(() => chart.resize()).observe(el);
 }
