@@ -4351,6 +4351,61 @@ function editStockField(key) {
   el.onclick = null;
 }
 
+/* ===== 板块2：宏观环境 ===== */
+function renderMacro() {
+  const m = state.macroData || {};
+  const fields = [
+    { key: 'international', contentEl: 'macroInternational', editEl: 'macroInternationalEdit', textareaEl: 'macroInternationalText' },
+    { key: 'domestic', contentEl: 'macroDomestic', editEl: 'macroDomesticEdit', textareaEl: 'macroDomesticText' },
+    { key: 'myView', contentEl: 'macroMyView', editEl: 'macroMyViewEdit', textareaEl: 'macroMyViewText' },
+  ];
+  fields.forEach(f => {
+    const contentEl = document.getElementById(f.contentEl);
+    if (contentEl) {
+      contentEl.textContent = m[f.key] || '暂无内容，点击编辑写下你的分析...';
+      contentEl.style.whiteSpace = 'pre-wrap';
+    }
+  });
+}
+function editMacro(type) {
+  const map = {
+    international: { content: 'macroInternational', edit: 'macroInternationalEdit', textarea: 'macroInternationalText' },
+    domestic: { content: 'macroDomestic', edit: 'macroDomesticEdit', textarea: 'macroDomesticText' },
+    myView: { content: 'macroMyView', edit: 'macroMyViewEdit', textarea: 'macroMyViewText' },
+  };
+  const f = map[type];
+  if (!f) return;
+  document.getElementById(f.content).style.display = 'none';
+  document.getElementById(f.edit).style.display = 'block';
+  document.getElementById(f.textarea).value = (state.macroData && state.macroData[type]) || '';
+  document.getElementById(f.textarea).focus();
+}
+function cancelEditMacro(type) {
+  const map = {
+    international: { content: 'macroInternational', edit: 'macroInternationalEdit' },
+    domestic: { content: 'macroDomestic', edit: 'macroDomesticEdit' },
+    myView: { content: 'macroMyView', edit: 'macroMyViewEdit' },
+  };
+  const f = map[type];
+  if (!f) return;
+  document.getElementById(f.content).style.display = 'block';
+  document.getElementById(f.edit).style.display = 'none';
+}
+function saveMacro(type) {
+  const map = {
+    international: 'macroInternationalText',
+    domestic: 'macroDomesticText',
+    myView: 'macroMyViewText',
+  };
+  const textareaId = map[type];
+  if (!textareaId) return;
+  if (!state.macroData) state.macroData = {};
+  state.macroData[type] = document.getElementById(textareaId).value;
+  cancelEditMacro(type);
+  renderMacro();
+  saveState();
+}
+
 /* ===== 板块3：经验原则 ===== */
 function renderExperience() {
   document.getElementById('experienceContent').textContent = state.experiencePrinciples || '';
