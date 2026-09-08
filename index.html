@@ -1755,7 +1755,7 @@ td.expense-num { color: var(--expense); }
           <div class="card">
             <div class="card-title">
               资产构成
-              <span class="sub">按账户类型</span>
+              <span class="sub">活钱分布</span>
             </div>
             <div class="chart-box" id="chartAssetPie"></div>
           </div>
@@ -3195,22 +3195,9 @@ function renderAssetPie() {
   const el = document.getElementById('chartAssetPie');
   if (!el) return;
   const chart = echarts.init(el);
-  const liquidAccounts = state.accounts.filter(a => !a.locked);
-  const lockedAccounts = state.accounts.filter(a => a.locked);
-  const liquidTotal = liquidAccounts.reduce((s, a) => s + a.balance, 0);
-  const lockedTotal = lockedAccounts.reduce((s, a) => s + a.balance, 0);
-
-  // 内圈：活钱/死钱分类
-  const innerData = [];
-  if (liquidTotal > 0) innerData.push({ name: '活钱（可支配）', value: liquidTotal, itemStyle: { color: '#2d6a4f' } });
-  if (lockedTotal > 0) innerData.push({ name: '死钱（锁定）', value: lockedTotal, itemStyle: { color: '#6c5ce7' } });
-
-  // 外圈：具体账户
-  const outerData = state.accounts.map(a => ({
-    name: a.name + (a.locked ? '（锁定）' : ''),
-    value: a.balance,
-    itemStyle: { color: a.color }
-  }));
+  // 只显示活钱账户（不含公积金等锁定账户）
+  const liquidAccounts = state.accounts.filter(a => !a.locked && a.balance > 0);
+  const data = liquidAccounts.map(a => ({ name: a.name, value: a.balance, itemStyle: { color: a.color } }));
 
   chart.setOption({
     tooltip: {
@@ -3225,42 +3212,22 @@ function renderAssetPie() {
       itemWidth: 10,
       itemHeight: 10,
     },
-    series: [
-      {
-        name: '资金性质',
-        type: 'pie',
-        radius: ['0%', '35%'],
-        center: ['50%', '42%'],
-        label: {
-          show: true,
-          position: 'inside',
-          formatter: (p) => p.name.replace('（可支配）','').replace('（锁定）','') + '\n' + p.percent + '%',
-          fontSize: 10,
-          color: '#fff',
-          fontWeight: 600,
-          lineHeight: 14,
-        },
-        labelLine: { show: false },
-        data: innerData,
+    series: [{
+      type: 'pie',
+      radius: ['45%', '70%'],
+      center: ['50%', '42%'],
+      avoidLabelOverlap: true,
+      label: {
+        show: true,
+        position: 'inside',
+        formatter: (p) => p.percent >= 8 ? `${p.percent}%` : '',
+        fontSize: 11,
+        color: '#fff',
+        fontWeight: 600,
       },
-      {
-        name: '具体账户',
-        type: 'pie',
-        radius: ['45%', '70%'],
-        center: ['50%', '42%'],
-        avoidLabelOverlap: true,
-        label: {
-          show: true,
-          position: 'inside',
-          formatter: (p) => p.percent >= 8 ? `${p.percent}%` : '',
-          fontSize: 11,
-          color: '#fff',
-          fontWeight: 600,
-        },
-        labelLine: { show: false },
-        data: outerData,
-      }
-    ],
+      labelLine: { show: false },
+      data: data,
+    }],
   });
   new ResizeObserver(() => chart.resize()).observe(el);
 }
