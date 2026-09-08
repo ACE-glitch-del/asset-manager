@@ -2060,29 +2060,6 @@ td.expense-num { color: var(--expense); }
 
         <!-- ===== 板块5：持仓总览 ===== -->
         <div class="invest-panel active" id="panel-holdings">
-          <div class="grid grid-4 section-gap">
-            <div class="stat-card total">
-              <div class="stat-label">投资总市值</div>
-              <div class="stat-value" id="invTotalValue">—</div>
-              <div class="stat-delta">占总资产 <span id="invRatio">—</span></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">累计投入</div>
-              <div class="stat-value" id="invTotalCost">—</div>
-              <div class="stat-delta">本金基数</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">累计盈亏</div>
-              <div class="stat-value" id="invTotalPnl">—</div>
-              <div class="stat-delta" id="invPnlPct">—</div>
-            </div>
-            <div class="stat-card balance">
-              <div class="stat-label">年化收益率</div>
-              <div class="stat-value" id="invAnnualReturn">—</div>
-              <div class="stat-delta">加权平均</div>
-            </div>
-          </div>
-
           <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:13px;color:var(--ink-3);" id="holdingCount"></span>
             <button class="btn btn-primary" onclick="openHoldingModal()">
@@ -3758,21 +3735,6 @@ function getTotalInvestCost() { return state.holdings.reduce((s, h) => s + getHo
 
 /* ===== 投资板块：渲染标的列表 ===== */
 function renderHoldings() {
-  const totalValue = getTotalInvestValue();
-  const totalCost = getTotalInvestCost();
-  const totalPnl = totalValue - totalCost;
-  const pnlPct = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
-  const totalAssets = getTotalAssets() + totalValue;
-  const invRatio = totalAssets > 0 ? (totalValue / totalAssets * 100).toFixed(1) : 0;
-
-  document.getElementById('invTotalValue').textContent = '¥' + fmt(totalValue);
-  document.getElementById('invTotalCost').textContent = '¥' + fmt(totalCost);
-  const pnlEl = document.getElementById('invTotalPnl');
-  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + '¥' + fmt(totalPnl);
-  pnlEl.style.color = totalPnl >= 0 ? 'var(--income)' : 'var(--expense)';
-  document.getElementById('invPnlPct').innerHTML = '收益率 <span class="' + (totalPnl >= 0 ? 'up' : 'down') + '">' + (totalPnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%</span>';
-  document.getElementById('invAnnualReturn').textContent = (pnlPct * 0.6).toFixed(2) + '%';
-  document.getElementById('invRatio').textContent = invRatio + '%';
   document.getElementById('holdingCount').textContent = '共 ' + state.holdings.length + ' 个标的';
 
   const grid = document.getElementById('holdingsGrid');
