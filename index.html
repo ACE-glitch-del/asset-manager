@@ -1644,6 +1644,63 @@ td.expense-num { color: var(--expense); }
 
   /* 宏观textarea */
   .macro-textarea { min-height: 150px; }
+
+  /* 学习笔记优化 */
+  .learning-tabs {
+    position: relative;
+    padding-bottom: 4px;
+  }
+  .learning-tabs::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 4px;
+    width: 30px;
+    background: linear-gradient(to right, transparent, var(--bg));
+    pointer-events: none;
+  }
+  .learning-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  .learning-card {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .learning-card-title {
+    font-size: 15px;
+  }
+  .learning-card-content {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .learning-card-actions .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  /* 写随笔按钮放大 */
+  #learning-jottings .btn-primary,
+  .learning-panel .btn-primary {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+
+  /* 模态框textarea优化 */
+  #learningContent {
+    min-height: 200px !important;
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+  }
+  #learningTitle {
+    font-size: 16px !important;
+    padding: 12px 14px !important;
+  }
+  .modal-actions .btn {
+    padding: 12px 24px;
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 480px) {
