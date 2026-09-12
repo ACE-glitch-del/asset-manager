@@ -1,0 +1,28 @@
+{
+  "profile": {},
+  "problems": [
+    {
+      "id": "default_001",
+      "title": "无法控制情绪",
+      "origin": "",
+      "manifestations": [],
+      "measures": [],
+      "status": "active",
+      "createdAt": 1789235181754,
+      "updatedAt": 1789235181754,
+      "tracks": []
+    },
+    {
+      "id": "default_002",
+      "title": "极度不抗压",
+      "origin": "从小家里比较紧盯着，比较强势控制",
+      "manifestations": [],
+      "measures": [],
+      "status": "active",
+      "createdAt": 1789235181754,
+      "updatedAt": 1789235181754,
+      "tracks": []
+    }
+  ],
+  "updatedAt": "2026-09-12T17:46:21.000Z"
+}
