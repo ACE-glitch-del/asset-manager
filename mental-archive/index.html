@@ -1346,6 +1346,37 @@ function exportData() {
 loadData();
 loadSyncConfig();
 updateSyncStatus();
+
+// 首次使用时预置默认问题
+if (state.problems.length === 0) {
+  const now = Date.now();
+  state.problems = [
+    {
+      id: genId(),
+      title: '无法控制情绪',
+      origin: '',
+      manifestations: [],
+      measures: [],
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+      tracks: []
+    },
+    {
+      id: genId(),
+      title: '极度不抗压',
+      origin: '从小家里比较紧盯着，比较强势控制',
+      manifestations: [],
+      measures: [],
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+      tracks: []
+    }
+  ];
+  saveData();
+}
+
 renderProfile();
 renderList();
 
