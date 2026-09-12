@@ -2057,19 +2057,11 @@ td.expense-num { color: var(--expense); }
         <!-- ===== 板块3：经验原则 ===== -->
         <div class="invest-panel" id="panel-experience">
           <div class="card">
-            <div class="card-title">
-              我的经验与原则
-              <span class="sub">踩过的坑 · 总结的教训 · 操作纪律</span>
-              <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="editExperience()">编辑</button>
+            <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:var(--ink-3);">踩过的坑 · 总结的教训 · 操作纪律，一条一条记录</span>
+              <button class="btn btn-primary btn-sm" onclick="openExperienceModal()">+ 添加经验原则</button>
             </div>
-            <div class="macro-content" id="experienceContent" style="min-height:300px;white-space:pre-wrap;"></div>
-            <div id="experienceEditArea" style="display:none;">
-              <textarea class="macro-textarea" id="experienceTextarea" style="min-height:400px;"></textarea>
-              <div style="margin-top:10px;text-align:right;">
-                <button class="btn btn-ghost btn-sm" onclick="cancelEditExperience()">取消</button>
-                <button class="btn btn-primary btn-sm" onclick="saveExperience()">保存</button>
-              </div>
-            </div>
+            <div id="experienceList"></div>
           </div>
         </div>
 
@@ -2331,19 +2323,38 @@ td.expense-num { color: var(--expense); }
 
 <!-- ===== 学习笔记模态框 ===== -->
 <div class="modal-overlay" id="learningModal">
-  <div class="modal" style="width:520px;">
+  <div class="modal" style="width:760px;max-width:92vw;">
     <h3 id="learningModalTitle">添加</h3>
     <div class="form-group">
       <label>标题</label>
-      <input type="text" id="learningTitle" placeholder="例如：什么是债券、《聪明的投资者》读书笔记">
+      <input type="text" id="learningTitle" placeholder="例如：什么是债券、《聪明的投资者》读书笔记" style="font-size:15px;padding:12px 16px;">
     </div>
     <div class="form-group">
       <label>内容</label>
-      <textarea id="learningContent" rows="6" style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font-sans);resize:vertical;" placeholder="详细记录..."></textarea>
+      <textarea id="learningContent" rows="16" style="width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:15px;line-height:1.8;font-family:var(--font-sans);resize:vertical;" placeholder="详细记录..."></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="document.getElementById('learningModal').classList.remove('show')">取消</button>
       <button class="btn btn-primary" onclick="saveLearningItem()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 经验原则模态框 ===== -->
+<div class="modal-overlay" id="experienceModal">
+  <div class="modal" style="width:760px;max-width:92vw;">
+    <h3 id="experienceModalTitle">添加经验原则</h3>
+    <div class="form-group">
+      <label>标题</label>
+      <input type="text" id="experienceItemTitle" placeholder="例如：止损纪律、分批建仓原则" style="font-size:15px;padding:12px 16px;">
+    </div>
+    <div class="form-group">
+      <label>内容</label>
+      <textarea id="experienceItemContent" rows="16" style="width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:15px;line-height:1.8;font-family:var(--font-sans);resize:vertical;" placeholder="详细描述这条经验或原则..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeExperienceModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveExperienceItem()">保存</button>
     </div>
   </div>
 </div>
@@ -2876,7 +2887,12 @@ const state = {
     myView: '外部环境复杂：美联储加息预期+地缘冲突+油价上涨，对全球风险资产形成压制。国内政策持续发力但内需恢复缓慢，经济处于弱复苏状态。\n\n对A股的影响：外部流动性收紧压制估值，但国内政策托底+估值低位，下行空间有限。整体是震荡磨底格局，适合定投而非追涨。\n\n操作策略：维持宽基指数定投，个股精选政策受益和业绩确定性强的品种，黄金作为对冲继续持有。',
   },
   stockAnalysis: {},
-  experiencePrinciples: '在这里记录你踩过的坑、总结的经验、操作纪律...\n\n例如：\n1. 好公司也要等好价格，买贵了就要承受时间成本\n2. 不要一把梭，分批建仓留余地\n3. 止损纪律要严格执行，不要心存侥幸\n4. ...',
+  experienceItems: [
+    { id: 1, title: '好公司也要等好价格', content: '买贵了就要承受时间成本。再好的公司，买入价格过高也会导致长期收益不佳。耐心等待市场恐慌或估值合理时再出手。' },
+    { id: 2, title: '不要一把梭，分批建仓留余地', content: '单次满仓买入风险极大，没有人能精准抄底。分批建仓（如3-5批）可以平滑成本，保留纠错空间。' },
+    { id: 3, title: '止损纪律要严格执行', content: '设定止损线后必须严格执行，不要心存侥幸。亏损10%需要涨11%回本，亏损50%需要涨100%回本。截断亏损，让利润奔跑。' },
+  ],
+  experiencePrinciples: '',
   learning: {
     concepts: [
       { id: 1, title: '债券', content: '债券是政府或企业向投资者借钱的凭证，约定固定利率和到期还本。债券价格与利率反向变动：利率涨，债券价格跌；利率跌，债券价格涨。国债是最安全的债券，企业债收益更高但有违约风险。' },
@@ -2940,6 +2956,7 @@ function buildDataPayload() {
     myViewOnVolatility: state.myViewOnVolatility,
     macroData: state.macroData,
     stockAnalysis: state.stockAnalysis,
+    experienceItems: state.experienceItems,
     experiencePrinciples: state.experiencePrinciples,
     learning: state.learning,
   };
@@ -2962,11 +2979,24 @@ function applyData(data) {
   if (data.myViewOnVolatility) state.myViewOnVolatility = data.myViewOnVolatility;
   if (data.macroData) state.macroData = Object.assign({}, state.macroData, data.macroData);
   if (data.stockAnalysis) state.stockAnalysis = data.stockAnalysis;
-  if (data.experiencePrinciples !== undefined) state.experiencePrinciples = data.experiencePrinciples;
+  if (data.experienceItems) {
+    state.experienceItems = data.experienceItems;
+  } else if (data.experiencePrinciples && typeof data.experiencePrinciples === 'string' && data.experiencePrinciples.trim()) {
+    // 兼容旧版：把大文本按行拆成条目
+    const lines = data.experiencePrinciples.split('\n').filter(l => l.trim());
+    state.experienceItems = lines.map((line, idx) => ({
+      id: idx + 1,
+      title: line.length > 30 ? line.substring(0, 30) + '...' : line,
+      content: line,
+    }));
+    state.experiencePrinciples = '';
+  }
+  if (data.experiencePrinciples !== undefined && !data.experienceItems) state.experiencePrinciples = data.experiencePrinciples;
   if (data.learning) state.learning = Object.assign({}, state.learning, data.learning);
   // 数据加载完成后重新渲染宏观和学习笔记（延迟确保DOM就绪）
   if (typeof renderMacro === 'function') setTimeout(() => renderMacro(), 100);
   if (typeof renderLearning === 'function') setTimeout(() => renderLearning(), 100);
+  if (typeof renderExperience === 'function') setTimeout(() => renderExperience(), 100);
 }
 
 function updateSyncIndicator(text, color) {
@@ -4468,20 +4498,66 @@ function saveMacro(type) {
 
 /* ===== 板块3：经验原则 ===== */
 function renderExperience() {
-  document.getElementById('experienceContent').textContent = state.experiencePrinciples || '';
+  const list = document.getElementById('experienceList');
+  if (!list) return;
+  if (!state.experienceItems) state.experienceItems = [];
+  const items = state.experienceItems;
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty-state">暂无经验原则，点击上方按钮添加</div>';
+    return;
+  }
+  list.innerHTML = items.map(item => `
+    <div class="learning-card">
+      <div class="learning-card-header">
+        <div class="learning-card-title">${item.title}</div>
+        <div class="learning-card-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editExperienceItem(${item.id})">编辑</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--expense);" onclick="deleteExperienceItem(${item.id})">删除</button>
+        </div>
+      </div>
+      <div class="learning-card-content">${item.content}</div>
+    </div>
+  `).join('');
 }
-function editExperience() {
-  document.getElementById('experienceContent').style.display = 'none';
-  document.getElementById('experienceEditArea').style.display = 'block';
-  document.getElementById('experienceTextarea').value = state.experiencePrinciples || '';
+let editingExperienceId = null;
+function openExperienceModal() {
+  editingExperienceId = null;
+  document.getElementById('experienceModalTitle').textContent = '添加经验原则';
+  document.getElementById('experienceItemTitle').value = '';
+  document.getElementById('experienceItemContent').value = '';
+  document.getElementById('experienceModal').classList.add('show');
 }
-function cancelEditExperience() {
-  document.getElementById('experienceContent').style.display = 'block';
-  document.getElementById('experienceEditArea').style.display = 'none';
+function editExperienceItem(id) {
+  const item = state.experienceItems.find(i => i.id === id);
+  if (!item) return;
+  editingExperienceId = id;
+  document.getElementById('experienceModalTitle').textContent = '编辑经验原则';
+  document.getElementById('experienceItemTitle').value = item.title;
+  document.getElementById('experienceItemContent').value = item.content;
+  document.getElementById('experienceModal').classList.add('show');
 }
-function saveExperience() {
-  state.experiencePrinciples = document.getElementById('experienceTextarea').value;
-  cancelEditExperience();
+function closeExperienceModal() {
+  document.getElementById('experienceModal').classList.remove('show');
+}
+function saveExperienceItem() {
+  const title = document.getElementById('experienceItemTitle').value.trim();
+  const content = document.getElementById('experienceItemContent').value.trim();
+  if (!title) { alert('请填写标题'); return; }
+  if (!state.experienceItems) state.experienceItems = [];
+  if (editingExperienceId) {
+    const item = state.experienceItems.find(i => i.id === editingExperienceId);
+    if (item) { item.title = title; item.content = content; }
+  } else {
+    const maxId = state.experienceItems.reduce((m, i) => Math.max(m, i.id), 0);
+    state.experienceItems.push({ id: maxId + 1, title, content });
+  }
+  closeExperienceModal();
+  renderExperience();
+  saveState();
+}
+function deleteExperienceItem(id) {
+  if (!confirm('确定删除这条经验原则？')) return;
+  state.experienceItems = state.experienceItems.filter(i => i.id !== id);
   renderExperience();
   saveState();
 }
