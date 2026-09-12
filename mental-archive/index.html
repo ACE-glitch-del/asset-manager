@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心镜 · 个人心理档案</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪞</text></svg>">
+<style>
+  :root {
+    --bg: #f7f3ee;
+    --bg-card: #ffffff;
+    --bg-soft: #f0ebe4;
+    --text: #3d3530;
+    --text-light: #8a7e74;
+    --text-muted: #b5a99e;
+    --accent: #c4956a;
+    --accent-light: #e8d5c0;
+    --accent-dark: #a67a52;
+    --green: #7ba07b;
+    --green-light: #d4e4d4;
+    --red: #c97b7b;
+    --red-light: #f0d8d8;
+    --blue: #7b97b8;
+    --blue-light: #d6e0ec;
+    --border: #e5ddd3;
+    --shadow: 0 2px 12px rgba(61,53,48,0.06);
+    --shadow-lg: 0 8px 32px rgba(61,53,48,0.1);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ===== 顶部导航 ===== */
+  .topbar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px; font-weight: 700;
+  }
+  .app-title { font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+  .app-subtitle { font-size: 12px; color: var(--text-muted); }
+  .topbar-right { display: flex; gap: 10px; align-items: center; }
+
+  .btn {
+    border: none; cursor: pointer; font-family: inherit;
+    padding: 9px 18px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-ghost { background: transparent; color: var(--text-light); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--bg-soft); }
+  .btn-danger { background: var(--red-light); color: var(--red); }
+  .btn-danger:hover { background: var(--red); color: #fff; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  /* ===== 主容器 ===== */
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* ===== 基本信息卡片 ===== */
+  .profile-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .profile-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  }
+  .profile-title {
+    font-size: 16px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .profile-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px 20px;
+  }
+  .profile-field { min-width: 0; }
+  .profile-field-label {
+    font-size: 12px; color: var(--text-muted); margin-bottom: 3px;
+  }
+  .profile-field-value {
+    font-size: 14px; color: var(--text); font-weight: 500;
+    word-break: break-all;
+  }
+  .profile-field-value.empty { color: var(--text-muted); font-weight: 400; font-style: italic; }
+  .profile-field.full { grid-column: 1 / -1; }
+  .profile-field.half { grid-column: span 2; }
+
+  .profile-actions { display: flex; gap: 8px; }
+  .profile-toggle {
+    background: none; border: none; color: var(--text-light); cursor: pointer;
+    font-size: 13px; font-family: inherit; display: flex; align-items: center; gap: 4px;
+  }
+  .profile-toggle:hover { color: var(--accent-dark); }
+  .profile-body.collapsed { display: none; }
+
+  /* ===== 概览统计 ===== */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .stat-label { font-size: 13px; color: var(--text-light); margin-bottom: 6px; }
+  .stat-value { font-size: 32px; font-weight: 700; color: var(--text); }
+  .stat-value .unit { font-size: 14px; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
+  .stat-card.accent .stat-value { color: var(--accent-dark); }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.blue .stat-value { color: var(--blue); }
+
+  /* ===== 筛选栏 ===== */
+  .filter-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .filter-tabs { display: flex; gap: 4px; background: var(--bg-soft); padding: 4px; border-radius: 10px; }
+  .filter-tab {
+    padding: 7px 16px; border-radius: 7px; cursor: pointer;
+    font-size: 13px; color: var(--text-light); transition: all 0.2s;
+    border: none; background: transparent; font-family: inherit;
+  }
+  .filter-tab.active { background: var(--bg-card); color: var(--text); font-weight: 500; box-shadow: var(--shadow); }
+  .search-box {
+    padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 13px; width: 220px; background: var(--bg-card); font-family: inherit;
+    color: var(--text);
+  }
+  .search-box:focus { outline: none; border-color: var(--accent); }
+
+  /* ===== 问题卡片列表 ===== */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+  }
+  .problem-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .problem-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .problem-card.resolved { opacity: 0.75; }
+  .problem-card.resolved .card-title { text-decoration: line-through; color: var(--text-muted); }
+
+  .card-status {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 500; margin-bottom: 12px;
+  }
+  .status-active { background: var(--accent-light); color: var(--accent-dark); }
+  .status-resolved { background: var(--green-light); color: var(--green); }
+
+  .card-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+  .card-origin { font-size: 13px; color: var(--text-light); margin-bottom: 14px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-meta { display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--text-muted); padding-top: 12px; border-top: 1px solid var(--border); }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tag {
+    padding: 2px 8px; border-radius: 4px; font-size: 11px;
+    background: var(--bg-soft); color: var(--text-light);
+  }
+
+  .empty-state {
+    text-align: center; padding: 80px 20px; color: var(--text-muted);
+  }
+  .empty-state .icon {
+    width: 56px; height: 56px; margin: 0 auto 16px;
+    opacity: 0.35;
+  }
+  .empty-state .icon svg { width: 100%; height: 100%; }
+  .empty-state p { font-size: 15px; margin-bottom: 8px; }
+  .empty-state .sub { font-size: 13px; }
+
+  /* ===== 模态框 ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(61,53,48,0.45);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--bg-card); border-radius: var(--radius);
+    width: 100%; max-width: 640px; max-height: 90vh;
+    overflow-y: auto; box-shadow: var(--shadow-lg);
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-header {
+    padding: 22px 28px 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-title { font-size: 18px; font-weight: 600; }
+  .modal-close {
+    background: none; border: none; cursor: pointer; font-size: 22px;
+    color: var(--text-muted); width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: var(--bg-soft); }
+  .modal-body { padding: 24px 28px; }
+  .modal-footer { padding: 16px 28px 24px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); }
+
+  /* ===== 表单 ===== */
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+  .form-label .required { color: var(--red); margin-left: 2px; }
+  .form-input, .form-textarea, .form-select {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
+    background: var(--bg-card); color: var(--text); transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+
+  .tag-input-wrap {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    background: var(--bg-card);
+  }
+  .tag-input-wrap:focus-within { border-color: var(--accent); }
+  .tag-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 4px; font-size: 12px;
+    background: var(--accent-light); color: var(--accent-dark);
+  }
+  .tag-chip .remove { cursor: pointer; font-weight: bold; opacity: 0.7; }
+  .tag-chip .remove:hover { opacity: 1; }
+  .tag-input {
+    border: none; outline: none; flex: 1; min-width: 100px;
+    font-size: 13px; font-family: inherit; background: transparent; color: var(--text);
+    padding: 4px 2px;
+  }
+
+  /* ===== 详情页 ===== */
+  .detail-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+  }
+  .detail-title-wrap { flex: 1; min-width: 200px; }
+  .detail-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .detail-section {
+    background: var(--bg-card); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 15px; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .section-title .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+  .detail-content { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 10px 0; border-bottom: 1px dashed var(--border);
+    font-size: 14px; display: flex; align-items: flex-start; gap: 10px;
+  }
+  .detail-list li:last-child { border-bottom: none; }
+  .detail-list li::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0; margin-top: 8px;
+  }
+  .list-item-text { flex: 1; }
+  .list-item-del {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 16px; padding: 0 4px; opacity: 0; transition: opacity 0.2s;
+  }
+  .detail-list li:hover .list-item-del { opacity: 1; }
+  .list-item-del:hover { color: var(--red); }
+
+  .inline-add {
+    display: flex; gap: 8px; margin-top: 12px;
+  }
+  .inline-add input {
+    flex: 1; padding: 8px 12px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 13px; font-family: inherit;
+  }
+  .inline-add input:focus { outline: none; border-color: var(--accent); }
+
+  /* ===== 时间轴 ===== */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: ""; position: absolute; left: 8px; top: 4px; bottom: 4px;
+    width: 2px; background: var(--border);
+  }
+  .timeline-item {
+    position: relative; margin-bottom: 22px;
+    background: var(--bg-soft); border-radius: var(--radius-sm);
+    padding: 14px 18px;
+  }
+  .timeline-item::before {
+    content: ""; position: absolute; left: -25px; top: 18px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent); border: 3px solid var(--bg-card);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .timeline-date { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .timeline-content { font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .timeline-mood {
+    display: inline-block; margin-top: 8px; padding: 2px 8px;
+    border-radius: 4px; font-size: 11px; background: var(--bg-card);
+    color: var(--text-light);
+  }
+  .timeline-del {
+    position: absolute; top: 10px; right: 12px;
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 14px; opacity: 0; transition: opacity 0.2s;
+  }
+  .timeline-item:hover .timeline-del { opacity: 1; }
+  .timeline-del:hover { color: var(--red); }
+
+  /* ===== 心情选择 ===== */
+  .mood-selector { display: flex; gap: 8px; margin-top: 8px; }
+  .mood-btn {
+    flex: 1; padding: 8px 4px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--bg-card);
+    cursor: pointer; font-size: 12px; text-align: center;
+    transition: all 0.2s; font-family: inherit; color: var(--text-light);
+  }
+  .mood-btn.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); font-weight: 500; }
+  .mood-btn:hover { border-color: var(--accent); }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff; padding: 10px 22px;
+    border-radius: 8px; font-size: 14px; z-index: 999;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .container { padding: 18px 14px 40px; }
+    .topbar { padding: 0 14px; }
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .search-box { width: 100%; font-size: 16px; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .modal-body { padding: 18px; }
+    .modal-header { padding: 16px 18px 12px; }
+    .detail-section { padding: 18px; }
+    .filter-tab { padding: 10px 18px; min-height: 44px; font-size: 14px; }
+    .form-input, .form-textarea, .form-select { font-size: 16px; }
+    .tag-input { font-size: 16px; }
+    .inline-add input { font-size: 16px; }
+    .profile-grid { grid-template-columns: repeat(2, 1fr); }
+    .profile-field.half { grid-column: 1 / -1; }
+    .profile-card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部导航 ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">心</div>
+    <div>
+      <div class="app-title">心镜 · 个人心理档案</div>
+      <div class="app-subtitle">记录问题，追踪成长</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span id="syncStatus" style="font-size:12px;color:var(--text-muted);margin-right:4px;"></span>
+    <button class="btn btn-ghost btn-sm" onclick="openSyncModal()" title="云同步设置">☁ 同步</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportData()" title="导出数据">导出</button>
+    <button class="btn btn-primary" onclick="openProblemModal()">+ 新增问题</button>
+  </div>
+</div>
+
+<!-- ===== 主内容 ===== -->
+<div class="container">
+
+  <!-- 列表视图 -->
+  <div id="listView">
+    <!-- 基本信息 -->
+    <div class="profile-card" id="profileCard">
+      <div class="profile-header">
+        <div class="profile-title"><span class="dot"></span>个人基本信息</div>
+        <div class="profile-actions">
+          <button class="profile-toggle" onclick="toggleProfile()" id="profileToggleBtn">收起 ▲</button>
+          <button class="btn btn-ghost btn-sm" onclick="openProfileModal()">编辑资料</button>
+        </div>
+      </div>
+      <div class="profile-body" id="profileBody"></div>
+    </div>
+
+    <!-- 统计概览 -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">全部</button>
+        <button class="filter-tab" data-filter="active" onclick="setFilter('active')">进行中</button>
+        <button class="filter-tab" data-filter="resolved" onclick="setFilter('resolved')">已解决</button>
+      </div>
+      <input type="text" class="search-box" placeholder="搜索问题标题或缘由..." oninput="renderList()">
+    </div>
+
+    <!-- 问题卡片 -->
+    <div class="problem-grid" id="problemGrid"></div>
+  </div>
+
+  <!-- 详情视图 -->
+  <div id="detailView" style="display:none;">
+    <button class="btn btn-ghost btn-sm" style="margin-bottom:18px;" onclick="showList()">← 返回列表</button>
+    <div id="detailContent"></div>
+  </div>
+
+</div>
+
+<!-- ===== 新增/编辑问题模态框 ===== -->
+<div class="modal-overlay" id="problemModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="problemModalTitle">新增心理问题</div>
+      <button class="modal-close" onclick="closeProblemModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">问题标题<span class="required">*</span></label>
+        <input type="text" class="form-input" id="f_title" placeholder="例如：社交焦虑、失眠、情绪低落...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">问题缘由</label>
+        <textarea class="form-textarea" id="f_origin" placeholder="这个问题是怎么开始的？可能的原因是什么？什么时候发现的？"></textarea>
+        <div class="form-hint">记录问题的起源和背景，帮助后续回顾分析</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">主要表现</label>
+        <div class="tag-input-wrap" id="manifestationsWrap">
+          <input type="text" class="tag-input" id="f_manifestation_input" placeholder="输入表现后按回车添加" onkeydown="handleTagInput(event, 'manifestations')">
+        </div>
+        <div class="form-hint">例如：心跳加速、回避社交、入睡困难、注意力不集中</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">应对措施</label>
+        <div class="tag-input-wrap" id="measuresWrap">
+          <input type="text" class="tag-input" id="f_measure_input" placeholder="输入措施后按回车添加" onkeydown="handleTagInput(event, 'measures')">
+        </div>
+        <div class="form-hint">例如：深呼吸练习、规律作息、寻求咨询、运动调节</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeProblemModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveProblem()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 添加跟踪记录模态框 ===== -->
+<div class="modal-overlay" id="trackModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">添加跟踪记录</div>
+      <button class="modal-close" onclick="closeTrackModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">记录内容<span class="required">*</span></label>
+        <textarea class="form-textarea" id="t_content" placeholder="今天的状态如何？有什么变化？采取了什么行动？感受怎样？" style="min-height:120px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">当前心情</label>
+        <div class="mood-selector" id="moodSelector">
+          <button class="mood-btn" data-mood="很差" onclick="selectMood(this)">很差</button>
+          <button class="mood-btn" data-mood="较差" onclick="selectMood(this)">较差</button>
+          <button class="mood-btn active" data-mood="一般" onclick="selectMood(this)">一般</button>
+          <button class="mood-btn" data-mood="较好" onclick="selectMood(this)">较好</button>
+          <button class="mood-btn" data-mood="很好" onclick="selectMood(this)">很好</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeTrackModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTrack()">保存记录</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 编辑基本信息模态框 ===== -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">编辑个人基本信息</div>
+      <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">姓名</label>
+          <input type="text" class="form-input" id="p_name" placeholder="请填写">
+        </div>
+        <div class="form-group">
+          <label class="form-label">性别</label>
+          <select class="form-select" id="p_gender">
+            <option value="">请选择</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+            <option value="其他">其他</option>
+            <option value="不愿透露">不愿透露</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">出生日期</label>
+          <input type="date" class="form-input" id="p_birthdate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">职业</label>
+          <input type="text" class="form-input" id="p_occupation" placeholder="请填写">
+        </div>
+        <div class="form-group">
+          <label class="form-label">联系电话</label>
+          <input type="tel" class="form-input" id="p_phone" placeholder="请填写">
+        </div>
+        <div class="form-group">
+          <label class="form-label">紧急联系人</label>
+          <input type="text" class="form-input" id="p_emergency_name" placeholder="姓名">
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">紧急联系电话</label>
+          <input type="tel" class="form-input" id="p_emergency_phone" placeholder="请填写">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">既往心理/精神病史</label>
+        <textarea class="form-textarea" id="p_medical_history" placeholder="如曾确诊的心理或精神疾病、就诊经历、住院史等"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">过敏史</label>
+        <input type="text" class="form-input" id="p_allergy" placeholder="药物或其他过敏史，无则填'无'">
+      </div>
+      <div class="form-group">
+        <label class="form-label">当前用药</label>
+        <textarea class="form-textarea" id="p_medication" placeholder="当前正在服用的药物名称、剂量、服用时间" style="min-height:60px;"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">睡眠状况</label>
+          <select class="form-select" id="p_sleep">
+            <option value="">请选择</option>
+            <option value="良好">良好</option>
+            <option value="一般">一般</option>
+            <option value="较差">较差</option>
+            <option value="严重失眠">严重失眠</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">运动习惯</label>
+          <select class="form-select" id="p_exercise">
+            <option value="">请选择</option>
+            <option value="经常运动">经常运动</option>
+            <option value="偶尔运动">偶尔运动</option>
+            <option value="几乎不运动">几乎不运动</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="form-textarea" id="p_note" placeholder="其他需要记录的个人信息" style="min-height:60px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeProfileModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 云同步设置模态框 ===== -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">GitHub 云同步设置</div>
+      <button class="modal-close" onclick="closeSyncModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--bg-soft);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--text-light);line-height:1.7;">
+        配置后，你的心理档案数据（基本信息 + 问题记录）将同步到 GitHub 仓库，换电脑或清空浏览器后可一键恢复。Token 仅保存在本地浏览器，不会上传到任何第三方。
+      </div>
+      <div class="form-group">
+        <label class="form-label">GitHub Token</label>
+        <input type="password" class="form-input" id="sync_token" placeholder="ghp_xxxxxxxxxxxx">
+        <div class="form-hint">需要 repo 权限，用于读写仓库中的数据文件</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">仓库所有者</label>
+          <input type="text" class="form-input" id="sync_owner" placeholder="用户名">
+        </div>
+        <div class="form-group">
+          <label class="form-label">仓库名称</label>
+          <input type="text" class="form-input" id="sync_repo" placeholder="仓库名">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">分支</label>
+        <input type="text" class="form-input" id="sync_branch" value="main">
+      </div>
+      <div class="form-group">
+        <label class="form-label">数据文件路径</label>
+        <input type="text" class="form-input" id="sync_path" value="mental-archive/data.json">
+        <div class="form-hint">数据在仓库中的保存位置，默认即可</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-light);cursor:pointer;">
+          <input type="checkbox" id="sync_auto" style="width:16px;height:16px;"> 页面加载时自动拉取云端数据
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="downloadFromCloud()">↓ 从云端拉取</button>
+        <button class="btn btn-ghost btn-sm" onclick="uploadToCloud()">↑ 上传到云端</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="closeSyncModal()">关闭</button>
+        <button class="btn btn-primary" onclick="saveSyncConfig()">保存设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 数据层 =====
+const STORAGE_KEY = 'mental_archive_data';
+const PROFILE_KEY = 'mental_archive_profile';
+let state = {
+  problems: [],
+  profile: {},
+  profileCollapsed: false,
+  currentFilter: 'all',
+  editingId: null,
+  currentDetailId: null,
+  tempManifestations: [],
+  tempMeasures: [],
+  selectedMood: '一般'
+};
+
+const PROFILE_FIELDS = [
+  { key: 'name', label: '姓名', span: '' },
+  { key: 'gender', label: '性别', span: '' },
+  { key: 'birthdate', label: '出生日期', span: '' },
+  { key: 'occupation', label: '职业', span: '' },
+  { key: 'phone', label: '联系电话', span: '' },
+  { key: 'emergency_name', label: '紧急联系人', span: '' },
+  { key: 'emergency_phone', label: '紧急联系电话', span: '' },
+  { key: 'sleep', label: '睡眠状况', span: '' },
+  { key: 'exercise', label: '运动习惯', span: '' },
+  { key: 'allergy', label: '过敏史', span: 'half' },
+  { key: 'medical_history', label: '既往心理/精神病史', span: 'full' },
+  { key: 'medication', label: '当前用药', span: 'full' },
+  { key: 'note', label: '备注', span: 'full' }
+];
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state.problems = JSON.parse(raw);
+  } catch(e) { state.problems = []; }
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    if (raw) state.profile = JSON.parse(raw);
+  } catch(e) { state.profile = {}; }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.problems));
+  autoSync();
+}
+
+function saveProfileData() {
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(state.profile));
+  autoSync();
+}
+
+let syncTimer = null;
+function autoSync() {
+  if (!syncReady()) return;
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    uploadToCloud();
+  }, 3000);
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formatDateTime(ts) {
+  const d = new Date(ts);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0')
+    + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== 基本信息 =====
+function renderProfile() {
+  const body = document.getElementById('profileBody');
+  const filled = PROFILE_FIELDS.filter(f => state.profile[f.key] && state.profile[f.key].trim());
+
+  if (filled.length === 0) {
+    body.innerHTML = `
+      <div style="text-align:center;padding:20px 0;color:var(--text-muted);font-size:14px;">
+        尚未填写基本信息，点击右上角「编辑资料」开始完善
+      </div>
+    `;
+    return;
+  }
+
+  body.innerHTML = '<div class="profile-grid">' + PROFILE_FIELDS.map(f => {
+    const val = state.profile[f.key] || '';
+    const spanClass = f.span ? ' ' + f.span : '';
+    return `
+      <div class="profile-field${spanClass}">
+        <div class="profile-field-label">${f.label}</div>
+        <div class="profile-field-value ${val ? '' : 'empty'}">${val ? esc(val) : '待填写'}</div>
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+
+function toggleProfile() {
+  state.profileCollapsed = !state.profileCollapsed;
+  const body = document.getElementById('profileBody');
+  const btn = document.getElementById('profileToggleBtn');
+  body.classList.toggle('collapsed', state.profileCollapsed);
+  btn.textContent = state.profileCollapsed ? '展开 ▼' : '收起 ▲';
+}
+
+function openProfileModal() {
+  PROFILE_FIELDS.forEach(f => {
+    const el = document.getElementById('p_' + f.key);
+    if (el) el.value = state.profile[f.key] || '';
+  });
+  document.getElementById('profileModal').classList.add('show');
+}
+
+function closeProfileModal() {
+  document.getElementById('profileModal').classList.remove('show');
+}
+
+function saveProfile() {
+  PROFILE_FIELDS.forEach(f => {
+    const el = document.getElementById('p_' + f.key);
+    if (el) state.profile[f.key] = el.value.trim();
+  });
+  saveProfileData();
+  closeProfileModal();
+  renderProfile();
+  showToast('基本信息已保存');
+}
+
+// ===== 统计 =====
+function renderStats() {
+  const total = state.problems.length;
+  const active = state.problems.filter(p => p.status === 'active').length;
+  const resolved = state.problems.filter(p => p.status === 'resolved').length;
+  const totalTracks = state.problems.reduce((sum, p) => sum + (p.tracks || []).length, 0);
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card accent">
+      <div class="stat-label">问题总数</div>
+      <div class="stat-value">${total}<span class="unit">个</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">进行中</div>
+      <div class="stat-value">${active}<span class="unit">个</span></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">已解决</div>
+      <div class="stat-value">${resolved}<span class="unit">个</span></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">跟踪记录</div>
+      <div class="stat-value">${totalTracks}<span class="unit">条</span></div>
+    </div>
+  `;
+}
+
+// ===== 列表渲染 =====
+function setFilter(f) {
+  state.currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.filter === f);
+  });
+  renderList();
+}
+
+function renderList() {
+  renderStats();
+  const grid = document.getElementById('problemGrid');
+  const search = document.querySelector('.search-box').value.toLowerCase().trim();
+
+  let list = state.problems.slice().sort((a,b) => b.createdAt - a.createdAt);
+
+  if (state.currentFilter === 'active') list = list.filter(p => p.status === 'active');
+  if (state.currentFilter === 'resolved') list = list.filter(p => p.status === 'resolved');
+  if (search) {
+    list = list.filter(p =>
+      (p.title || '').toLowerCase().includes(search) ||
+      (p.origin || '').toLowerCase().includes(search)
+    );
+  }
+
+  if (list.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></div>
+        <p>${search ? '没有找到匹配的问题' : '还没有记录任何心理问题'}</p>
+        <div class="sub">${search ? '换个关键词试试' : '点击右上角「新增问题」开始记录'}</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = list.map(p => {
+    const trackCount = (p.tracks || []).length;
+    const statusClass = p.status === 'active' ? 'status-active' : 'status-resolved';
+    const statusText = p.status === 'active' ? '进行中' : '已解决';
+    const tags = (p.manifestations || []).slice(0, 3).map(m => `<span class="tag">${esc(m)}</span>`).join('');
+    return `
+      <div class="problem-card ${p.status === 'resolved' ? 'resolved' : ''}" onclick="showDetail('${p.id}')">
+        <span class="card-status ${statusClass}">${statusText}</span>
+        <div class="card-title">${esc(p.title)}</div>
+        <div class="card-origin">${esc(p.origin || '暂无缘由描述')}</div>
+        <div class="card-tags">${tags}</div>
+        <div class="card-meta">
+          <span>创建于 ${formatDate(p.createdAt)}</span>
+          <span>${trackCount} 条记录</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function esc(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+// ===== 新增/编辑问题 =====
+function openProblemModal(id) {
+  state.editingId = id || null;
+  state.tempManifestations = [];
+  state.tempMeasures = [];
+
+  document.getElementById('problemModalTitle').textContent = id ? '编辑心理问题' : '新增心理问题';
+  document.getElementById('f_title').value = '';
+  document.getElementById('f_origin').value = '';
+  renderTagChips('manifestations');
+  renderTagChips('measures');
+
+  if (id) {
+    const p = state.problems.find(x => x.id === id);
+    if (p) {
+      document.getElementById('f_title').value = p.title || '';
+      document.getElementById('f_origin').value = p.origin || '';
+      state.tempManifestations = [...(p.manifestations || [])];
+      state.tempMeasures = [...(p.measures || [])];
+      renderTagChips('manifestations');
+      renderTagChips('measures');
+    }
+  }
+
+  document.getElementById('problemModal').classList.add('show');
+}
+
+function closeProblemModal() {
+  document.getElementById('problemModal').classList.remove('show');
+  state.editingId = null;
+}
+
+function handleTagInput(e, type) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const input = document.getElementById(type === 'manifestations' ? 'f_manifestation_input' : 'f_measure_input');
+    const val = input.value.trim();
+    if (val) {
+      if (type === 'manifestations') {
+        if (!state.tempManifestations.includes(val)) state.tempManifestations.push(val);
+      } else {
+        if (!state.tempMeasures.includes(val)) state.tempMeasures.push(val);
+      }
+      input.value = '';
+      renderTagChips(type);
+    }
+  }
+}
+
+function renderTagChips(type) {
+  const wrap = document.getElementById(type === 'manifestations' ? 'manifestationsWrap' : 'measuresWrap');
+  const arr = type === 'manifestations' ? state.tempManifestations : state.tempMeasures;
+  const inputId = type === 'manifestations' ? 'f_manifestation_input' : 'f_measure_input';
+
+  const chips = arr.map((item, i) => `
+    <span class="tag-chip">${esc(item)}<span class="remove" onclick="removeTag('${type}', ${i})">&times;</span></span>
+  `).join('');
+
+  wrap.innerHTML = chips + `<input type="text" class="tag-input" id="${inputId}" placeholder="输入后按回车添加" onkeydown="handleTagInput(event, '${type}')">`;
+}
+
+function removeTag(type, index) {
+  if (type === 'manifestations') state.tempManifestations.splice(index, 1);
+  else state.tempMeasures.splice(index, 1);
+  renderTagChips(type);
+}
+
+function saveProblem() {
+  const title = document.getElementById('f_title').value.trim();
+  const origin = document.getElementById('f_origin').value.trim();
+
+  if (!title) { showToast('请填写问题标题'); return; }
+
+  if (state.editingId) {
+    const p = state.problems.find(x => x.id === state.editingId);
+    if (p) {
+      p.title = title;
+      p.origin = origin;
+      p.manifestations = [...state.tempManifestations];
+      p.measures = [...state.tempMeasures];
+      p.updatedAt = Date.now();
+    }
+    showToast('已更新');
+  } else {
+    state.problems.push({
+      id: genId(),
+      title,
+      origin,
+      manifestations: [...state.tempManifestations],
+      measures: [...state.tempMeasures],
+      status: 'active',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      tracks: []
+    });
+    showToast('已添加');
+  }
+
+  saveData();
+  closeProblemModal();
+  renderList();
+  if (state.currentDetailId) renderDetail();
+}
+
+function deleteProblem(id) {
+  if (!confirm('确定要删除这个问题及其所有跟踪记录吗？此操作不可恢复。')) return;
+  state.problems = state.problems.filter(p => p.id !== id);
+  saveData();
+  showList();
+  showToast('已删除');
+}
+
+// ===== 详情页 =====
+function showDetail(id) {
+  state.currentDetailId = id;
+  document.getElementById('listView').style.display = 'none';
+  document.getElementById('detailView').style.display = 'block';
+  renderDetail();
+  window.scrollTo(0, 0);
+}
+
+function showList() {
+  state.currentDetailId = null;
+  document.getElementById('listView').style.display = 'block';
+  document.getElementById('detailView').style.display = 'none';
+  renderList();
+}
+
+function renderDetail() {
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p) { showList(); return; }
+
+  const statusClass = p.status === 'active' ? 'status-active' : 'status-resolved';
+  const statusText = p.status === 'active' ? '进行中' : '已解决';
+
+  const manifestationsHtml = (p.manifestations || []).length
+    ? `<ul class="detail-list">${p.manifestations.map((m,i) => `
+        <li><span class="list-item-text">${esc(m)}</span><button class="list-item-del" onclick="removeItem('manifestations',${i})" title="删除">&times;</button></li>
+      `).join('')}</ul>`
+    : '<div style="color:var(--text-muted);font-size:13px;">暂无表现记录</div>';
+
+  const measuresHtml = (p.measures || []).length
+    ? `<ul class="detail-list">${p.measures.map((m,i) => `
+        <li><span class="list-item-text">${esc(m)}</span><button class="list-item-del" onclick="removeItem('measures',${i})" title="删除">&times;</button></li>
+      `).join('')}</ul>`
+    : '<div style="color:var(--text-muted);font-size:13px;">暂无应对措施</div>';
+
+  const tracks = (p.tracks || []).slice().sort((a,b) => b.createdAt - a.createdAt);
+  const tracksHtml = tracks.length
+    ? `<div class="timeline">${tracks.map(t => `
+        <div class="timeline-item">
+          <button class="timeline-del" onclick="deleteTrack('${t.id}')" title="删除">&times;</button>
+          <div class="timeline-date">${formatDateTime(t.createdAt)}</div>
+          <div class="timeline-content">${esc(t.content)}</div>
+          ${t.mood ? `<span class="timeline-mood">心情：${esc(t.mood)}</span>` : ''}
+        </div>
+      `).join('')}</div>`
+    : '<div style="color:var(--text-muted);font-size:13px;padding:10px 0;">还没有跟踪记录，点击下方按钮添加第一条</div>';
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-title-wrap">
+        <span class="card-status ${statusClass}" style="margin-bottom:10px;">${statusText}</span>
+        <div class="detail-title">${esc(p.title)}</div>
+        <div style="font-size:13px;color:var(--text-muted);">创建于 ${formatDate(p.createdAt)}${p.updatedAt && p.updatedAt !== p.createdAt ? ' · 更新于 ' + formatDate(p.updatedAt) : ''}</div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openProblemModal('${p.id}')">编辑</button>
+        ${p.status === 'active'
+          ? `<button class="btn btn-sm" style="background:var(--green-light);color:var(--green);" onclick="toggleStatus('${p.id}')">标记已解决</button>`
+          : `<button class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);" onclick="toggleStatus('${p.id}')">重新开启</button>`
+        }
+        <button class="btn btn-danger btn-sm" onclick="deleteProblem('${p.id}')">删除</button>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-title"><span class="dot"></span>问题缘由</div>
+      <div class="detail-content">${esc(p.origin || '暂无描述')}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-title"><span class="dot"></span>主要表现</div>
+      ${manifestationsHtml}
+      <div class="inline-add">
+        <input type="text" id="addManifestationInput" placeholder="添加新的表现..." onkeydown="if(event.key==='Enter')addItem('manifestations')">
+        <button class="btn btn-primary btn-sm" onclick="addItem('manifestations')">添加</button>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-title"><span class="dot"></span>应对措施</div>
+      ${measuresHtml}
+      <div class="inline-add">
+        <input type="text" id="addMeasureInput" placeholder="添加新的措施..." onkeydown="if(event.key==='Enter')addItem('measures')">
+        <button class="btn btn-primary btn-sm" onclick="addItem('measures')">添加</button>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-title"><span class="dot"></span>跟踪记录（${tracks.length}）</div>
+      ${tracksHtml}
+      <div style="margin-top:16px;">
+        <button class="btn btn-primary" onclick="openTrackModal()">+ 添加跟踪记录</button>
+      </div>
+    </div>
+  `;
+}
+
+function addItem(type) {
+  const inputId = type === 'manifestations' ? 'addManifestationInput' : 'addMeasureInput';
+  const input = document.getElementById(inputId);
+  const val = input.value.trim();
+  if (!val) return;
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p) return;
+  if (!p[type]) p[type] = [];
+  if (!p[type].includes(val)) p[type].push(val);
+  p.updatedAt = Date.now();
+  saveData();
+  renderDetail();
+  showToast('已添加');
+}
+
+function removeItem(type, index) {
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p || !p[type]) return;
+  p[type].splice(index, 1);
+  p.updatedAt = Date.now();
+  saveData();
+  renderDetail();
+}
+
+function toggleStatus(id) {
+  const p = state.problems.find(x => x.id === id);
+  if (!p) return;
+  if (p.status === 'active') {
+    p.status = 'resolved';
+    p.resolvedAt = Date.now();
+    showToast('已标记为解决');
+  } else {
+    p.status = 'active';
+    delete p.resolvedAt;
+    showToast('已重新开启');
+  }
+  p.updatedAt = Date.now();
+  saveData();
+  renderDetail();
+}
+
+// ===== 跟踪记录 =====
+function openTrackModal() {
+  document.getElementById('t_content').value = '';
+  state.selectedMood = '一般';
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mood === '一般');
+  });
+  document.getElementById('trackModal').classList.add('show');
+}
+
+function closeTrackModal() {
+  document.getElementById('trackModal').classList.remove('show');
+}
+
+function selectMood(btn) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.selectedMood = btn.dataset.mood;
+}
+
+function saveTrack() {
+  const content = document.getElementById('t_content').value.trim();
+  if (!content) { showToast('请填写记录内容'); return; }
+
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p) return;
+  if (!p.tracks) p.tracks = [];
+  p.tracks.push({
+    id: genId(),
+    content,
+    mood: state.selectedMood,
+    createdAt: Date.now()
+  });
+  p.updatedAt = Date.now();
+  saveData();
+  closeTrackModal();
+  renderDetail();
+  showToast('记录已保存');
+}
+
+function deleteTrack(trackId) {
+  if (!confirm('确定删除这条跟踪记录吗？')) return;
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p || !p.tracks) return;
+  p.tracks = p.tracks.filter(t => t.id !== trackId);
+  p.updatedAt = Date.now();
+  saveData();
+  renderDetail();
+  showToast('已删除');
+}
+
+// ===== GitHub 云同步 =====
+const SYNC_KEY = 'mental_archive_sync_config';
+let syncConfig = { token: '', owner: '', repo: '', branch: 'main', path: 'mental-archive/data.json', auto: false };
+
+function loadSyncConfig() {
+  try {
+    const raw = localStorage.getItem(SYNC_KEY);
+    if (raw) syncConfig = { ...syncConfig, ...JSON.parse(raw) };
+  } catch(e) {}
+}
+
+function saveSyncConfigToStorage() {
+  localStorage.setItem(SYNC_KEY, JSON.stringify(syncConfig));
+}
+
+function openSyncModal() {
+  document.getElementById('sync_token').value = syncConfig.token || '';
+  document.getElementById('sync_owner').value = syncConfig.owner || '';
+  document.getElementById('sync_repo').value = syncConfig.repo || '';
+  document.getElementById('sync_branch').value = syncConfig.branch || 'main';
+  document.getElementById('sync_path').value = syncConfig.path || 'mental-archive/data.json';
+  document.getElementById('sync_auto').checked = syncConfig.auto || false;
+  document.getElementById('syncModal').classList.add('show');
+}
+
+function closeSyncModal() {
+  document.getElementById('syncModal').classList.remove('show');
+}
+
+function saveSyncConfig() {
+  syncConfig.token = document.getElementById('sync_token').value.trim();
+  syncConfig.owner = document.getElementById('sync_owner').value.trim();
+  syncConfig.repo = document.getElementById('sync_repo').value.trim();
+  syncConfig.branch = document.getElementById('sync_branch').value.trim() || 'main';
+  syncConfig.path = document.getElementById('sync_path').value.trim() || 'mental-archive/data.json';
+  syncConfig.auto = document.getElementById('sync_auto').checked;
+  saveSyncConfigToStorage();
+  updateSyncStatus();
+  showToast('同步设置已保存');
+  closeSyncModal();
+}
+
+function syncReady() {
+  return syncConfig.token && syncConfig.owner && syncConfig.repo;
+}
+
+function updateSyncStatus() {
+  const el = document.getElementById('syncStatus');
+  if (syncReady()) {
+    el.textContent = '☁ 已连接';
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = '';
+  }
+}
+
+function ghApi(method, path, body) {
+  const url = `https://api.github.com${path}`;
+  const opts = {
+    method,
+    headers: {
+      'Authorization': `token ${syncConfig.token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(url, opts).then(r => {
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error(`GitHub API ${r.status}`);
+    return r.json();
+  });
+}
+
+function uploadToCloud() {
+  if (!syncReady()) { showToast('请先配置同步设置'); openSyncModal(); return; }
+
+  const data = JSON.stringify({ profile: state.profile, problems: state.problems, updatedAt: new Date().toISOString() }, null, 2);
+  const content = btoa(unescape(encodeURIComponent(data)));
+  const apiPath = `/repos/${syncConfig.owner}/${syncConfig.repo}/contents/${syncConfig.path}?ref=${syncConfig.branch}`;
+
+  showToast('正在上传...');
+
+  ghApi('GET', apiPath).then(existing => {
+    const body = {
+      message: `更新心理档案数据 ${new Date().toLocaleString('zh-CN')}`,
+      content,
+      branch: syncConfig.branch
+    };
+    if (existing && existing.sha) body.sha = existing.sha;
+
+    return ghApi('PUT', `/repos/${syncConfig.owner}/${syncConfig.repo}/contents/${syncConfig.path}`, body);
+  }).then(() => {
+    showToast('已同步到云端');
+  }).catch(err => {
+    showToast('上传失败：' + err.message);
+  });
+}
+
+function downloadFromCloud() {
+  if (!syncReady()) { showToast('请先配置同步设置'); openSyncModal(); return; }
+
+  showToast('正在拉取...');
+  const apiPath = `/repos/${syncConfig.owner}/${syncConfig.repo}/contents/${syncConfig.path}?ref=${syncConfig.branch}`;
+
+  ghApi('GET', apiPath).then(data => {
+    if (!data) { showToast('云端暂无数据'); return; }
+    const content = decodeURIComponent(escape(atob(data.content)));
+    const parsed = JSON.parse(content);
+    if (parsed.profile) state.profile = parsed.profile;
+    if (parsed.problems) state.problems = parsed.problems;
+    saveData();
+    saveProfileData();
+    renderProfile();
+    renderList();
+    if (state.currentDetailId) renderDetail();
+    showToast('已从云端恢复数据');
+  }).catch(err => {
+    showToast('拉取失败：' + err.message);
+  });
+}
+
+// ===== 导出数据 =====
+function exportData() {
+  const data = JSON.stringify({ profile: state.profile, problems: state.problems }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '心理档案_' + formatDate(Date.now()) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('数据已导出');
+}
+
+// ===== 初始化 =====
+loadData();
+loadSyncConfig();
+updateSyncStatus();
+renderProfile();
+renderList();
+
+if (syncConfig.auto && syncReady()) {
+  setTimeout(downloadFromCloud, 500);
+}
+
+// 点击模态框背景关闭
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+</script>
+</body>
+</html>
