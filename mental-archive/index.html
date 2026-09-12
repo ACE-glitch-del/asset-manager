@@ -1209,12 +1209,20 @@ function deleteTrack(trackId) {
 
 // ===== GitHub 云同步 =====
 const SYNC_KEY = 'mental_archive_sync_config';
-let syncConfig = { token: '', owner: '', repo: '', branch: 'main', path: 'mental-archive/data.json', auto: false };
+const DEFAULT_SYNC = {
+  token: '',
+  owner: 'ACE-glitch-del',
+  repo: 'asset-manager',
+  branch: 'main',
+  path: 'mental-archive/data.json',
+  auto: true
+};
+let syncConfig = { ...DEFAULT_SYNC };
 
 function loadSyncConfig() {
   try {
     const raw = localStorage.getItem(SYNC_KEY);
-    if (raw) syncConfig = { ...syncConfig, ...JSON.parse(raw) };
+    if (raw) syncConfig = { ...DEFAULT_SYNC, ...JSON.parse(raw) };
   } catch(e) {}
 }
 
@@ -1259,7 +1267,10 @@ function updateSyncStatus() {
     el.textContent = '☁ 已连接';
     el.style.color = 'var(--green)';
   } else {
-    el.textContent = '';
+    el.textContent = '☁ 点此配置同步';
+    el.style.color = 'var(--accent)';
+    el.style.cursor = 'pointer';
+    el.onclick = openSyncModal;
   }
 }
 
