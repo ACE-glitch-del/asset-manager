@@ -181,6 +181,13 @@
     border: none; background: transparent; font-family: inherit;
   }
   .filter-tab.active { background: var(--bg-card); color: var(--text); font-weight: 500; box-shadow: var(--shadow); }
+  .tab-count {
+    display: inline-block; min-width: 18px; padding: 0 5px;
+    background: var(--bg-soft); border-radius: 10px;
+    font-size: 11px; font-weight: 600; color: var(--text-light);
+    text-align: center; line-height: 18px;
+  }
+  .filter-tab.active .tab-count { background: var(--accent-light); color: var(--accent-dark); }
   .search-box {
     padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
     font-size: 13px; width: 220px; background: var(--bg-card); font-family: inherit;
@@ -471,24 +478,21 @@
       <div class="profile-header">
         <div class="profile-title"><span class="dot"></span>个人基本信息</div>
         <div class="profile-actions">
-          <button class="profile-toggle" onclick="toggleProfile()" id="profileToggleBtn">收起 ▲</button>
+          <button class="profile-toggle" onclick="toggleProfile()" id="profileToggleBtn">展开 ▼</button>
           <button class="btn btn-ghost btn-sm" onclick="openProfileModal()">编辑资料</button>
         </div>
       </div>
-      <div class="profile-body" id="profileBody"></div>
+      <div class="profile-body collapsed" id="profileBody"></div>
     </div>
-
-    <!-- 统计概览 -->
-    <div class="stats-row" id="statsRow"></div>
 
     <!-- 筛选栏 -->
     <div class="filter-bar">
       <div class="filter-tabs">
-        <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">全部</button>
-        <button class="filter-tab" data-filter="active" onclick="setFilter('active')">进行中</button>
-        <button class="filter-tab" data-filter="resolved" onclick="setFilter('resolved')">已解决</button>
+        <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">全部 <span class="tab-count" id="countAll">0</span></button>
+        <button class="filter-tab" data-filter="active" onclick="setFilter('active')">进行中 <span class="tab-count" id="countActive">0</span></button>
+        <button class="filter-tab" data-filter="resolved" onclick="setFilter('resolved')">已解决 <span class="tab-count" id="countResolved">0</span></button>
       </div>
-      <input type="text" class="search-box" placeholder="搜索问题标题或缘由..." oninput="renderList()">
+      <input type="text" class="search-box" placeholder="搜索问题..." oninput="renderList()">
     </div>
 
     <!-- 问题卡片 -->
@@ -670,7 +674,7 @@ const PROFILE_KEY = 'mental_archive_profile';
 let state = {
   problems: [],
   profile: {},
-  profileCollapsed: false,
+  profileCollapsed: true,
   currentFilter: 'all',
   editingId: null,
   currentDetailId: null,
@@ -867,33 +871,6 @@ function saveProfile() {
   showToast('基本信息已保存');
 }
 
-// ===== 统计 =====
-function renderStats() {
-  const total = state.problems.length;
-  const active = state.problems.filter(p => p.status === 'active').length;
-  const resolved = state.problems.filter(p => p.status === 'resolved').length;
-  const totalTracks = state.problems.reduce((sum, p) => sum + (p.tracks || []).length, 0);
-
-  document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card accent">
-      <div class="stat-label">问题总数</div>
-      <div class="stat-value">${total}<span class="unit">个</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">进行中</div>
-      <div class="stat-value">${active}<span class="unit">个</span></div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-label">已解决</div>
-      <div class="stat-value">${resolved}<span class="unit">个</span></div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-label">跟踪记录</div>
-      <div class="stat-value">${totalTracks}<span class="unit">条</span></div>
-    </div>
-  `;
-}
-
 // ===== 列表渲染 =====
 function setFilter(f) {
   state.currentFilter = f;
@@ -903,8 +880,17 @@ function setFilter(f) {
   renderList();
 }
 
+function updateFilterCounts() {
+  const total = state.problems.length;
+  const active = state.problems.filter(p => p.status === 'active').length;
+  const resolved = state.problems.filter(p => p.status === 'resolved').length;
+  document.getElementById('countAll').textContent = total;
+  document.getElementById('countActive').textContent = active;
+  document.getElementById('countResolved').textContent = resolved;
+}
+
 function renderList() {
-  renderStats();
+  updateFilterCounts();
   const grid = document.getElementById('problemGrid');
   const search = document.querySelector('.search-box').value.toLowerCase().trim();
 
