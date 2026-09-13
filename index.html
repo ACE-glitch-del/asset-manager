@@ -435,6 +435,59 @@ td.expense-num { color: var(--expense); }
   color: var(--ink);
 }
 
+/* 收支明细项 */
+.detail-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.detail-item:last-child { border-bottom: none; }
+.detail-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.detail-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.detail-cat {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--expense-soft);
+  color: var(--expense);
+}
+.detail-item-amount {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+.detail-bar {
+  position: relative;
+  height: 6px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: visible;
+}
+.detail-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.detail-bar-pct {
+  position: absolute;
+  right: 0;
+  top: -18px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
 /* 汇总行 */
 .summary-row {
   display: flex;
@@ -1570,6 +1623,7 @@ td.expense-num { color: var(--expense); }
 /* ===== 移动端适配（平板和手机） ===== */
 @media (max-width: 1024px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
 }
 
 @media (max-width: 768px) {
@@ -1600,6 +1654,7 @@ td.expense-num { color: var(--expense); }
 
   /* 网格 */
   .grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+  .grid-3 { grid-template-columns: 1fr !important; gap: 10px !important; }
   .stat-value { font-size: 20px; }
   .stat-label { font-size: 11px; }
 
@@ -1705,6 +1760,7 @@ td.expense-num { color: var(--expense); }
 
 @media (max-width: 480px) {
   .grid-4 { grid-template-columns: 1fr !important; }
+  .grid-3 { grid-template-columns: 1fr !important; }
   .topbar { padding: 10px 12px; }
   .topbar h2 { font-size: 15px; }
   #syncIndicator { display: inline-block !important; font-size: 11px; }
@@ -1728,7 +1784,7 @@ td.expense-num { color: var(--expense); }
       <div class="nav-label">总览</div>
       <a class="nav-item active" data-route="overview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-        现金总览
+        收支概览
       </a>
       <a class="nav-item" data-route="cashflow">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
@@ -1749,10 +1805,6 @@ td.expense-num { color: var(--expense); }
         个人投资
       </a>
     </nav>
-    <div class="sidebar-footer">
-      <div class="total-label">总资产 (CNY)</div>
-      <div class="total-value" id="sidebarTotal">—</div>
-    </div>
   </aside>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
@@ -1762,7 +1814,7 @@ td.expense-num { color: var(--expense); }
       <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="菜单">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
-      <h2 id="pageTitle">现金总览</h2>
+      <h2 id="pageTitle">收支概览</h2>
       <div style="display:flex;align-items:center;gap:16px;">
         <span id="syncIndicator" style="font-size:12px;color:#999;letter-spacing:0.5px;cursor:pointer;" onclick="openTokenModal()" title="点击设置云端同步Token">连接中…</span>
         <button class="btn btn-ghost btn-sm" onclick="openTokenModal()" title="设置GitHub Token">
@@ -1783,81 +1835,49 @@ td.expense-num { color: var(--expense); }
 
     <div class="content">
 
-      <!-- ===== 视图：现金总览 ===== -->
+      <!-- ===== 视图：收支概览 ===== -->
       <section class="view active" id="view-overview">
-        <div class="grid grid-4 section-gap">
-          <div class="stat-card total">
-            <div class="stat-label">活钱资产</div>
-            <div class="stat-value" id="statTotal">—</div>
-            <div class="stat-delta">可支配现金</div>
-          </div>
+        <div class="grid grid-3 section-gap">
           <div class="stat-card income">
-            <div class="stat-label">本月收入</div>
+            <div class="stat-label">月度固定收入</div>
             <div class="stat-value" id="statIncome">—</div>
-            <div class="stat-delta">较上月 <span class="up">+5.1%</span></div>
+            <div class="stat-delta">生效中收入项合计</div>
           </div>
           <div class="stat-card expense">
-            <div class="stat-label">本月支出</div>
+            <div class="stat-label">月度固定支出</div>
             <div class="stat-value" id="statExpense">—</div>
-            <div class="stat-delta">较上月 <span class="down">-8.3%</span></div>
+            <div class="stat-delta">生效中支出项合计</div>
           </div>
           <div class="stat-card balance">
-            <div class="stat-label">本月结余</div>
+            <div class="stat-label">月度结余</div>
             <div class="stat-value" id="statBalance">—</div>
-            <div class="stat-delta">储蓄率 <span class="up">42.6%</span></div>
+            <div class="stat-delta">储蓄率 <span class="up" id="statSavingRate">—</span></div>
           </div>
         </div>
 
         <div class="grid section-gap" style="grid-template-columns: 1fr 1.2fr;">
           <div class="card">
             <div class="card-title">
-              资产构成
-              <span class="sub">活钱分布</span>
+              支出分类占比
+              <span class="sub">钱花在哪了</span>
             </div>
-            <div class="chart-box" id="chartAssetPie"></div>
+            <div class="chart-box" id="chartExpensePie"></div>
           </div>
           <div class="card">
             <div class="card-title">
-              各账户余额
-              <span style="display:flex;align-items:center;gap:12px;">
-                <span class="sub" id="accountCount"></span>
-                <button class="btn btn-ghost btn-sm" onclick="openAccountModal()">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                  管理账户
-                </button>
-              </span>
+              支出明细
+              <span class="sub">按月金额降序</span>
             </div>
-            <div id="accountList"></div>
+            <div id="expenseDetailList"></div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-title">
-            近期交易记录
-            <span style="display:flex;align-items:center;gap:12px;">
-              <span class="sub">最近 10 笔</span>
-              <button class="btn btn-ghost btn-sm" onclick="openTxModal()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                记一笔
-              </button>
-            </span>
+            收入明细
+            <span class="sub">每月固定进账</span>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>日期</th>
-                  <th>类型</th>
-                  <th>分类</th>
-                  <th>账户</th>
-                  <th>备注</th>
-                  <th style="text-align:right">金额 (元)</th>
-                  <th style="text-align:right">操作</th>
-                </tr>
-              </thead>
-              <tbody id="txTableBody"></tbody>
-            </table>
-          </div>
+          <div id="incomeDetailList"></div>
         </div>
       </section>
 
@@ -3180,7 +3200,7 @@ function getInvestmentCost() {
 
 /* ===== 路由 ===== */
 const routeTitles = {
-  overview: '现金总览',
+  overview: '收支概览',
   cashflow: '月现金流',
   income: '固定收入',
   expense: '固定支出',
@@ -3212,70 +3232,113 @@ document.querySelectorAll('.nav-item').forEach(el => {
 
 /* ===== 渲染：总览 ===== */
 function renderOverview() {
-  const liquid = getLiquidAssets();
-  const locked = getLockedAssets();
-  const monthIncome = state.monthlyData[8].income;
-  const monthExpense = state.monthlyData[8].expense;
+  const monthIncome = getActiveIncomeTotal();
+  const monthExpense = getActiveExpenseTotal();
   const balance = monthIncome - monthExpense;
+  const savingRate = monthIncome > 0 ? ((balance / monthIncome) * 100).toFixed(1) + '%' : '—';
 
-  document.getElementById('statTotal').textContent = '¥' + fmt(liquid);
   document.getElementById('statIncome').textContent = '¥' + fmt(monthIncome);
   document.getElementById('statExpense').textContent = '¥' + fmt(monthExpense);
   document.getElementById('statBalance').textContent = '¥' + fmt(balance);
-  document.getElementById('sidebarTotal').textContent = '¥' + fmt(liquid);
+  document.getElementById('statSavingRate').textContent = savingRate;
 
-  // 账户列表
-  document.getElementById('accountCount').textContent = state.accounts.length + ' 个账户';
-  const listEl = document.getElementById('accountList');
-  listEl.innerHTML = state.accounts.map(a => `
-    <div class="account-item">
-      <div class="account-left">
-        <div class="account-icon" style="background:${a.color}">${a.name.charAt(0)}</div>
-        <div>
-          <div class="account-name">${a.name}</div>
-          <div class="account-type">${a.type}</div>
+  // 支出明细（按金额降序）
+  const activeExpenses = state.expenseItems.filter(i => i.active).sort((a, b) => b.amount - a.amount);
+  const expenseListEl = document.getElementById('expenseDetailList');
+  if (activeExpenses.length === 0) {
+    expenseListEl.innerHTML = '<div class="empty-state">暂无固定支出项</div>';
+  } else {
+    expenseListEl.innerHTML = activeExpenses.map(item => {
+      const pct = monthExpense > 0 ? (item.amount / monthExpense * 100).toFixed(1) : 0;
+      return `
+        <div class="detail-item">
+          <div class="detail-item-top">
+            <div class="detail-item-name">
+              <span class="detail-cat">${item.category}</span>
+              ${item.name}
+            </div>
+            <div class="detail-item-amount expense-num">¥${fmt(item.amount)}</div>
+          </div>
+          <div class="detail-bar">
+            <div class="detail-bar-fill" style="width:${pct}%;background:var(--expense);"></div>
+            <span class="detail-bar-pct">${pct}%</span>
+          </div>
         </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="account-balance">¥${fmt(a.balance)}</div>
-        <div style="display:flex;gap:2px;">
-          <button class="btn-icon" title="编辑" onclick="editAccount(${a.id})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="btn-icon" title="删除" onclick="deleteAccount(${a.id})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  `).join('');
+      `;
+    }).join('');
+  }
 
-  // 交易记录（按日期倒序，取最近10笔）
-  const tbody = document.getElementById('txTableBody');
-  const sortedTx = [...state.transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
-  tbody.innerHTML = sortedTx.map(t => `
-    <tr>
-      <td>${t.date}</td>
-      <td><span class="tag ${t.type === 'income' ? 'tag-income' : 'tag-expense'}">${t.type === 'income' ? '收入' : '支出'}</span></td>
-      <td>${t.category}</td>
-      <td>${t.account}</td>
-      <td style="color:var(--ink-3)">${t.note || '—'}</td>
-      <td class="num ${t.type === 'income' ? 'income-num' : 'expense-num'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</td>
-      <td>
-        <div class="action-col">
-          <button class="btn-icon" title="编辑" onclick="editTx(${t.id})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="btn-icon" title="删除" onclick="deleteTx(${t.id})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-          </button>
+  // 收入明细（按金额降序）
+  const activeIncomes = state.incomeItems.filter(i => i.active).sort((a, b) => b.amount - a.amount);
+  const incomeListEl = document.getElementById('incomeDetailList');
+  if (activeIncomes.length === 0) {
+    incomeListEl.innerHTML = '<div class="empty-state">暂无固定收入项</div>';
+  } else {
+    incomeListEl.innerHTML = activeIncomes.map(item => {
+      const pct = monthIncome > 0 ? (item.amount / monthIncome * 100).toFixed(1) : 0;
+      return `
+        <div class="detail-item">
+          <div class="detail-item-top">
+            <div class="detail-item-name">
+              <span class="detail-cat" style="background:var(--income-soft);color:var(--income);">${item.category}</span>
+              ${item.name}
+            </div>
+            <div class="detail-item-amount income-num">+¥${fmt(item.amount)}</div>
+          </div>
+          <div class="detail-bar">
+            <div class="detail-bar-fill" style="width:${pct}%;background:var(--income);"></div>
+            <span class="detail-bar-pct">${pct}%</span>
+          </div>
         </div>
-      </td>
-    </tr>
-  `).join('');
+      `;
+    }).join('');
+  }
 
-  // 资产构成饼图
-  renderAssetPie();
+  // 支出分类占比饼图
+  renderExpensePie();
+}
+
+function renderExpensePie() {
+  const el = document.getElementById('chartExpensePie');
+  if (!el) return;
+  const chart = echarts.init(el);
+  const activeExpenses = state.expenseItems.filter(i => i.active);
+  const palette = ['#9c2c2c', '#c0392b', '#e67e22', '#f39c12', '#d4a017', '#7f8c8d', '#34495e', '#2c3e50', '#8e44ad', '#2980b9'];
+  const data = activeExpenses.map((item, idx) => ({
+    name: item.name,
+    value: item.amount,
+    itemStyle: { color: palette[idx % palette.length] },
+  }));
+
+  chart.setOption({
+    tooltip: {
+      trigger: 'item',
+      formatter: (p) => `${p.name}<br/>¥${fmt(p.value)} (${p.percent}%)`,
+      confine: true,
+    },
+    legend: {
+      orient: 'vertical',
+      right: '5%',
+      top: 'center',
+      textStyle: { fontSize: 12, color: '#555' },
+      itemWidth: 12,
+      itemHeight: 12,
+    },
+    series: [{
+      type: 'pie',
+      radius: ['42%', '68%'],
+      center: ['38%', '50%'],
+      avoidLabelOverlap: true,
+      itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
+      label: { show: false },
+      emphasis: {
+        label: { show: true, fontSize: 14, fontWeight: 'bold' },
+      },
+      data: data,
+    }],
+  });
+
+  window.addEventListener('resize', () => chart.resize());
 }
 
 function renderAssetPie() {
