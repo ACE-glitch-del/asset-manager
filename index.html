@@ -1839,7 +1839,7 @@ td.expense-num { color: var(--expense); }
       <section class="view active" id="view-overview">
         <div class="grid grid-3 section-gap">
           <div class="stat-card income">
-            <div class="stat-label">月度固定收入</div>
+            <div class="stat-label">月度可支配收入</div>
             <div class="stat-value" id="statIncome">—</div>
             <div class="stat-delta">生效中收入项合计</div>
           </div>
@@ -3242,7 +3242,9 @@ document.querySelectorAll('.nav-item').forEach(el => {
 
 /* ===== 渲染：总览 ===== */
 function renderOverview() {
-  const monthIncome = getActiveIncomeTotal();
+  const allIncome = getActiveIncomeTotal();
+  const lockedIncome = state.incomeItems.filter(i => i.active && i.category === '公积金').reduce((s, i) => s + i.amount, 0);
+  const monthIncome = allIncome - lockedIncome; // 可支配收入（扣除公积金等锁定收入）
   const monthExpense = getActiveExpenseTotal();
   const balance = monthIncome - monthExpense;
   const savingRate = monthIncome > 0 ? ((balance / monthIncome) * 100).toFixed(1) + '%' : '—';
@@ -3251,6 +3253,14 @@ function renderOverview() {
   document.getElementById('statExpense').textContent = '¥' + fmt(monthExpense);
   document.getElementById('statBalance').textContent = '¥' + fmt(balance);
   document.getElementById('statSavingRate').textContent = savingRate;
+  // 在收入卡片下方注明总收入和公积金
+  const incomeCard = document.querySelector('#statIncome').closest('.stat-card');
+  if (incomeCard) {
+    const delta = incomeCard.querySelector('.stat-delta');
+    if (delta) {
+      delta.innerHTML = `总收入¥${fmt(allIncome)}，含公积金¥${fmt(lockedIncome)}（锁定）`;
+    }
+  }
 
   // 支出明细（按金额降序）
   const activeExpenses = state.expenseItems.filter(i => i.active).sort((a, b) => b.amount - a.amount);
@@ -3278,26 +3288,31 @@ function renderOverview() {
     }).join('');
   }
 
-  // 收入明细（按金额降序）
+  // 收入明细（按金额降序，公积金标注锁定，占比基于可支配收入）
   const activeIncomes = state.incomeItems.filter(i => i.active).sort((a, b) => b.amount - a.amount);
   const incomeListEl = document.getElementById('incomeDetailList');
   if (activeIncomes.length === 0) {
     incomeListEl.innerHTML = '<div class="empty-state">暂无固定收入项</div>';
   } else {
     incomeListEl.innerHTML = activeIncomes.map(item => {
+      const isLocked = item.category === '公积金';
       const pct = monthIncome > 0 ? (item.amount / monthIncome * 100).toFixed(1) : 0;
+      const amountStyle = isLocked ? 'color:var(--ink-3);text-decoration:line-through;' : '';
+      const barBg = isLocked ? 'background:var(--ink-3);' : 'background:var(--income);';
+      const lockedTag = isLocked ? '<span class="detail-cat" style="background:var(--ink-3);color:#fff;margin-left:6px;">锁定</span>' : '';
       return `
-        <div class="detail-item">
+        <div class="detail-item" style="${isLocked ? 'opacity:0.6;' : ''}">
           <div class="detail-item-top">
             <div class="detail-item-name">
               <span class="detail-cat" style="background:var(--income-soft);color:var(--income);">${item.category}</span>
               ${item.name}
+              ${lockedTag}
             </div>
-            <div class="detail-item-amount income-num">+¥${fmt(item.amount)}</div>
+            <div class="detail-item-amount income-num" style="${amountStyle}">+¥${fmt(item.amount)}</div>
           </div>
           <div class="detail-bar">
-            <div class="detail-bar-fill" style="width:${pct}%;background:var(--income);"></div>
-            <span class="detail-bar-pct">${pct}%</span>
+            <div class="detail-bar-fill" style="width:${pct}%;${barBg}"></div>
+            <span class="detail-bar-pct">${isLocked ? '不计入' : pct + '%'}</span>
           </div>
         </div>
       `;
