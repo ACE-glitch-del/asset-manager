@@ -777,6 +777,100 @@ td.expense-num { color: var(--expense); }
   gap: 8px;
 }
 
+/* 投资任务清单 */
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  background: var(--card);
+  transition: all 0.2s;
+}
+.task-item:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.task-item.done {
+  opacity: 0.55;
+  background: var(--bg);
+}
+.task-item.done .task-title {
+  text-decoration: line-through;
+}
+.task-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--ink-3);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.2s;
+}
+.task-checkbox:hover {
+  border-color: var(--primary);
+}
+.task-item.done .task-checkbox {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.task-checkbox svg {
+  width: 12px;
+  height: 12px;
+  stroke: #fff;
+  stroke-width: 3;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.task-item.done .task-checkbox svg {
+  opacity: 1;
+}
+.task-body {
+  flex: 1;
+  min-width: 0;
+}
+.task-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.task-progress {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.task-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.task-status.todo { background: #e9ecef; color: #6c757d; }
+.task-status.doing { background: var(--income-soft); color: var(--income); }
+.task-status.done { background: var(--expense-soft); color: var(--expense); }
+.task-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 /* 个股分析 */
 .stock-analysis-section {
   background: var(--card);
@@ -1949,6 +2043,25 @@ td.expense-num { color: var(--expense); }
 
       <!-- ===== 视图：个人投资 ===== -->
       <section class="view" id="view-investment">
+        <!-- ===== 投资任务清单 ===== -->
+        <div class="card section-gap">
+          <div class="card-title">
+            投资任务清单
+            <span class="sub">要干嘛 · 进展更新 · 随时调整</span>
+            <span style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+              <span class="sub" id="investTaskCount"></span>
+            </span>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:16px;">
+            <input type="text" id="investTaskInput" placeholder="输入新任务，例如：研究XX公司三季报、学习可转债策略..." style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font-sans);" onkeydown="if(event.key==='Enter')addInvestTask()">
+            <button class="btn btn-primary" onclick="addInvestTask()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              添加任务
+            </button>
+          </div>
+          <div id="investTaskList"></div>
+        </div>
+
         <div class="invest-tabs">
           <button class="invest-tab active" data-panel="holdings">持仓总览</button>
           <button class="invest-tab" data-panel="macro">宏观环境</button>
@@ -2875,6 +2988,11 @@ const state = {
   },
   currentLearningTab: 'concepts',
   currentStockAnalysisId: null,
+  investTasks: [
+    { id: 1, title: '研究美联储9月议息会议对A股的影响', status: 'doing', progress: '已看完会议纪要，正在分析历史加息周期走势', updatedAt: '2026-09-10' },
+    { id: 2, title: '整理持仓个股的三季报业绩预告', status: 'todo', progress: '', updatedAt: '' },
+    { id: 3, title: '学习可转债打新策略', status: 'done', progress: '已完成，开通了可转债权限，准备参与打新', updatedAt: '2026-09-05' },
+  ],
 };
 
 /* ===== GitHub 云端同步 + 本地降级存储 ===== */
@@ -2922,6 +3040,7 @@ function buildDataPayload() {
     experienceItems: state.experienceItems,
     experiencePrinciples: state.experiencePrinciples,
     learning: state.learning,
+    investTasks: state.investTasks,
   };
 }
 
@@ -2956,10 +3075,13 @@ function applyData(data) {
   }
   if (data.experiencePrinciples !== undefined && !data.experienceItems) state.experiencePrinciples = data.experiencePrinciples;
   if (data.learning) state.learning = Object.assign({}, state.learning, data.learning);
+  if (data.investTasks && Array.isArray(data.investTasks)) state.investTasks = data.investTasks;
+  if (!state.investTasks) state.investTasks = [];
   // 数据加载完成后重新渲染宏观和学习笔记（延迟确保DOM就绪）
   if (typeof renderMacro === 'function') setTimeout(() => renderMacro(), 100);
   if (typeof renderLearning === 'function') setTimeout(() => renderLearning(), 100);
   if (typeof renderExperience === 'function') setTimeout(() => renderExperience(), 100);
+  if (typeof renderInvestTasks === 'function') setTimeout(() => renderInvestTasks(), 100);
 }
 
 function updateSyncIndicator(text, color) {
@@ -4453,6 +4575,91 @@ function deleteExperienceItem(id) {
   saveState();
 }
 
+/* ===== 投资任务清单 ===== */
+function renderInvestTasks() {
+  const listEl = document.getElementById('investTaskList');
+  const countEl = document.getElementById('investTaskCount');
+  if (!listEl) return;
+  if (!state.investTasks) state.investTasks = [];
+  const tasks = state.investTasks;
+  const doneCount = tasks.filter(t => t.status === 'done').length;
+  const doingCount = tasks.filter(t => t.status === 'doing').length;
+  if (countEl) countEl.textContent = `共${tasks.length}项 · 进行中${doingCount} · 已完成${doneCount}`;
+  if (tasks.length === 0) {
+    listEl.innerHTML = '<div class="empty-state">暂无任务，添加一个开始吧</div>';
+    return;
+  }
+  // 排序：进行中 > 待办 > 已完成
+  const statusOrder = { doing: 0, todo: 1, done: 2 };
+  const sorted = [...tasks].sort((a, b) => (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0));
+  const statusText = { todo: '待办', doing: '进行中', done: '已完成' };
+  listEl.innerHTML = sorted.map(task => `
+    <div class="task-item ${task.status === 'done' ? 'done' : ''}" data-id="${task.id}">
+      <div class="task-checkbox" onclick="toggleInvestTask(${task.id})" title="点击切换完成状态">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="task-body">
+        <div class="task-title">${task.title}</div>
+        ${task.progress ? `<div class="task-progress">${task.progress}</div>` : ''}
+        <div class="task-meta">
+          <span class="task-status ${task.status}">${statusText[task.status] || task.status}</span>
+          ${task.updatedAt ? `<span>更新于 ${task.updatedAt}</span>` : ''}
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editInvestTaskProgress(${task.id})">更新进展</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--expense);" onclick="deleteInvestTask(${task.id})">删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addInvestTask() {
+  const input = document.getElementById('investTaskInput');
+  const title = input.value.trim();
+  if (!title) return;
+  const maxId = state.investTasks.reduce((m, t) => Math.max(m, t.id), 0);
+  const today = new Date().toISOString().slice(0, 10);
+  state.investTasks.push({ id: maxId + 1, title, status: 'todo', progress: '', updatedAt: today });
+  input.value = '';
+  renderInvestTasks();
+  saveState();
+}
+
+function toggleInvestTask(id) {
+  const task = state.investTasks.find(t => t.id === id);
+  if (!task) return;
+  if (task.status === 'done') {
+    task.status = 'todo';
+  } else {
+    task.status = 'done';
+    const today = new Date().toISOString().slice(0, 10);
+    task.updatedAt = today;
+  }
+  renderInvestTasks();
+  saveState();
+}
+
+function editInvestTaskProgress(id) {
+  const task = state.investTasks.find(t => t.id === id);
+  if (!task) return;
+  const newProgress = prompt('更新进展（当前状态、做了什么、下一步）：', task.progress || '');
+  if (newProgress === null) return;
+  task.progress = newProgress.trim();
+  if (task.status === 'todo') task.status = 'doing';
+  const today = new Date().toISOString().slice(0, 10);
+  task.updatedAt = today;
+  renderInvestTasks();
+  saveState();
+}
+
+function deleteInvestTask(id) {
+  if (!confirm('确定删除这个任务？')) return;
+  state.investTasks = state.investTasks.filter(t => t.id !== id);
+  renderInvestTasks();
+  saveState();
+}
+
 /* ===== 板块4：学习笔记 ===== */
 function switchLearningTab(tab) {
   state.currentLearningTab = tab;
@@ -4716,6 +4923,7 @@ async function init() {
   renderStockAnalysis();
   renderExperience();
   renderLearning();
+  renderInvestTasks();
 
   // 如果没有配置Token，自动弹出设置框
   if (!hasToken()) {
@@ -4759,6 +4967,9 @@ async function saveToken() {
 }
 
 init();
+
+// 独立渲染任务清单（确保DOM就绪后执行）
+setTimeout(() => { if (typeof renderInvestTasks === 'function') renderInvestTasks(); }, 300);
 
 /* ===== 刷新持仓最新价格 ===== */
 async function refreshStockPrices() {
