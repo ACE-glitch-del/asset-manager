@@ -358,7 +358,7 @@ async function loadData(){
       initDefaultMembers();
       await ghSave({members:state.members});
     }
-    if(state.members.length&&!state.currentId)state.currentId=state.members[0].id;
+    if(state.members.length&&(!state.currentId||!state.members.find(m=>m.id===state.currentId)))state.currentId=state.members[0].id;
     setSyncStatus('已同步','#22c55e');
   }catch(e){
     console.error('加载失败',e);
