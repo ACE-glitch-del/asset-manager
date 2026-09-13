@@ -98,16 +98,18 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 .problem-action-btn:hover{background:#fff;color:var(--ink)}
 .problem-action-btn.del:hover{color:#ef4444}
 .problem-content{font-size:13.5px;color:var(--ink2);line-height:1.7;white-space:pre-wrap}
+.problem-update{font-size:13px;color:var(--ink2);line-height:1.6;margin-top:8px;padding:8px 10px;background:#fff;border-radius:8px;border-left:3px solid var(--brand);white-space:pre-wrap}
+.update-label{display:inline-block;font-size:11px;font-weight:600;color:var(--brand);background:var(--brand-soft);padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle}
 .problem-date{font-size:11.5px;color:var(--ink3);margin-top:8px;display:flex;align-items:center;gap:4px}
 .add-problem{width:100%;padding:12px;border:1.5px dashed var(--line);border-radius:12px;background:none;color:var(--ink3);font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:.15s}
 .add-problem:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
 
 /* 病史时间线 */
 .history-timeline{position:relative;padding-left:20px}
-.history-timeline::before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.history-timeline::before{desc:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
 .history-item{position:relative;padding-bottom:14px}
 .history-item:last-child{padding-bottom:0}
-.history-item::before{content:'';position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 2px var(--brand-soft)}
+.history-item::before{desc:'';position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 2px var(--brand-soft)}
 .history-date{font-size:13px;font-weight:600;color:var(--ink)}
 .history-place{font-size:11.5px;color:var(--ink3);margin-left:6px}
 .history-event{font-size:13px;color:var(--ink2);margin-top:2px;line-height:1.6}
@@ -301,7 +303,8 @@ textarea.form-control{resize:vertical;min-height:60px}
     </div>
     <div class="modal-body">
       <div class="form-group"><label>问题 <span class="req">*</span></label><input class="form-control" id="pf_title" placeholder="如：脾胃不好、高血压、睡眠差"></div>
-      <div class="form-group"><label>详细情况 / 跟踪更新</label><textarea class="form-control" id="pf_content" rows="5" placeholder="记录具体情况、用药、复查结果、最新变化等"></textarea></div>
+      <div class="form-group"><label>问题描述 / 症状表现</label><textarea class="form-control" id="pf_desc" rows="4" placeholder="怎么个不好法，有哪些症状表现，如：很容易饱、吸收运化不了、头晕、失眠等"></textarea></div>
+      <div class="form-group"><label>跟踪更新 / 最新情况</label><textarea class="form-control" id="pf_update" rows="3" placeholder="用药、复查结果、最新变化等，没有可以不填"></textarea></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeProblemModal()">取消</button>
@@ -442,12 +445,12 @@ async function saveData(immediate){
 
 function initDefaultMembers(){
   state.members=[
-    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',problems:[{id:uid(),title:'脾胃不好',content:'很容易饱，吸收运化不了',date:'2026-09-14'}],history:''},
+    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',problems:[{id:uid(),title:'脾胃不好',desc:'很容易饱，吸收运化不了',date:'2026-09-14'}],history:''},
     {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',problems:[],history:''},
-    {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',problems:[{id:uid(),title:'右眼脉络膜恶性黑色素瘤肝转移',content:'TxN0M1b IV期。2022年4月确诊，2024年7月肝转移。目前在中山大学肿瘤防治中心接受多模式综合治疗，病情相对稳定。',date:'2026-04'},{id:uid(),title:'长期用药',content:'仑伐替尼（靶向）、特瑞普利单抗（免疫）、白蛋白紫杉醇（化疗）、优甲乐、氢化可的松',date:'2026-04'},{id:uid(),title:'血脂异常',content:'血脂偏高，饮食控制中',date:'2026-04'},{id:uid(),title:'甲状腺功能异常',content:'服优甲乐替代治疗',date:'2026-04'},{id:uid(),title:'复查要求',content:'每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿',date:'2026-04'}],history:'2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术\n2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）\n2024年11月 | 中山大学肿瘤防治中心 | 行左肝外叶及S5/S6段切除术+射频消融术\n2025年9月 | 中山大学肿瘤防治中心 | 行肝肿瘤冷冻消融术\n2026年1月 | 中山大学肿瘤防治中心 | 第6次双路治疗，肝动脉造影+灌注术+栓塞术\n2026年4月 | 中山大学肿瘤防治中心 | 最新：行肝肿物冷冻消融术+第9次双路治疗；目前仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗中'},
+    {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',problems:[{id:uid(),title:'右眼脉络膜恶性黑色素瘤肝转移',desc:'TxN0M1b IV期。2022年4月确诊，2024年7月肝转移。目前在中山大学肿瘤防治中心接受多模式综合治疗，病情相对稳定。',date:'2026-04'},{id:uid(),title:'长期用药',desc:'仑伐替尼（靶向）、特瑞普利单抗（免疫）、白蛋白紫杉醇（化疗）、优甲乐、氢化可的松',date:'2026-04'},{id:uid(),title:'血脂异常',desc:'血脂偏高，饮食控制中',date:'2026-04'},{id:uid(),title:'甲状腺功能异常',desc:'服优甲乐替代治疗',date:'2026-04'},{id:uid(),title:'复查要求',desc:'每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿',date:'2026-04'}],history:'2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术\n2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）\n2024年11月 | 中山大学肿瘤防治中心 | 行左肝外叶及S5/S6段切除术+射频消融术\n2025年9月 | 中山大学肿瘤防治中心 | 行肝肿瘤冷冻消融术\n2026年1月 | 中山大学肿瘤防治中心 | 第6次双路治疗，肝动脉造影+灌注术+栓塞术\n2026年4月 | 中山大学肿瘤防治中心 | 最新：行肝肿物冷冻消融术+第9次双路治疗；目前仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗中'},
     {id:uid(),name:'张伟霞',gender:'女',birth:'1973-09-10',bloodType:'',color:'#ec4899',problems:[],history:''},
-    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',problems:[{id:uid(),title:'慢性阻塞性肺病',content:'2026年5月因支气管肺炎住院确诊',date:'2026-05'},{id:uid(),title:'2型糖尿病',content:'伴周围神经病变及肾病等并发症',date:'2026-05'},{id:uid(),title:'高血压病2级',content:'极高危',date:'2026-05'}],history:'2026年5月 | 四会市人民医院 | 因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危'},
-    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',problems:[{id:uid(),title:'心律失常',content:'偶发房早（成对出现）、短阵房速、偶发室早',date:'2024-05'},{id:uid(),title:'心脏起搏器植入术后',content:'2024年植入，电池寿命约10年，需定期复查起搏器功能',date:'2024'}],history:'2024年5月 | 肇庆市中心人民医院 | 动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早\n2024年 |  | 植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能'}
+    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',problems:[{id:uid(),title:'慢性阻塞性肺病',desc:'2026年5月因支气管肺炎住院确诊',date:'2026-05'},{id:uid(),title:'2型糖尿病',desc:'伴周围神经病变及肾病等并发症',date:'2026-05'},{id:uid(),title:'高血压病2级',desc:'极高危',date:'2026-05'}],history:'2026年5月 | 四会市人民医院 | 因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危'},
+    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',problems:[{id:uid(),title:'心律失常',desc:'偶发房早（成对出现）、短阵房速、偶发室早',date:'2024-05'},{id:uid(),title:'心脏起搏器植入术后',desc:'2024年植入，电池寿命约10年，需定期复查起搏器功能',date:'2024'}],history:'2024年5月 | 肇庆市中心人民医院 | 动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早\n2024年 |  | 植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能'}
   ];
   state.currentId=state.members[0].id;
 }
@@ -487,7 +490,10 @@ function renderDetail(){
   document.getElementById('basicGrid').innerHTML=[{label:'年龄',val:a?a+' 岁':''},{label:'性别',val:m.gender},{label:'出生日期',val:m.birth},{label:'血型',val:m.bloodType}].map(b=>'<div class="info-item"><label>'+b.label+'</label><div class="val '+(b.val?'':'empty')+'">'+(b.val?esc(b.val):'未填')+'</div></div>').join('');
   // 健康问题卡片
   const problems=Array.isArray(m.problems)?m.problems:[];
-  document.getElementById('problemsList').innerHTML=problems.length?problems.map(p=>'<div class="problem-card"><div class="problem-card-head"><div class="problem-title">'+esc(p.title||'')+'</div><div class="problem-actions"><button class="problem-action-btn" onclick="editProblem(\''+p.id+'\')" title="编辑"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="problem-action-btn del" onclick="delProblem(\''+p.id+'\')" title="删除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div>'+(p.content?'<div class="problem-content">'+esc(p.content)+'</div>':'')+(p.date?'<div class="problem-date"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>更新于 '+esc(p.date)+'</div>':'')+'</div>').join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0;font-style:italic">暂无健康问题，点下方按钮添加</div>';
+  document.getElementById('problemsList').innerHTML=problems.length?problems.map(p=>{
+    const desc=p.desc||p.content||'';
+    return '<div class="problem-card"><div class="problem-card-head"><div class="problem-title">'+esc(p.title||'')+'</div><div class="problem-actions"><button class="problem-action-btn" onclick="editProblem(\''+p.id+'\')" title="编辑"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="problem-action-btn del" onclick="delProblem(\''+p.id+'\')" title="删除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div>'+(desc?'<div class="problem-content">'+esc(desc)+'</div>':'')+(p.update?'<div class="problem-update"><span class="update-label">跟踪</span>'+esc(p.update)+'</div>':'')+(p.date?'<div class="problem-date"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>更新于 '+esc(p.date)+'</div>':'')+'</div>';
+  }).join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0;font-style:italic">暂无健康问题，点下方按钮添加</div>';
   // 病史总览
   const histSection=document.getElementById('historySection');
   const histContent=document.getElementById('historyContent');
@@ -540,10 +546,15 @@ function openProblemModal(id){
   document.getElementById('problemModalTitle').textContent=id?'编辑健康问题':'添加健康问题';
   if(id&&m&&Array.isArray(m.problems)){
     const p=m.problems.find(x=>x.id===id);
-    if(p){document.getElementById('pf_title').value=p.title||'';document.getElementById('pf_content').value=p.content||''}
+    if(p){
+      document.getElementById('pf_title').value=p.title||'';
+      document.getElementById('pf_desc').value=p.desc||p.content||'';
+      document.getElementById('pf_update').value=p.update||'';
+    }
   }else{
     document.getElementById('pf_title').value='';
-    document.getElementById('pf_content').value='';
+    document.getElementById('pf_desc').value='';
+    document.getElementById('pf_update').value='';
   }
   document.getElementById('problemModal').classList.add('show');
 }
@@ -552,16 +563,17 @@ document.getElementById('problemModal').addEventListener('click',e=>{if(e.target
 function saveProblem(){
   const title=document.getElementById('pf_title').value.trim();
   if(!title){toast('请填写问题');return}
-  const content=document.getElementById('pf_content').value.trim();
+  const desc=document.getElementById('pf_desc').value.trim();
+  const update=document.getElementById('pf_update').value.trim();
   const m=cur();
   if(!m)return;
   if(!Array.isArray(m.problems))m.problems=[];
   const today=new Date().toISOString().slice(0,10);
   if(editingProblemId){
     const i=m.problems.findIndex(p=>p.id===editingProblemId);
-    if(i>=0)m.problems[i]={...m.problems[i],title,content,date:today};
+    if(i>=0)m.problems[i]={...m.problems[i],title,desc,update,date:today};
   }else{
-    m.problems.push({id:uid(),title,content,date:today});
+    m.problems.push({id:uid(),title,desc,update,date:today});
   }
   saveData();renderDetail();closeProblemModal();toast('已保存');
 }
