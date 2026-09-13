@@ -79,8 +79,8 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 .habit-item .val{font-size:14px;font-weight:500;line-height:1.5}
 .habit-item .val.empty{color:var(--ink3);font-style:italic;font-weight:400}
 
-.base-text{font-size:14px;line-height:1.8;color:var(--ink2);white-space:pre-wrap}
-.base-text.empty{color:var(--ink3);font-style:italic}
+.problems-text{font-size:14px;line-height:1.8;color:var(--ink2);white-space:pre-wrap}
+.problems-text.empty{color:var(--ink3);font-style:italic}
 
 /* 病史时间线 */
 .history-timeline{position:relative;padding-left:20px}
@@ -194,27 +194,15 @@ textarea.form-control{resize:vertical;min-height:60px}
         <div class="info-grid" id="basicGrid"></div>
       </div>
 
-      <!-- 身体习惯 -->
+      <!-- 健康问题 -->
       <div class="section">
         <div class="section-head">
           <div class="section-title">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h7"/><circle cx="4.5" cy="6.5" r="1.5"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="4.5" cy="17.5" r="1.5"/></svg></span>
-            身体习惯
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+            健康问题
           </div>
         </div>
-        <div class="habit-grid" id="habitGrid"></div>
-      </div>
-
-      <!-- 健康底子 -->
-      <div class="section">
-        <div class="section-head">
-          <div class="section-title">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
-            健康底子
-          </div>
-        </div>
-        <div id="baseTags" class="tag-row"></div>
-        <div class="base-text" id="baseText" style="margin-top:10px"></div>
+        <div class="problems-text" id="problemsText"></div>
       </div>
 
       <!-- 病史总览 -->
@@ -250,21 +238,10 @@ textarea.form-control{resize:vertical;min-height:60px}
         <div class="form-group"><label>血型</label><select class="form-control" id="f_blood"><option value="">未知</option><option>A型</option><option>B型</option><option>AB型</option><option>O型</option></select></div>
       </div>
 
-      <div style="font-size:13px;font-weight:600;color:var(--ink);margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)">身体习惯</div>
-      <div class="form-row">
-        <div class="form-group"><label>运动习惯</label><input class="form-control" id="f_exercise" placeholder="如：每天散步、每周打球"></div>
-        <div class="form-group"><label>饮食习惯</label><input class="form-control" id="f_diet" placeholder="如：口味偏咸、爱吃素"></div>
+      <div style="font-size:13px;font-weight:600;color:var(--ink);margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)">健康问题</div>
+      <div class="form-group"><label>健康问题 / 跟踪情况</label><textarea class="form-control" id="f_problems" rows="6" placeholder="记录有哪些健康问题、目前跟踪到哪一步、最新情况更新。&#10;如：&#10;• 高血压，目前吃氨氯地平，血压控制在130/85左右&#10;• 糖尿病，每周测血糖，最近一次6.8&#10;• 最新复查：2026年5月，肝肾功能正常"></textarea>
+        <div class="form-hint">自由填写，想写什么写什么，会自动保存同步。</div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>作息</label><input class="form-control" id="f_sleep" placeholder="如：早睡早起、经常熬夜"></div>
-        <div class="form-group"><label>烟酒</label><input class="form-control" id="f_smoke" placeholder="如：不抽烟不喝酒、每天半包烟"></div>
-      </div>
-
-      <div style="font-size:13px;font-weight:600;color:var(--ink);margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)">健康底子</div>
-      <div class="form-group"><label>基础病 / 慢性病</label><input class="form-control" id="f_disease" placeholder="如：高血压、糖尿病，多个用逗号隔开"></div>
-      <div class="form-group"><label>过敏史</label><input class="form-control" id="f_allergy" placeholder="如：青霉素、海鲜"></div>
-      <div class="form-group"><label>长期用药</label><input class="form-control" id="f_medicine" placeholder="如：氨氯地平、二甲双胍"></div>
-      <div class="form-group"><label>体质 / 整体情况</label><textarea class="form-control" id="f_note" placeholder="如：底子不错，就是膝盖不好；体质偏弱，容易感冒"></textarea></div>
       <div class="form-group"><label>病史总览</label><textarea class="form-control" id="f_history" rows="6" placeholder="每行一条，格式：时间 | 地点 | 事件/诊断&#10;如：&#10;2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行同位素敷贴术&#10;2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）"></textarea>
         <div class="form-hint">记录首次发现、治疗经过、最新诊断。相同情况写最新的那次即可。</div>
       </div>
@@ -408,12 +385,12 @@ async function saveData(immediate){
 
 function initDefaultMembers(){
   state.members=[
-    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
-    {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
-    {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',exercise:'',diet:'',sleep:'',smoke:'',disease:'右眼脉络膜恶性黑色素瘤肝转移,血脂异常,甲状腺功能异常',allergy:'',medicine:'仑伐替尼,特瑞普利单抗,白蛋白紫杉醇,优甲乐,氢化可的松',note:'57岁，职业教师。目前在中山大学肿瘤防治中心接受多模式综合治疗，病情相对稳定。伴血脂偏高、甲状腺功能异常（服优甲乐替代）。需每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿。',history:'2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术\n2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）\n2024年11月 | 中山大学肿瘤防治中心 | 行左肝外叶及S5/S6段切除术+射频消融术\n2025年9月 | 中山大学肿瘤防治中心 | 行肝肿瘤冷冻消融术\n2026年1月 | 中山大学肿瘤防治中心 | 第6次双路治疗，肝动脉造影+灌注术+栓塞术\n2026年4月 | 中山大学肿瘤防治中心 | 最新：行肝肿物冷冻消融术+第9次双路治疗；目前仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗中'},
-    {id:uid(),name:'张伟霞',gender:'女',birth:'1973-09-10',bloodType:'',color:'#ec4899',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
-    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',exercise:'',diet:'',sleep:'',smoke:'',disease:'慢性阻塞性肺病,2型糖尿病,高血压病2级',allergy:'',medicine:'',note:'86岁。出生日期具体月日不详，按1940年估算。',history:'2026年5月 | 四会市人民医院 | 因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危'},
-    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',exercise:'',diet:'',sleep:'',smoke:'',disease:'心律失常,心脏起搏器植入术后',allergy:'',medicine:'',note:'2024年5月动态心电图提示心律失常，后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。',history:'2024年5月 | 肇庆市中心人民医院 | 动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早\n2024年 |  | 植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能'}
+    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',problems:'',history:''},
+    {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',problems:'',history:''},
+    {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',problems:'【主要问题】\n• 右眼脉络膜恶性黑色素瘤肝转移（TxN0M1b IV期）\n• 血脂异常\n• 甲状腺功能异常\n\n【长期用药】\n• 仑伐替尼（靶向）\n• 特瑞普利单抗（免疫）\n• 白蛋白紫杉醇（化疗）\n• 优甲乐、氢化可的松\n\n【跟踪情况】\n目前在中山大学肿瘤防治中心接受多模式综合治疗，病情相对稳定。\n\n【复查要求】\n每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿。',history:'2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术\n2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）\n2024年11月 | 中山大学肿瘤防治中心 | 行左肝外叶及S5/S6段切除术+射频消融术\n2025年9月 | 中山大学肿瘤防治中心 | 行肝肿瘤冷冻消融术\n2026年1月 | 中山大学肿瘤防治中心 | 第6次双路治疗，肝动脉造影+灌注术+栓塞术\n2026年4月 | 中山大学肿瘤防治中心 | 最新：行肝肿物冷冻消融术+第9次双路治疗；目前仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗中'},
+    {id:uid(),name:'张伟霞',gender:'女',birth:'1973-09-10',bloodType:'',color:'#ec4899',problems:'',history:''},
+    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',problems:'【主要问题】\n• 慢性阻塞性肺病\n• 2型糖尿病（伴周围神经病变及肾病等并发症）\n• 高血压病2级（极高危）\n\n【跟踪情况】\n2026年5月因支气管肺炎住院，系统检查后确诊上述疾病。\n出生日期具体月日不详，按1940年估算，现年86岁。',history:'2026年5月 | 四会市人民医院 | 因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危'},
+    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',problems:'【主要问题】\n• 心律失常（偶发房早、短阵房速、偶发室早）\n• 心脏起搏器植入术后\n\n【跟踪情况】\n2024年5月动态心电图提示心律失常，后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。',history:'2024年5月 | 肇庆市中心人民医院 | 动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早\n2024年 |  | 植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能'}
   ];
   state.currentId=state.members[0].id;
 }
@@ -443,15 +420,8 @@ function renderDetail(){
   const a=age(m.birth);
   document.getElementById('pSub').textContent=[m.gender,a?a+' 岁':'',m.bloodType].filter(Boolean).join(' · ');
   document.getElementById('basicGrid').innerHTML=[{label:'年龄',val:a?a+' 岁':''},{label:'性别',val:m.gender},{label:'出生日期',val:m.birth},{label:'血型',val:m.bloodType}].map(b=>'<div class="info-item"><label>'+b.label+'</label><div class="val '+(b.val?'':'empty')+'">'+(b.val?esc(b.val):'未填')+'</div></div>').join('');
-  document.getElementById('habitGrid').innerHTML=[{label:'运动',val:m.exercise},{label:'饮食',val:m.diet},{label:'作息',val:m.sleep},{label:'烟酒',val:m.smoke}].map(h=>'<div class="habit-item"><label>'+h.label+'</label><div class="val '+(h.val?'':'empty')+'">'+(h.val?esc(h.val):'未填')+'</div></div>').join('');
-  const tags=[];
-  if(m.disease)m.disease.split(/[,，、]/).filter(Boolean).forEach(d=>tags.push({text:d.trim(),cls:'warn'}));
-  if(m.allergy)m.allergy.split(/[,，、]/).filter(Boolean).forEach(d=>tags.push({text:'过敏：'+d.trim(),cls:'danger'}));
-  if(m.medicine)tags.push({text:'长期用药',cls:'info'});
-  if(!tags.length)tags.push({text:'暂无基础病',cls:'ok'});
-  document.getElementById('baseTags').innerHTML=tags.map(t=>'<span class="tag '+t.cls+'">'+esc(t.text)+'</span>').join('');
-  document.getElementById('baseText').textContent=m.note||'（未填写体质说明）';
-  document.getElementById('baseText').className='base-text'+(m.note?'':' empty');
+  document.getElementById('problemsText').textContent=m.problems||'（暂无记录，点编辑添加）';
+  document.getElementById('problemsText').className='problems-text'+(m.problems?'':' empty');
   // 病史总览
   const histSection=document.getElementById('historySection');
   const histContent=document.getElementById('historyContent');
@@ -479,17 +449,10 @@ function openMemberModal(edit){
     document.getElementById('f_gender').value=m.gender||'男';
     document.getElementById('f_birth').value=m.birth||'';
     document.getElementById('f_blood').value=m.bloodType||'';
-    document.getElementById('f_exercise').value=m.exercise||'';
-    document.getElementById('f_diet').value=m.diet||'';
-    document.getElementById('f_sleep').value=m.sleep||'';
-    document.getElementById('f_smoke').value=m.smoke||'';
-    document.getElementById('f_disease').value=m.disease||'';
-    document.getElementById('f_allergy').value=m.allergy||'';
-    document.getElementById('f_medicine').value=m.medicine||'';
-    document.getElementById('f_note').value=m.note||'';
+    document.getElementById('f_problems').value=m.problems||'';
     document.getElementById('f_history').value=m.history||'';
   }else{
-    ['f_name','f_birth','f_blood','f_exercise','f_diet','f_sleep','f_smoke','f_disease','f_allergy','f_medicine','f_note','f_history'].forEach(id=>document.getElementById(id).value='');
+    ['f_name','f_birth','f_blood','f_problems','f_history'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('f_gender').value='男';
   }
   openModal();
@@ -498,7 +461,7 @@ function openMemberModal(edit){
 function saveMember(){
   const name=document.getElementById('f_name').value.trim();
   if(!name){toast('请填写称呼');return}
-  const data={name,gender:document.getElementById('f_gender').value,birth:document.getElementById('f_birth').value,bloodType:document.getElementById('f_blood').value,exercise:document.getElementById('f_exercise').value.trim(),diet:document.getElementById('f_diet').value.trim(),sleep:document.getElementById('f_sleep').value.trim(),smoke:document.getElementById('f_smoke').value.trim(),disease:document.getElementById('f_disease').value.trim(),allergy:document.getElementById('f_allergy').value.trim(),medicine:document.getElementById('f_medicine').value.trim(),note:document.getElementById('f_note').value.trim(),history:document.getElementById('f_history').value.trim()};
+  const data={name,gender:document.getElementById('f_gender').value,birth:document.getElementById('f_birth').value,bloodType:document.getElementById('f_blood').value,problems:document.getElementById('f_problems').value.trim(),history:document.getElementById('f_history').value.trim()};
   if(state.editingId){const i=state.members.findIndex(m=>m.id===state.editingId);if(i>=0)state.members[i]={...state.members[i],...data}}
   else{const nm={id:uid(),color:COLORS[state.members.length%COLORS.length],...data};state.members.push(nm);state.currentId=nm.id}
   saveData();renderList();renderDetail();closeModal();toast('已保存');
