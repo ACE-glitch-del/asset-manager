@@ -124,6 +124,30 @@
   .profile-toggle:hover { color: var(--accent-dark); }
   .profile-body.collapsed { display: none; }
 
+  .profile-section { margin-bottom: 18px; }
+  .profile-section:last-child { margin-bottom: 0; }
+  .profile-section-title {
+    font-size: 13px; font-weight: 600; color: var(--accent-dark);
+    margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    letter-spacing: 0.5px;
+  }
+
+  .profile-edit-section { margin-bottom: 22px; }
+  .profile-edit-section:last-child { margin-bottom: 0; }
+  .profile-edit-title {
+    font-size: 14px; font-weight: 600; color: var(--accent-dark);
+    margin-bottom: 12px; padding-left: 8px; border-left: 3px solid var(--accent);
+  }
+  .profile-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+  }
+
+  @media (max-width: 768px) {
+    .profile-edit-grid { grid-template-columns: 1fr; }
+  }
+
   /* ===== 概览统计 ===== */
   .stats-row {
     display: grid;
@@ -536,80 +560,8 @@
       <div class="modal-title">编辑个人基本信息</div>
       <button class="modal-close" onclick="closeProfileModal()">&times;</button>
     </div>
-    <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div class="form-group">
-          <label class="form-label">姓名</label>
-          <input type="text" class="form-input" id="p_name" placeholder="请填写">
-        </div>
-        <div class="form-group">
-          <label class="form-label">性别</label>
-          <select class="form-select" id="p_gender">
-            <option value="">请选择</option>
-            <option value="男">男</option>
-            <option value="女">女</option>
-            <option value="其他">其他</option>
-            <option value="不愿透露">不愿透露</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">出生日期</label>
-          <input type="date" class="form-input" id="p_birthdate">
-        </div>
-        <div class="form-group">
-          <label class="form-label">职业</label>
-          <input type="text" class="form-input" id="p_occupation" placeholder="请填写">
-        </div>
-        <div class="form-group">
-          <label class="form-label">联系电话</label>
-          <input type="tel" class="form-input" id="p_phone" placeholder="请填写">
-        </div>
-        <div class="form-group">
-          <label class="form-label">紧急联系人</label>
-          <input type="text" class="form-input" id="p_emergency_name" placeholder="姓名">
-        </div>
-        <div class="form-group" style="grid-column:1/-1;">
-          <label class="form-label">紧急联系电话</label>
-          <input type="tel" class="form-input" id="p_emergency_phone" placeholder="请填写">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">既往心理/精神病史</label>
-        <textarea class="form-textarea" id="p_medical_history" placeholder="如曾确诊的心理或精神疾病、就诊经历、住院史等"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">过敏史</label>
-        <input type="text" class="form-input" id="p_allergy" placeholder="药物或其他过敏史，无则填'无'">
-      </div>
-      <div class="form-group">
-        <label class="form-label">当前用药</label>
-        <textarea class="form-textarea" id="p_medication" placeholder="当前正在服用的药物名称、剂量、服用时间" style="min-height:60px;"></textarea>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div class="form-group">
-          <label class="form-label">睡眠状况</label>
-          <select class="form-select" id="p_sleep">
-            <option value="">请选择</option>
-            <option value="良好">良好</option>
-            <option value="一般">一般</option>
-            <option value="较差">较差</option>
-            <option value="严重失眠">严重失眠</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">运动习惯</label>
-          <select class="form-select" id="p_exercise">
-            <option value="">请选择</option>
-            <option value="经常运动">经常运动</option>
-            <option value="偶尔运动">偶尔运动</option>
-            <option value="几乎不运动">几乎不运动</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">备注</label>
-        <textarea class="form-textarea" id="p_note" placeholder="其他需要记录的个人信息" style="min-height:60px;"></textarea>
-      </div>
+    <div class="modal-body" id="profileModalBody">
+      <!-- 动态生成 -->
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeProfileModal()">取消</button>
@@ -691,21 +643,68 @@ let state = {
   selectedMood: '一般'
 };
 
-const PROFILE_FIELDS = [
-  { key: 'name', label: '姓名', span: '' },
-  { key: 'gender', label: '性别', span: '' },
-  { key: 'birthdate', label: '出生日期', span: '' },
-  { key: 'occupation', label: '职业', span: '' },
-  { key: 'phone', label: '联系电话', span: '' },
-  { key: 'emergency_name', label: '紧急联系人', span: '' },
-  { key: 'emergency_phone', label: '紧急联系电话', span: '' },
-  { key: 'sleep', label: '睡眠状况', span: '' },
-  { key: 'exercise', label: '运动习惯', span: '' },
-  { key: 'allergy', label: '过敏史', span: 'half' },
-  { key: 'medical_history', label: '既往心理/精神病史', span: 'full' },
-  { key: 'medication', label: '当前用药', span: 'full' },
-  { key: 'note', label: '备注', span: 'full' }
+const PROFILE_SECTIONS = [
+  {
+    title: '基本资料',
+    fields: [
+      { key: 'name', label: '姓名', type: 'text' },
+      { key: 'gender', label: '性别', type: 'select', options: ['男','女','其他','不愿透露'] },
+      { key: 'birthdate', label: '出生日期', type: 'date' },
+      { key: 'occupation', label: '职业', type: 'text' },
+      { key: 'education', label: '学历', type: 'text' },
+      { key: 'marital', label: '婚姻状况', type: 'select', options: ['未婚','已婚','离异','丧偶','不愿透露'] },
+      { key: 'phone', label: '联系电话', type: 'tel' },
+      { key: 'emergency_name', label: '紧急联系人', type: 'text' },
+      { key: 'emergency_phone', label: '紧急联系电话', type: 'tel' }
+    ]
+  },
+  {
+    title: '成长背景',
+    fields: [
+      { key: 'childhood', label: '童年经历', type: 'textarea', placeholder: '童年印象深刻的事件、成长环境、重要转折点等' },
+      { key: 'family_atmosphere', label: '家庭氛围', type: 'textarea', placeholder: '家庭整体氛围、亲子关系、父母关系等' },
+      { key: 'father', label: '父亲特点', type: 'textarea', placeholder: '性格、教养方式、职业、与你的关系等' },
+      { key: 'mother', label: '母亲特点', type: 'textarea', placeholder: '性格、教养方式、职业、与你的关系等' },
+      { key: 'siblings', label: '兄弟姐妹/家庭结构', type: 'textarea', placeholder: '排行、兄弟姐妹关系、家庭结构等' }
+    ]
+  },
+  {
+    title: '经历与关系',
+    fields: [
+      { key: 'education_history', label: '学习/工作经历', type: 'textarea', placeholder: '重要的学习或工作经历、转折点等' },
+      { key: 'romantic', label: '婚恋/亲密关系', type: 'textarea', placeholder: '恋爱经历、婚姻状况、亲密关系模式等' },
+      { key: 'social', label: '社交/人际关系', type: 'textarea', placeholder: '交友模式、社交困扰、重要朋友等' }
+    ]
+  },
+  {
+    title: '健康状况',
+    fields: [
+      { key: 'medical_history', label: '既往心理/精神病史', type: 'textarea', placeholder: '曾确诊的心理或精神疾病、就诊经历、住院史等' },
+      { key: 'physical_history', label: '躯体疾病/手术史', type: 'textarea', placeholder: '重大疾病、手术、慢性病等' },
+      { key: 'allergy', label: '过敏史', type: 'text', placeholder: '药物或其他过敏史' },
+      { key: 'medication', label: '当前用药', type: 'textarea', placeholder: '药物名称、剂量、服用时间' },
+      { key: 'sleep', label: '睡眠状况', type: 'select', options: ['良好','一般','较差','严重失眠'] },
+      { key: 'exercise', label: '运动习惯', type: 'select', options: ['经常运动','偶尔运动','几乎不运动'] },
+      { key: 'diet', label: '饮食/烟酒习惯', type: 'text', placeholder: '饮食规律、烟酒、咖啡因等' }
+    ]
+  },
+  {
+    title: '家族与支持',
+    fields: [
+      { key: 'family_history', label: '家族心理/精神疾病史', type: 'textarea', placeholder: '家族中是否有心理疾病、精神疾病、自杀、酗酒等' },
+      { key: 'social_support', label: '社会支持系统', type: 'textarea', placeholder: '可信赖的朋友、支持资源、遇到困难时会找谁' }
+    ]
+  },
+  {
+    title: '其他',
+    fields: [
+      { key: 'note', label: '备注', type: 'textarea', placeholder: '其他需要记录的信息' }
+    ]
+  }
 ];
+
+// 扁平化所有字段，方便遍历
+const ALL_PROFILE_FIELDS = PROFILE_SECTIONS.flatMap(s => s.fields);
 
 function loadData() {
   try {
@@ -716,6 +715,8 @@ function loadData() {
     const raw = localStorage.getItem(PROFILE_KEY);
     if (raw) state.profile = JSON.parse(raw);
   } catch(e) { state.profile = {}; }
+  // 预填出生日期
+  if (!state.profile.birthdate) state.profile.birthdate = '1996-04-11';
 }
 
 function saveData() {
@@ -761,9 +762,20 @@ function showToast(msg) {
 }
 
 // ===== 基本信息 =====
+function calcAge(birthdate) {
+  if (!birthdate) return '';
+  const b = new Date(birthdate);
+  if (isNaN(b.getTime())) return '';
+  const now = new Date();
+  let age = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+  return age + ' 岁';
+}
+
 function renderProfile() {
   const body = document.getElementById('profileBody');
-  const filled = PROFILE_FIELDS.filter(f => state.profile[f.key] && state.profile[f.key].trim());
+  const filled = ALL_PROFILE_FIELDS.filter(f => state.profile[f.key] && state.profile[f.key].trim());
 
   if (filled.length === 0) {
     body.innerHTML = `
@@ -774,16 +786,31 @@ function renderProfile() {
     return;
   }
 
-  body.innerHTML = '<div class="profile-grid">' + PROFILE_FIELDS.map(f => {
-    const val = state.profile[f.key] || '';
-    const spanClass = f.span ? ' ' + f.span : '';
-    return `
-      <div class="profile-field${spanClass}">
-        <div class="profile-field-label">${f.label}</div>
-        <div class="profile-field-value ${val ? '' : 'empty'}">${val ? esc(val) : '待填写'}</div>
-      </div>
-    `;
-  }).join('') + '</div>';
+  let html = '';
+  PROFILE_SECTIONS.forEach(section => {
+    const sectionFilled = section.fields.filter(f => state.profile[f.key] && state.profile[f.key].trim());
+    if (sectionFilled.length === 0) return;
+
+    html += `<div class="profile-section">
+      <div class="profile-section-title">${section.title}</div>
+      <div class="profile-grid">`;
+
+    section.fields.forEach(f => {
+      const val = state.profile[f.key] || '';
+      const displayVal = f.key === 'birthdate' && val ? val + (calcAge(val) ? '（' + calcAge(val) + '）' : '') : val;
+      const isFull = f.type === 'textarea';
+      html += `
+        <div class="profile-field${isFull ? ' full' : ''}">
+          <div class="profile-field-label">${f.label}</div>
+          <div class="profile-field-value ${val ? '' : 'empty'}">${displayVal ? esc(displayVal) : '待填写'}</div>
+        </div>
+      `;
+    });
+
+    html += '</div></div>';
+  });
+
+  body.innerHTML = html;
 }
 
 function toggleProfile() {
@@ -795,10 +822,48 @@ function toggleProfile() {
 }
 
 function openProfileModal() {
-  PROFILE_FIELDS.forEach(f => {
-    const el = document.getElementById('p_' + f.key);
-    if (el) el.value = state.profile[f.key] || '';
+  const body = document.getElementById('profileModalBody');
+  let html = '';
+
+  PROFILE_SECTIONS.forEach(section => {
+    html += `<div class="profile-edit-section">
+      <div class="profile-edit-title">${section.title}</div>
+      <div class="profile-edit-grid">`;
+
+    section.fields.forEach(f => {
+      const val = state.profile[f.key] || '';
+      if (f.type === 'textarea') {
+        html += `
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">${f.label}</label>
+            <textarea class="form-textarea" id="p_${f.key}" placeholder="${f.placeholder || ''}" style="min-height:70px;">${esc(val)}</textarea>
+          </div>
+        `;
+      } else if (f.type === 'select') {
+        const options = f.options.map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>`).join('');
+        html += `
+          <div class="form-group">
+            <label class="form-label">${f.label}</label>
+            <select class="form-select" id="p_${f.key}">
+              <option value="">请选择</option>
+              ${options}
+            </select>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="form-group">
+            <label class="form-label">${f.label}</label>
+            <input type="${f.type}" class="form-input" id="p_${f.key}" value="${esc(val)}" placeholder="${f.placeholder || '请填写'}">
+          </div>
+        `;
+      }
+    });
+
+    html += '</div></div>';
   });
+
+  body.innerHTML = html;
   document.getElementById('profileModal').classList.add('show');
 }
 
@@ -807,7 +872,7 @@ function closeProfileModal() {
 }
 
 function saveProfile() {
-  PROFILE_FIELDS.forEach(f => {
+  ALL_PROFILE_FIELDS.forEach(f => {
     const el = document.getElementById('p_' + f.key);
     if (el) state.profile[f.key] = el.value.trim();
   });
