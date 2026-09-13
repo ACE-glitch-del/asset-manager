@@ -121,6 +121,54 @@
       "accountId": 1,
       "amount": 89,
       "active": true
+    },
+    {
+      "id": 8,
+      "name": "社保/个人所得税",
+      "category": "税费",
+      "accountId": 1,
+      "amount": 310.0,
+      "active": true
+    },
+    {
+      "id": 9,
+      "name": "手机话费",
+      "category": "通讯",
+      "accountId": 1,
+      "amount": 200.0,
+      "active": true
+    },
+    {
+      "id": 10,
+      "name": "保险费（年缴折算）",
+      "category": "保险",
+      "accountId": 1,
+      "amount": 313.0,
+      "active": true
+    },
+    {
+      "id": 11,
+      "name": "视频/软件订阅",
+      "category": "订阅",
+      "accountId": 1,
+      "amount": 100.0,
+      "active": true
+    },
+    {
+      "id": 12,
+      "name": "ETC高速费",
+      "category": "交通",
+      "accountId": 1,
+      "amount": 180.0,
+      "active": true
+    },
+    {
+      "id": 13,
+      "name": "餐饮日常",
+      "category": "餐饮",
+      "accountId": 3,
+      "amount": 500.0,
+      "active": true
     }
   ],
   "transactions": [

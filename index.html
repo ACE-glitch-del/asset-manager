@@ -2208,6 +2208,10 @@ td.expense-num { color: var(--expense); }
           <option value="交通">交通</option>
           <option value="通讯">通讯</option>
           <option value="保险">保险</option>
+          <option value="税费">税费</option>
+          <option value="订阅">订阅</option>
+          <option value="车辆">车辆</option>
+          <option value="居住">居住</option>
           <option value="教育">教育</option>
           <option value="其他">其他</option>
         </select>
@@ -2629,13 +2633,19 @@ const state = {
     { id: 5, name: '季度奖金', category: '奖金', accountId: 1, amount: 5000.00, active: false },
   ],
   expenseItems: [
-    { id: 1, name: '房租', category: '房租', accountId: 1, amount: 3500.00, active: true },
-    { id: 2, name: '水电燃气', category: '水电燃气', accountId: 4, amount: 380.00, active: true },
-    { id: 3, name: '餐饮日常', category: '餐饮', accountId: 3, amount: 2800.00, active: true },
-    { id: 4, name: '交通出行', category: '交通', accountId: 3, amount: 600.00, active: true },
-    { id: 5, name: '手机话费', category: '通讯', accountId: 3, amount: 128.00, active: true },
-    { id: 6, name: '重疾险', category: '保险', accountId: 1, amount: 450.00, active: true },
-    { id: 7, name: '孩子学费', category: '教育', accountId: 1, amount: 1500.00, active: false },
+    { id: 1, name: '华为ADS智驾服务费', category: '车辆', accountId: 1, amount: 500.00, active: true },
+    { id: 2, name: '车贷', category: '车辆', accountId: 1, amount: 300.00, active: true },
+    { id: 3, name: '物业费', category: '居住', accountId: 1, amount: 290.51, active: true },
+    { id: 4, name: '车位物业费', category: '车辆', accountId: 1, amount: 60.00, active: true },
+    { id: 5, name: '水费', category: '水电燃气', accountId: 1, amount: 35.00, active: true },
+    { id: 6, name: '电费', category: '水电燃气', accountId: 1, amount: 315.00, active: true },
+    { id: 7, name: '充电桩电费', category: '车辆', accountId: 1, amount: 89.00, active: true },
+    { id: 8, name: '社保/个人所得税', category: '税费', accountId: 1, amount: 310.00, active: true },
+    { id: 9, name: '手机话费', category: '通讯', accountId: 1, amount: 200.00, active: true },
+    { id: 10, name: '保险费（年缴折算）', category: '保险', accountId: 1, amount: 313.00, active: true },
+    { id: 11, name: '视频/软件订阅', category: '订阅', accountId: 1, amount: 100.00, active: true },
+    { id: 12, name: 'ETC高速费', category: '交通', accountId: 1, amount: 180.00, active: true },
+    { id: 13, name: '餐饮日常', category: '餐饮', accountId: 3, amount: 500.00, active: true },
   ],
   transactions: [
     { date: '2026-09-06', type: 'expense', category: '餐饮', account: '微信零钱', note: '周末家庭聚餐', amount: 386.50 },
@@ -3645,7 +3655,7 @@ function openExpenseModal() {
   state.editingExpenseId = null;
   document.getElementById('expenseModalTitle').textContent = '添加支出项';
   document.getElementById('expName').value = '';
-  document.getElementById('expCategory').value = '房租';
+  document.getElementById('expCategory').value = '其他';
   document.getElementById('expAmount').value = '';
   document.getElementById('expAccount').value = state.accounts[0].id;
   document.getElementById('expenseModal').classList.add('show');
