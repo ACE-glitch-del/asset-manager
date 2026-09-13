@@ -81,6 +81,17 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 
 .base-text{font-size:14px;line-height:1.8;color:var(--ink2);white-space:pre-wrap}
 .base-text.empty{color:var(--ink3);font-style:italic}
+
+/* 病史时间线 */
+.history-timeline{position:relative;padding-left:20px}
+.history-timeline::before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.history-item{position:relative;padding-bottom:14px}
+.history-item:last-child{padding-bottom:0}
+.history-item::before{content:'';position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 2px var(--brand-soft)}
+.history-date{font-size:13px;font-weight:600;color:var(--ink)}
+.history-place{font-size:11.5px;color:var(--ink3);margin-left:6px}
+.history-event{font-size:13px;color:var(--ink2);margin-top:2px;line-height:1.6}
+.history-empty{font-size:13px;color:var(--ink3);font-style:italic;padding:4px 0}
 .tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .tag{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
 .tag.warn{background:#fef3c7;color:#b45309}
@@ -205,6 +216,17 @@ textarea.form-control{resize:vertical;min-height:60px}
         <div id="baseTags" class="tag-row"></div>
         <div class="base-text" id="baseText" style="margin-top:10px"></div>
       </div>
+
+      <!-- 病史总览 -->
+      <div class="section" id="historySection">
+        <div class="section-head">
+          <div class="section-title">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            病史总览
+          </div>
+        </div>
+        <div id="historyContent"></div>
+      </div>
     </div>
   </main>
 </div>
@@ -243,6 +265,9 @@ textarea.form-control{resize:vertical;min-height:60px}
       <div class="form-group"><label>过敏史</label><input class="form-control" id="f_allergy" placeholder="如：青霉素、海鲜"></div>
       <div class="form-group"><label>长期用药</label><input class="form-control" id="f_medicine" placeholder="如：氨氯地平、二甲双胍"></div>
       <div class="form-group"><label>体质 / 整体情况</label><textarea class="form-control" id="f_note" placeholder="如：底子不错，就是膝盖不好；体质偏弱，容易感冒"></textarea></div>
+      <div class="form-group"><label>病史总览</label><textarea class="form-control" id="f_history" rows="6" placeholder="每行一条，格式：时间 | 地点 | 事件/诊断&#10;如：&#10;2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行同位素敷贴术&#10;2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）"></textarea>
+        <div class="form-hint">记录首次发现、治疗经过、最新诊断。相同情况写最新的那次即可。</div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal()">取消</button>
@@ -385,10 +410,10 @@ function initDefaultMembers(){
   state.members=[
     {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
     {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
-    {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',exercise:'',diet:'',sleep:'',smoke:'',disease:'右眼脉络膜恶性黑色素瘤肝转移,血脂异常,甲状腺功能异常',allergy:'',medicine:'仑伐替尼,特瑞普利单抗,白蛋白紫杉醇,优甲乐,氢化可的松',note:'57岁，职业教师。2022年4月确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术。2024年7月发现肝转移（TxN0M1b IV期），11月行左肝外叶及S5/S6段切除术+射频消融术。2025年9月、2026年1月先后行肝肿瘤冷冻消融术。目前在中山大学肿瘤防治中心接受仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗的多模式综合治疗，病情相对稳定。伴血脂偏高、甲状腺功能异常（服优甲乐替代）。需每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿。'},
+    {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',exercise:'',diet:'',sleep:'',smoke:'',disease:'右眼脉络膜恶性黑色素瘤肝转移,血脂异常,甲状腺功能异常',allergy:'',medicine:'仑伐替尼,特瑞普利单抗,白蛋白紫杉醇,优甲乐,氢化可的松',note:'57岁，职业教师。目前在中山大学肿瘤防治中心接受多模式综合治疗，病情相对稳定。伴血脂偏高、甲状腺功能异常（服优甲乐替代）。需每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿。',history:'2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术\n2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）\n2024年11月 | 中山大学肿瘤防治中心 | 行左肝外叶及S5/S6段切除术+射频消融术\n2025年9月 | 中山大学肿瘤防治中心 | 行肝肿瘤冷冻消融术\n2026年1月 | 中山大学肿瘤防治中心 | 第6次双路治疗，肝动脉造影+灌注术+栓塞术\n2026年4月 | 中山大学肿瘤防治中心 | 最新：行肝肿物冷冻消融术+第9次双路治疗；目前仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗中'},
     {id:uid(),name:'张伟霞',gender:'女',birth:'1973-09-10',bloodType:'',color:'#ec4899',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
-    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',exercise:'',diet:'',sleep:'',smoke:'',disease:'慢性阻塞性肺病,2型糖尿病,高血压病2级',allergy:'',medicine:'',note:'86岁。2026年5月因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危。出生日期具体月日不详，按1940年估算。'},
-    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',exercise:'',diet:'',sleep:'',smoke:'',disease:'心律失常,心脏起搏器植入术后',allergy:'',medicine:'',note:'2024年5月动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早。后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。'}
+    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',exercise:'',diet:'',sleep:'',smoke:'',disease:'慢性阻塞性肺病,2型糖尿病,高血压病2级',allergy:'',medicine:'',note:'86岁。出生日期具体月日不详，按1940年估算。',history:'2026年5月 | 四会市人民医院 | 因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危'},
+    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',exercise:'',diet:'',sleep:'',smoke:'',disease:'心律失常,心脏起搏器植入术后',allergy:'',medicine:'',note:'2024年5月动态心电图提示心律失常，后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。',history:'2024年5月 | 肇庆市中心人民医院 | 动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早\n2024年 |  | 植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能'}
   ];
   state.currentId=state.members[0].id;
 }
@@ -427,6 +452,22 @@ function renderDetail(){
   document.getElementById('baseTags').innerHTML=tags.map(t=>'<span class="tag '+t.cls+'">'+esc(t.text)+'</span>').join('');
   document.getElementById('baseText').textContent=m.note||'（未填写体质说明）';
   document.getElementById('baseText').className='base-text'+(m.note?'':' empty');
+  // 病史总览
+  const histSection=document.getElementById('historySection');
+  const histContent=document.getElementById('historyContent');
+  if(m.history&&m.history.trim()){
+    histSection.style.display='';
+    const lines=m.history.split('\n').filter(l=>l.trim());
+    histContent.innerHTML='<div class="history-timeline">'+lines.map(line=>{
+      const parts=line.split('|').map(p=>p.trim());
+      const date=parts[0]||'';
+      const place=parts[1]||'';
+      const event=parts[2]||parts[1]||'';
+      return '<div class="history-item"><div><span class="history-date">'+esc(date)+'</span>'+(place&&parts.length>=3?'<span class="history-place">'+esc(place)+'</span>':'')+'</div>'+(event?'<div class="history-event">'+esc(event)+'</div>':'')+'</div>';
+    }).join('')+'</div>';
+  }else{
+    histSection.style.display='none';
+  }
 }
 
 function openMemberModal(edit){
@@ -446,8 +487,9 @@ function openMemberModal(edit){
     document.getElementById('f_allergy').value=m.allergy||'';
     document.getElementById('f_medicine').value=m.medicine||'';
     document.getElementById('f_note').value=m.note||'';
+    document.getElementById('f_history').value=m.history||'';
   }else{
-    ['f_name','f_birth','f_blood','f_exercise','f_diet','f_sleep','f_smoke','f_disease','f_allergy','f_medicine','f_note'].forEach(id=>document.getElementById(id).value='');
+    ['f_name','f_birth','f_blood','f_exercise','f_diet','f_sleep','f_smoke','f_disease','f_allergy','f_medicine','f_note','f_history'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('f_gender').value='男';
   }
   openModal();
@@ -456,7 +498,7 @@ function openMemberModal(edit){
 function saveMember(){
   const name=document.getElementById('f_name').value.trim();
   if(!name){toast('请填写称呼');return}
-  const data={name,gender:document.getElementById('f_gender').value,birth:document.getElementById('f_birth').value,bloodType:document.getElementById('f_blood').value,exercise:document.getElementById('f_exercise').value.trim(),diet:document.getElementById('f_diet').value.trim(),sleep:document.getElementById('f_sleep').value.trim(),smoke:document.getElementById('f_smoke').value.trim(),disease:document.getElementById('f_disease').value.trim(),allergy:document.getElementById('f_allergy').value.trim(),medicine:document.getElementById('f_medicine').value.trim(),note:document.getElementById('f_note').value.trim()};
+  const data={name,gender:document.getElementById('f_gender').value,birth:document.getElementById('f_birth').value,bloodType:document.getElementById('f_blood').value,exercise:document.getElementById('f_exercise').value.trim(),diet:document.getElementById('f_diet').value.trim(),sleep:document.getElementById('f_sleep').value.trim(),smoke:document.getElementById('f_smoke').value.trim(),disease:document.getElementById('f_disease').value.trim(),allergy:document.getElementById('f_allergy').value.trim(),medicine:document.getElementById('f_medicine').value.trim(),note:document.getElementById('f_note').value.trim(),history:document.getElementById('f_history').value.trim()};
   if(state.editingId){const i=state.members.findIndex(m=>m.id===state.editingId);if(i>=0)state.members[i]={...state.members[i],...data}}
   else{const nm={id:uid(),color:COLORS[state.members.length%COLORS.length],...data};state.members.push(nm);state.currentId=nm.id}
   saveData();renderList();renderDetail();closeModal();toast('已保存');
