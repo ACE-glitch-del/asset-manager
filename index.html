@@ -1786,10 +1786,6 @@ td.expense-num { color: var(--expense); }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
         收支概览
       </a>
-      <a class="nav-item" data-route="cashflow">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
-        月现金流
-      </a>
       <div class="nav-label">管理</div>
       <a class="nav-item" data-route="income">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
@@ -1878,69 +1874,6 @@ td.expense-num { color: var(--expense); }
             <span class="sub">每月固定进账</span>
           </div>
           <div id="incomeDetailList"></div>
-        </div>
-      </section>
-
-      <!-- ===== 视图：月现金流 ===== -->
-      <section class="view" id="view-cashflow">
-        <div class="card section-gap">
-          <div class="card-title">
-            年度收支趋势
-            <span class="sub">2026 年度 · 收入 / 支出 / 结余</span>
-          </div>
-          <div class="chart-box" id="chartTrend" style="min-height:380px;"></div>
-        </div>
-
-        <div class="grid section-gap" style="grid-template-columns: 1fr 1fr;">
-          <div class="card">
-            <div class="card-title">
-              支出分类占比
-              <span class="sub">本年度累计</span>
-            </div>
-            <div id="expenseCatBars"></div>
-          </div>
-          <div class="card">
-            <div class="card-title">
-              收入来源占比
-              <span class="sub">本年度累计</span>
-            </div>
-            <div id="incomeCatBars"></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">
-            年度汇总统计
-            <span class="sub">2026 年 1 月 — 9 月</span>
-          </div>
-          <div class="year-summary">
-            <div class="year-summary-item">
-              <div class="label">累计收入</div>
-              <div class="value" style="color:var(--income);" id="yearIncome">—</div>
-            </div>
-            <div class="year-summary-item">
-              <div class="label">累计支出</div>
-              <div class="value" style="color:var(--expense);" id="yearExpense">—</div>
-            </div>
-            <div class="year-summary-item">
-              <div class="label">累计结余</div>
-              <div class="value" style="color:var(--accent);" id="yearBalance">—</div>
-            </div>
-          </div>
-          <div class="table-wrap" style="margin-top:20px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>月份</th>
-                  <th style="text-align:right">收入 (元)</th>
-                  <th style="text-align:right">支出 (元)</th>
-                  <th style="text-align:right">结余 (元)</th>
-                  <th style="text-align:right">储蓄率</th>
-                </tr>
-              </thead>
-              <tbody id="monthlyTableBody"></tbody>
-            </table>
-          </div>
         </div>
       </section>
 
@@ -3211,7 +3144,6 @@ function getInvestmentCost() {
 /* ===== 路由 ===== */
 const routeTitles = {
   overview: '收支概览',
-  cashflow: '月现金流',
   income: '固定收入',
   expense: '固定支出',
   investment: '个人投资',
@@ -3225,7 +3157,6 @@ function navigate(route) {
     el.classList.toggle('active', el.id === 'view-' + route);
   });
   document.getElementById('pageTitle').textContent = routeTitles[route] || '';
-  if (route === 'cashflow') setTimeout(renderCashflowCharts, 50);
   if (route === 'investment') setTimeout(renderInvestmentCharts, 50);
 }
 
@@ -3405,134 +3336,6 @@ function renderAssetPie() {
     }],
   });
   new ResizeObserver(() => chart.resize()).observe(el);
-}
-
-/* ===== 渲染：现金流 ===== */
-let cashflowRendered = false;
-function renderCashflowCharts() {
-  if (cashflowRendered) return;
-  cashflowRendered = true;
-
-  // 趋势图
-  const trendEl = document.getElementById('chartTrend');
-  const trendChart = echarts.init(trendEl);
-  const months = state.monthlyData.map(d => d.month);
-  const incomes = state.monthlyData.map(d => d.income);
-  const expenses = state.monthlyData.map(d => d.expense);
-  const balances = state.monthlyData.map(d => d.income - d.expense);
-
-  trendChart.setOption({
-    tooltip: {
-      trigger: 'axis',
-      confine: true,
-      axisPointer: { type: 'shadow' },
-    },
-    legend: {
-      data: ['收入', '支出', '结余'],
-      bottom: 0,
-      textStyle: { fontSize: 12, color: '#555' },
-      itemWidth: 14,
-      itemHeight: 8,
-    },
-    grid: { left: '6%', right: '4%', top: '8%', bottom: '18%' },
-    xAxis: {
-      type: 'category',
-      data: months,
-      axisLine: { lineStyle: { color: '#ddd' } },
-      axisLabel: { color: '#888', fontSize: 12 },
-      axisTick: { show: false },
-    },
-    yAxis: {
-      type: 'value',
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: { lineStyle: { color: '#eee', type: 'dashed' } },
-      axisLabel: { color: '#888', fontSize: 11, formatter: (v) => v >= 10000 ? (v/10000) + '万' : v },
-    },
-    series: [
-      {
-        name: '收入',
-        type: 'bar',
-        data: incomes,
-        barWidth: '28%',
-        itemStyle: { color: '#2d6a4f', borderRadius: [3, 3, 0, 0] },
-      },
-      {
-        name: '支出',
-        type: 'bar',
-        data: expenses,
-        barWidth: '28%',
-        itemStyle: { color: '#9c2c2c', borderRadius: [3, 3, 0, 0] },
-      },
-      {
-        name: '结余',
-        type: 'line',
-        data: balances,
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 7,
-        lineStyle: { color: '#b8860b', width: 2.5 },
-        itemStyle: { color: '#b8860b', borderColor: '#fff', borderWidth: 2 },
-      },
-    ],
-  });
-  new ResizeObserver(() => trendChart.resize()).observe(trendEl);
-
-  // 支出分类条
-  const expTotal = state.expenseCategories.reduce((s, c) => s + c.amount, 0);
-  document.getElementById('expenseCatBars').innerHTML = state.expenseCategories.map(c => {
-    const pct = (c.amount / expTotal * 100).toFixed(1);
-    return `
-      <div class="cat-bar-item">
-        <div class="cat-bar-header">
-          <span class="cat-bar-name">${c.name}</span>
-          <span class="cat-bar-val">¥${fmt(c.amount)} · ${pct}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${pct}%;background:${c.color};"></div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // 收入分类条
-  const incTotal = state.incomeCategories.reduce((s, c) => s + c.amount, 0);
-  document.getElementById('incomeCatBars').innerHTML = state.incomeCategories.map(c => {
-    const pct = (c.amount / incTotal * 100).toFixed(1);
-    return `
-      <div class="cat-bar-item">
-        <div class="cat-bar-header">
-          <span class="cat-bar-name">${c.name}</span>
-          <span class="cat-bar-val">¥${fmt(c.amount)} · ${pct}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${pct}%;background:${c.color};"></div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // 年度汇总
-  const yIncome = state.monthlyData.reduce((s, d) => s + d.income, 0);
-  const yExpense = state.monthlyData.reduce((s, d) => s + d.expense, 0);
-  document.getElementById('yearIncome').textContent = '¥' + fmt(yIncome);
-  document.getElementById('yearExpense').textContent = '¥' + fmt(yExpense);
-  document.getElementById('yearBalance').textContent = '¥' + fmt(yIncome - yExpense);
-
-  // 月度表格
-  document.getElementById('monthlyTableBody').innerHTML = state.monthlyData.map(d => {
-    const bal = d.income - d.expense;
-    const rate = (bal / d.income * 100).toFixed(1);
-    return `
-      <tr>
-        <td style="font-weight:500;color:var(--ink)">${d.month}</td>
-        <td class="num income-num">${fmt(d.income)}</td>
-        <td class="num expense-num">${fmt(d.expense)}</td>
-        <td class="num" style="color:var(--accent)">${fmt(bal)}</td>
-        <td class="num" style="color:var(--ink-2)">${rate}%</td>
-      </tr>
-    `;
-  }).join('');
 }
 
 /* ===== 渲染：固定收入 ===== */
