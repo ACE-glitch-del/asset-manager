@@ -281,6 +281,19 @@
   .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
   .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
 
+  .form-step { margin-bottom: 22px; }
+  .form-step:last-child { margin-bottom: 0; }
+  .step-indicator {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .step-label { font-size: 14px; font-weight: 600; color: var(--text); }
+
   .tag-input-wrap {
     border: 1px solid var(--border); border-radius: var(--radius-sm);
     padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
@@ -321,6 +334,12 @@
   }
   .section-title .dot {
     width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+  .section-title .step-badge {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; flex-shrink: 0;
   }
   .detail-content { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
   .detail-list { list-style: none; }
@@ -492,28 +511,45 @@
       <button class="modal-close" onclick="closeProblemModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">问题标题<span class="required">*</span></label>
-        <input type="text" class="form-input" id="f_title" placeholder="例如：社交焦虑、失眠、情绪低落...">
-      </div>
-      <div class="form-group">
-        <label class="form-label">问题缘由</label>
-        <textarea class="form-textarea" id="f_origin" placeholder="这个问题是怎么开始的？可能的原因是什么？什么时候发现的？"></textarea>
-        <div class="form-hint">记录问题的起源和背景，帮助后续回顾分析</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">主要表现</label>
-        <div class="tag-input-wrap" id="manifestationsWrap">
-          <input type="text" class="tag-input" id="f_manifestation_input" placeholder="输入表现后按回车添加" onkeydown="handleTagInput(event, 'manifestations')">
+      <!-- 步骤1：发现事情 -->
+      <div class="form-step">
+        <div class="step-indicator"><span class="step-num">1</span><span class="step-label">发现事情</span></div>
+        <div class="form-group">
+          <label class="form-label">发生了什么事？<span class="required">*</span></label>
+          <div class="tag-input-wrap" id="eventsWrap">
+            <input type="text" class="tag-input" id="f_event_input" placeholder="输入具体事件后按回车添加，可多条" onkeydown="handleTagInput(event, 'events')">
+          </div>
+          <div class="form-hint">记录具体发生的事情，作为判断问题的依据。例如：开会时被点名发言就紧张到说不出话</div>
         </div>
-        <div class="form-hint">例如：心跳加速、回避社交、入睡困难、注意力不集中</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">应对措施</label>
-        <div class="tag-input-wrap" id="measuresWrap">
-          <input type="text" class="tag-input" id="f_measure_input" placeholder="输入措施后按回车添加" onkeydown="handleTagInput(event, 'measures')">
+      <!-- 步骤2：发现问题 -->
+      <div class="form-step">
+        <div class="step-indicator"><span class="step-num">2</span><span class="step-label">发现问题</span></div>
+        <div class="form-group">
+          <label class="form-label">这反映出什么心理问题？<span class="required">*</span></label>
+          <input type="text" class="form-input" id="f_title" placeholder="例如：社交焦虑、情绪失控、抗压能力弱...">
+          <div class="form-hint">把问题提炼成一句话，问题越清晰，解决越有方向</div>
         </div>
-        <div class="form-hint">例如：深呼吸练习、规律作息、寻求咨询、运动调节</div>
+      </div>
+      <!-- 步骤3：追溯原因 -->
+      <div class="form-step">
+        <div class="step-indicator"><span class="step-num">3</span><span class="step-label">追溯原因</span></div>
+        <div class="form-group">
+          <label class="form-label">为什么会有这个问题？</label>
+          <textarea class="form-textarea" id="f_cause" placeholder="分析问题的根源，是童年经历、家庭环境、性格特质还是其他原因？" style="min-height:80px;"></textarea>
+          <div class="form-hint">可以结合家庭氛围和父母特点来分析</div>
+        </div>
+      </div>
+      <!-- 步骤4：解决方法 -->
+      <div class="form-step">
+        <div class="step-indicator"><span class="step-num">4</span><span class="step-label">解决方法</span></div>
+        <div class="form-group">
+          <label class="form-label">打算怎么解决？</label>
+          <div class="tag-input-wrap" id="solutionsWrap">
+            <input type="text" class="tag-input" id="f_solution_input" placeholder="输入解决方法后按回车添加，可多条" onkeydown="handleTagInput(event, 'solutions')">
+          </div>
+          <div class="form-hint">具体可执行的方法，例如：每天练习深呼吸5分钟、主动参加一次社交活动</div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -638,67 +674,18 @@ let state = {
   currentFilter: 'all',
   editingId: null,
   currentDetailId: null,
-  tempManifestations: [],
-  tempMeasures: [],
+  tempEvents: [],
+  tempSolutions: [],
   selectedMood: '一般'
 };
 
 const PROFILE_SECTIONS = [
   {
-    title: '基本资料',
+    title: '家庭背景',
     fields: [
-      { key: 'name', label: '姓名', type: 'text' },
-      { key: 'gender', label: '性别', type: 'select', options: ['男','女','其他','不愿透露'] },
-      { key: 'birthdate', label: '出生日期', type: 'date' },
-      { key: 'occupation', label: '职业', type: 'text' },
-      { key: 'education', label: '学历', type: 'text' },
-      { key: 'marital', label: '婚姻状况', type: 'select', options: ['未婚','已婚','离异','丧偶','不愿透露'] },
-      { key: 'phone', label: '联系电话', type: 'tel' },
-      { key: 'emergency_name', label: '紧急联系人', type: 'text' },
-      { key: 'emergency_phone', label: '紧急联系电话', type: 'tel' }
-    ]
-  },
-  {
-    title: '成长背景',
-    fields: [
-      { key: 'childhood', label: '童年经历', type: 'textarea', placeholder: '童年印象深刻的事件、成长环境、重要转折点等' },
-      { key: 'family_atmosphere', label: '家庭氛围', type: 'textarea', placeholder: '家庭整体氛围、亲子关系、父母关系等' },
-      { key: 'father', label: '父亲特点', type: 'textarea', placeholder: '性格、教养方式、职业、与你的关系等' },
-      { key: 'mother', label: '母亲特点', type: 'textarea', placeholder: '性格、教养方式、职业、与你的关系等' },
-      { key: 'siblings', label: '兄弟姐妹/家庭结构', type: 'textarea', placeholder: '排行、兄弟姐妹关系、家庭结构等' }
-    ]
-  },
-  {
-    title: '经历与关系',
-    fields: [
-      { key: 'education_history', label: '学习/工作经历', type: 'textarea', placeholder: '重要的学习或工作经历、转折点等' },
-      { key: 'romantic', label: '婚恋/亲密关系', type: 'textarea', placeholder: '恋爱经历、婚姻状况、亲密关系模式等' },
-      { key: 'social', label: '社交/人际关系', type: 'textarea', placeholder: '交友模式、社交困扰、重要朋友等' }
-    ]
-  },
-  {
-    title: '健康状况',
-    fields: [
-      { key: 'medical_history', label: '既往心理/精神病史', type: 'textarea', placeholder: '曾确诊的心理或精神疾病、就诊经历、住院史等' },
-      { key: 'physical_history', label: '躯体疾病/手术史', type: 'textarea', placeholder: '重大疾病、手术、慢性病等' },
-      { key: 'allergy', label: '过敏史', type: 'text', placeholder: '药物或其他过敏史' },
-      { key: 'medication', label: '当前用药', type: 'textarea', placeholder: '药物名称、剂量、服用时间' },
-      { key: 'sleep', label: '睡眠状况', type: 'select', options: ['良好','一般','较差','严重失眠'] },
-      { key: 'exercise', label: '运动习惯', type: 'select', options: ['经常运动','偶尔运动','几乎不运动'] },
-      { key: 'diet', label: '饮食/烟酒习惯', type: 'text', placeholder: '饮食规律、烟酒、咖啡因等' }
-    ]
-  },
-  {
-    title: '家族与支持',
-    fields: [
-      { key: 'family_history', label: '家族心理/精神疾病史', type: 'textarea', placeholder: '家族中是否有心理疾病、精神疾病、自杀、酗酒等' },
-      { key: 'social_support', label: '社会支持系统', type: 'textarea', placeholder: '可信赖的朋友、支持资源、遇到困难时会找谁' }
-    ]
-  },
-  {
-    title: '其他',
-    fields: [
-      { key: 'note', label: '备注', type: 'textarea', placeholder: '其他需要记录的信息' }
+      { key: 'family_atmosphere', label: '家庭氛围', type: 'textarea', placeholder: '家庭整体氛围、父母关系、亲子关系等' },
+      { key: 'father', label: '父亲特点', type: 'textarea', placeholder: '性格、教养方式、与你的关系等' },
+      { key: 'mother', label: '母亲特点', type: 'textarea', placeholder: '性格、教养方式、与你的关系等' }
     ]
   }
 ];
@@ -715,8 +702,6 @@ function loadData() {
     const raw = localStorage.getItem(PROFILE_KEY);
     if (raw) state.profile = JSON.parse(raw);
   } catch(e) { state.profile = {}; }
-  // 预填出生日期
-  if (!state.profile.birthdate) state.profile.birthdate = '1996-04-11';
 }
 
 function saveData() {
@@ -930,7 +915,8 @@ function renderList() {
   if (search) {
     list = list.filter(p =>
       (p.title || '').toLowerCase().includes(search) ||
-      (p.origin || '').toLowerCase().includes(search)
+      (p.cause || '').toLowerCase().includes(search) ||
+      (p.events || []).some(e => e.toLowerCase().includes(search))
     );
   }
 
@@ -949,16 +935,21 @@ function renderList() {
     const trackCount = (p.tracks || []).length;
     const statusClass = p.status === 'active' ? 'status-active' : 'status-resolved';
     const statusText = p.status === 'active' ? '进行中' : '已解决';
-    const tags = (p.manifestations || []).slice(0, 3).map(m => `<span class="tag">${esc(m)}</span>`).join('');
+    const firstEvent = (p.events || [])[0] || '';
+    const eventCount = (p.events || []).length;
+    const solutionCount = (p.solutions || []).length;
     return `
       <div class="problem-card ${p.status === 'resolved' ? 'resolved' : ''}" onclick="showDetail('${p.id}')">
         <span class="card-status ${statusClass}">${statusText}</span>
         <div class="card-title">${esc(p.title)}</div>
-        <div class="card-origin">${esc(p.origin || '暂无缘由描述')}</div>
-        <div class="card-tags">${tags}</div>
+        <div class="card-origin">${esc(firstEvent || '暂无事件记录')}${eventCount > 1 ? ' 等' + eventCount + '件事' : ''}</div>
+        <div class="card-tags">
+          ${solutionCount > 0 ? `<span class="tag">${solutionCount} 个解决方法</span>` : ''}
+          ${p.cause ? `<span class="tag">已分析原因</span>` : ''}
+        </div>
         <div class="card-meta">
           <span>创建于 ${formatDate(p.createdAt)}</span>
-          <span>${trackCount} 条记录</span>
+          <span>${trackCount} 条跟踪</span>
         </div>
       </div>
     `;
@@ -974,24 +965,24 @@ function esc(str) {
 // ===== 新增/编辑问题 =====
 function openProblemModal(id) {
   state.editingId = id || null;
-  state.tempManifestations = [];
-  state.tempMeasures = [];
+  state.tempEvents = [];
+  state.tempSolutions = [];
 
   document.getElementById('problemModalTitle').textContent = id ? '编辑心理问题' : '新增心理问题';
   document.getElementById('f_title').value = '';
-  document.getElementById('f_origin').value = '';
-  renderTagChips('manifestations');
-  renderTagChips('measures');
+  document.getElementById('f_cause').value = '';
+  renderTagChips('events');
+  renderTagChips('solutions');
 
   if (id) {
     const p = state.problems.find(x => x.id === id);
     if (p) {
       document.getElementById('f_title').value = p.title || '';
-      document.getElementById('f_origin').value = p.origin || '';
-      state.tempManifestations = [...(p.manifestations || [])];
-      state.tempMeasures = [...(p.measures || [])];
-      renderTagChips('manifestations');
-      renderTagChips('measures');
+      document.getElementById('f_cause').value = p.cause || '';
+      state.tempEvents = [...(p.events || [])];
+      state.tempSolutions = [...(p.solutions || [])];
+      renderTagChips('events');
+      renderTagChips('solutions');
     }
   }
 
@@ -1006,13 +997,13 @@ function closeProblemModal() {
 function handleTagInput(e, type) {
   if (e.key === 'Enter') {
     e.preventDefault();
-    const input = document.getElementById(type === 'manifestations' ? 'f_manifestation_input' : 'f_measure_input');
+    const input = document.getElementById(type === 'events' ? 'f_event_input' : 'f_solution_input');
     const val = input.value.trim();
     if (val) {
-      if (type === 'manifestations') {
-        if (!state.tempManifestations.includes(val)) state.tempManifestations.push(val);
+      if (type === 'events') {
+        if (!state.tempEvents.includes(val)) state.tempEvents.push(val);
       } else {
-        if (!state.tempMeasures.includes(val)) state.tempMeasures.push(val);
+        if (!state.tempSolutions.includes(val)) state.tempSolutions.push(val);
       }
       input.value = '';
       renderTagChips(type);
@@ -1021,36 +1012,38 @@ function handleTagInput(e, type) {
 }
 
 function renderTagChips(type) {
-  const wrap = document.getElementById(type === 'manifestations' ? 'manifestationsWrap' : 'measuresWrap');
-  const arr = type === 'manifestations' ? state.tempManifestations : state.tempMeasures;
-  const inputId = type === 'manifestations' ? 'f_manifestation_input' : 'f_measure_input';
+  const wrap = document.getElementById(type === 'events' ? 'eventsWrap' : 'solutionsWrap');
+  const arr = type === 'events' ? state.tempEvents : state.tempSolutions;
+  const inputId = type === 'events' ? 'f_event_input' : 'f_solution_input';
+  const placeholder = type === 'events' ? '输入具体事件后按回车添加' : '输入解决方法后按回车添加';
 
   const chips = arr.map((item, i) => `
     <span class="tag-chip">${esc(item)}<span class="remove" onclick="removeTag('${type}', ${i})">&times;</span></span>
   `).join('');
 
-  wrap.innerHTML = chips + `<input type="text" class="tag-input" id="${inputId}" placeholder="输入后按回车添加" onkeydown="handleTagInput(event, '${type}')">`;
+  wrap.innerHTML = chips + `<input type="text" class="tag-input" id="${inputId}" placeholder="${placeholder}" onkeydown="handleTagInput(event, '${type}')">`;
 }
 
 function removeTag(type, index) {
-  if (type === 'manifestations') state.tempManifestations.splice(index, 1);
-  else state.tempMeasures.splice(index, 1);
+  if (type === 'events') state.tempEvents.splice(index, 1);
+  else state.tempSolutions.splice(index, 1);
   renderTagChips(type);
 }
 
 function saveProblem() {
   const title = document.getElementById('f_title').value.trim();
-  const origin = document.getElementById('f_origin').value.trim();
+  const cause = document.getElementById('f_cause').value.trim();
 
-  if (!title) { showToast('请填写问题标题'); return; }
+  if (!title) { showToast('请填写问题名称'); return; }
+  if (state.tempEvents.length === 0) { showToast('请至少添加一个具体事件'); return; }
 
   if (state.editingId) {
     const p = state.problems.find(x => x.id === state.editingId);
     if (p) {
       p.title = title;
-      p.origin = origin;
-      p.manifestations = [...state.tempManifestations];
-      p.measures = [...state.tempMeasures];
+      p.cause = cause;
+      p.events = [...state.tempEvents];
+      p.solutions = [...state.tempSolutions];
       p.updatedAt = Date.now();
     }
     showToast('已更新');
@@ -1058,9 +1051,9 @@ function saveProblem() {
     state.problems.push({
       id: genId(),
       title,
-      origin,
-      manifestations: [...state.tempManifestations],
-      measures: [...state.tempMeasures],
+      cause,
+      events: [...state.tempEvents],
+      solutions: [...state.tempSolutions],
       status: 'active',
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -1106,18 +1099,21 @@ function renderDetail() {
   const statusClass = p.status === 'active' ? 'status-active' : 'status-resolved';
   const statusText = p.status === 'active' ? '进行中' : '已解决';
 
-  const manifestationsHtml = (p.manifestations || []).length
-    ? `<ul class="detail-list">${p.manifestations.map((m,i) => `
-        <li><span class="list-item-text">${esc(m)}</span><button class="list-item-del" onclick="removeItem('manifestations',${i})" title="删除">&times;</button></li>
+  // 事件列表
+  const eventsHtml = (p.events || []).length
+    ? `<ul class="detail-list">${p.events.map((m,i) => `
+        <li><span class="list-item-text">${esc(m)}</span><button class="list-item-del" onclick="removeItem('events',${i})" title="删除">&times;</button></li>
       `).join('')}</ul>`
-    : '<div style="color:var(--text-muted);font-size:13px;">暂无表现记录</div>';
+    : '<div style="color:var(--text-muted);font-size:13px;">暂无事件记录</div>';
 
-  const measuresHtml = (p.measures || []).length
-    ? `<ul class="detail-list">${p.measures.map((m,i) => `
-        <li><span class="list-item-text">${esc(m)}</span><button class="list-item-del" onclick="removeItem('measures',${i})" title="删除">&times;</button></li>
+  // 解决方法列表
+  const solutionsHtml = (p.solutions || []).length
+    ? `<ul class="detail-list">${p.solutions.map((m,i) => `
+        <li><span class="list-item-text">${esc(m)}</span><button class="list-item-del" onclick="removeItem('solutions',${i})" title="删除">&times;</button></li>
       `).join('')}</ul>`
-    : '<div style="color:var(--text-muted);font-size:13px;">暂无应对措施</div>';
+    : '<div style="color:var(--text-muted);font-size:13px;">暂无解决方法</div>';
 
+  // 跟踪记录
   const tracks = (p.tracks || []).slice().sort((a,b) => b.createdAt - a.createdAt);
   const tracksHtml = tracks.length
     ? `<div class="timeline">${tracks.map(t => `
@@ -1147,41 +1143,79 @@ function renderDetail() {
       </div>
     </div>
 
+    <!-- 第一步：发现事情 -->
     <div class="detail-section">
-      <div class="section-title"><span class="dot"></span>问题缘由</div>
-      <div class="detail-content">${esc(p.origin || '暂无描述')}</div>
-    </div>
-
-    <div class="detail-section">
-      <div class="section-title"><span class="dot"></span>主要表现</div>
-      ${manifestationsHtml}
+      <div class="section-title"><span class="step-badge">1</span>发生了什么事（事件/表现）</div>
+      ${eventsHtml}
       <div class="inline-add">
-        <input type="text" id="addManifestationInput" placeholder="添加新的表现..." onkeydown="if(event.key==='Enter')addItem('manifestations')">
-        <button class="btn btn-primary btn-sm" onclick="addItem('manifestations')">添加</button>
+        <input type="text" id="addEventInput" placeholder="添加新的事件..." onkeydown="if(event.key==='Enter')addItem('events')">
+        <button class="btn btn-primary btn-sm" onclick="addItem('events')">添加</button>
       </div>
     </div>
 
+    <!-- 第二步：发现问题（标题已在顶部展示） -->
+
+    <!-- 第三步：追溯原因 -->
     <div class="detail-section">
-      <div class="section-title"><span class="dot"></span>应对措施</div>
-      ${measuresHtml}
+      <div class="section-title"><span class="step-badge">3</span>为什么会有这个问题（原因追溯）</div>
+      <div class="detail-content" id="causeDisplay">${esc(p.cause || '暂无原因分析')}</div>
+      <div id="causeEditWrap" style="display:none;margin-top:12px;">
+        <textarea class="form-textarea" id="causeEditInput" style="min-height:80px;" placeholder="分析问题的根源...">${esc(p.cause || '')}</textarea>
+        <div style="margin-top:8px;display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="saveCause()">保存</button>
+          <button class="btn btn-ghost btn-sm" onclick="cancelCauseEdit()">取消</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="editCause()" id="causeEditBtn">${p.cause ? '修改原因' : '添加原因分析'}</button>
+    </div>
+
+    <!-- 第四步：解决方法 -->
+    <div class="detail-section">
+      <div class="section-title"><span class="step-badge">4</span>怎么解决（解决方法）</div>
+      ${solutionsHtml}
       <div class="inline-add">
-        <input type="text" id="addMeasureInput" placeholder="添加新的措施..." onkeydown="if(event.key==='Enter')addItem('measures')">
-        <button class="btn btn-primary btn-sm" onclick="addItem('measures')">添加</button>
+        <input type="text" id="addSolutionInput" placeholder="添加新的解决方法..." onkeydown="if(event.key==='Enter')addItem('solutions')">
+        <button class="btn btn-primary btn-sm" onclick="addItem('solutions')">添加</button>
       </div>
     </div>
 
+    <!-- 跟踪记录 -->
     <div class="detail-section">
-      <div class="section-title"><span class="dot"></span>跟踪记录（${tracks.length}）</div>
+      <div class="section-title"><span class="dot"></span>进度跟踪（${tracks.length}）</div>
       ${tracksHtml}
       <div style="margin-top:16px;">
-        <button class="btn btn-primary" onclick="openTrackModal()">+ 添加跟踪记录</button>
+        <button class="btn btn-primary" onclick="openTrackModal()">+ 更新进度</button>
       </div>
     </div>
   `;
 }
 
+function editCause() {
+  document.getElementById('causeDisplay').style.display = 'none';
+  document.getElementById('causeEditWrap').style.display = 'block';
+  document.getElementById('causeEditBtn').style.display = 'none';
+  document.getElementById('causeEditInput').focus();
+}
+
+function cancelCauseEdit() {
+  document.getElementById('causeDisplay').style.display = 'block';
+  document.getElementById('causeEditWrap').style.display = 'none';
+  document.getElementById('causeEditBtn').style.display = 'inline-flex';
+}
+
+function saveCause() {
+  const val = document.getElementById('causeEditInput').value.trim();
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p) return;
+  p.cause = val;
+  p.updatedAt = Date.now();
+  saveData();
+  renderDetail();
+  showToast('原因分析已保存');
+}
+
 function addItem(type) {
-  const inputId = type === 'manifestations' ? 'addManifestationInput' : 'addMeasureInput';
+  const inputId = type === 'events' ? 'addEventInput' : 'addSolutionInput';
   const input = document.getElementById(inputId);
   const val = input.value.trim();
   if (!val) return;
@@ -1430,9 +1464,9 @@ if (state.problems.length === 0) {
     {
       id: genId(),
       title: '无法控制情绪',
-      origin: '',
-      manifestations: [],
-      measures: [],
+      cause: '',
+      events: [],
+      solutions: [],
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -1441,9 +1475,9 @@ if (state.problems.length === 0) {
     {
       id: genId(),
       title: '极度不抗压',
-      origin: '从小家里比较紧盯着，比较强势控制',
-      manifestations: [],
-      measures: [],
+      cause: '从小家里比较紧盯着，比较强势控制',
+      events: [],
+      solutions: [],
       status: 'active',
       createdAt: now,
       updatedAt: now,
