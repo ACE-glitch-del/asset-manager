@@ -33,7 +33,7 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 
 /* 布局 */
 .layout{display:grid;grid-template-columns:240px 1fr;gap:20px;padding:20px;max-width:1100px;margin:0 auto}
-@media(max-width:760px){.layout{grid-template-columns:1fr;padding:14px}}
+@media(max-width:760px){.layout{grid-template-columns:1fr;padding:14px}.sidebar{position:static}}
 
 /* 成员侧栏 */
 .sidebar{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;height:fit-content;position:sticky;top:76px}
@@ -51,11 +51,6 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 .member-del:hover{color:#ef4444;background:#fef2f2}
 .add-member{width:100%;margin-top:10px;padding:9px;border:1.5px dashed var(--line);border-radius:10px;color:var(--ink3);font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
 .add-member:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
-
-/* 移动端选择器 */
-.mobile-select{display:none;margin-bottom:14px}
-.mobile-select select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--line);font-size:15px;background:#fff}
-@media(max-width:760px){.sidebar{display:none}.mobile-select{display:block}}
 
 /* 档案卡 */
 .profile-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
@@ -157,10 +152,6 @@ textarea.form-control{resize:vertical;min-height:60px}
   </aside>
 
   <main>
-    <div class="mobile-select">
-      <select id="mobileSelect" onchange="selectMember(this.value)"></select>
-    </div>
-
     <div id="emptyState" style="display:none" class="profile-card">
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -392,12 +383,12 @@ async function saveData(immediate){
 
 function initDefaultMembers(){
   state.members=[
-    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',exercise:'',diet:'',sleep:'',smoke:'',disease:'慢性阻塞性肺病,2型糖尿病,高血压病2级',allergy:'',medicine:'',note:'86岁。2026年5月因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危。出生日期具体月日不详，按1940年估算。'},
-    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',exercise:'',diet:'',sleep:'',smoke:'',disease:'心律失常,心脏起搏器植入术后',allergy:'',medicine:'',note:'2024年5月动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早。后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。'},
+    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
+    {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
     {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',exercise:'',diet:'',sleep:'',smoke:'',disease:'右眼脉络膜恶性黑色素瘤肝转移,血脂异常,甲状腺功能异常',allergy:'',medicine:'仑伐替尼,特瑞普利单抗,白蛋白紫杉醇,优甲乐,氢化可的松',note:'57岁，职业教师。2022年4月确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术。2024年7月发现肝转移（TxN0M1b IV期），11月行左肝外叶及S5/S6段切除术+射频消融术。2025年9月、2026年1月先后行肝肿瘤冷冻消融术。目前在中山大学肿瘤防治中心接受仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗的多模式综合治疗，病情相对稳定。伴血脂偏高、甲状腺功能异常（服优甲乐替代）。需每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿。'},
     {id:uid(),name:'张伟霞',gender:'女',birth:'1973-09-10',bloodType:'',color:'#ec4899',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
-    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
-    {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''}
+    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',exercise:'',diet:'',sleep:'',smoke:'',disease:'慢性阻塞性肺病,2型糖尿病,高血压病2级',allergy:'',medicine:'',note:'86岁。2026年5月因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危。出生日期具体月日不详，按1940年估算。'},
+    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',exercise:'',diet:'',sleep:'',smoke:'',disease:'心律失常,心脏起搏器植入术后',allergy:'',medicine:'',note:'2024年5月动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早。后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。'}
   ];
   state.currentId=state.members[0].id;
 }
@@ -412,7 +403,6 @@ function renderList(){
     const a=age(m.birth);
     return '<div class="member-item '+(m.id===state.currentId?'active':'')+'" onclick="selectMember(\''+m.id+'\')"><div class="member-avatar" style="background:'+m.color+'">'+esc(m.name.charAt(0))+'</div><div class="member-info"><div class="member-name">'+esc(m.name)+'</div><div class="member-meta">'+(m.gender||'')+(a?' · '+a+'岁':'')+'</div></div><button class="member-del" onclick="event.stopPropagation();delMember(\''+m.id+'\')" title="删除"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>';
   }).join('');
-  document.getElementById('mobileSelect').innerHTML=state.members.map(m=>'<option value="'+m.id+'"'+(m.id===state.currentId?' selected':'')+'>'+esc(m.name)+(m.gender?'（'+m.gender+'）':'')+'</option>').join('');
 }
 
 function selectMember(id){state.currentId=id;renderList();renderDetail()}
