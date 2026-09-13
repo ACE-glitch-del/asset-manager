@@ -19,6 +19,11 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 
 /* 顶栏 */
 .topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;border-radius:8px;color:var(--ink);transition:.15s}
+.hamburger:hover{background:var(--bg)}
+.hamburger svg{width:22px;height:22px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:60;backdrop-filter:blur(2px)}
+.sidebar-overlay.show{display:block}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
 .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:#fff}
 .brand .logo svg{width:20px;height:20px}
@@ -130,6 +135,12 @@ textarea.form-control{resize:vertical;min-height:60px}
   .section{padding:16px}
   .profile-header{padding:18px}
   .form-row{grid-template-columns:1fr;gap:0}
+  .hamburger{display:block}
+  .topbar{padding:10px 14px}
+  .brand{font-size:15px}
+  .layout{padding:14px}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:280px;max-width:80vw;z-index:70;border-radius:0;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 20px rgba(0,0,0,.15);overflow-y:auto}
+  .sidebar.open{transform:translateX(0)}
   .modal-mask{padding:0;align-items:flex-start}
   .modal{max-width:100%;max-height:100vh;height:100vh;border-radius:0;display:flex;flex-direction:column}
   .modal-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:30px}
@@ -140,6 +151,9 @@ textarea.form-control{resize:vertical;min-height:60px}
 <body>
 
 <header class="topbar">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="菜单">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
   <div class="brand">
     <div class="logo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -157,8 +171,10 @@ textarea.form-control{resize:vertical;min-height:60px}
   </button>
 </header>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
 <div class="layout">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <h3>家人 <span id="memberCount"></span></h3>
     <div class="member-list" id="memberList"></div>
     <button class="add-member" onclick="openMemberModal()">
@@ -412,7 +428,15 @@ function renderList(){
   }).join('');
 }
 
-function selectMember(id){state.currentId=id;renderList();renderDetail()}
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function selectMember(id){state.currentId=id;renderList();renderDetail();
+  if(window.innerWidth<=760){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('show')}
+}
 
 function renderDetail(){
   const m=cur();
