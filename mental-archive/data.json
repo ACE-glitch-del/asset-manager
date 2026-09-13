@@ -1,39 +1,30 @@
 {
-  "profile": {},
+  "profile": {
+    "birthdate": "1996-04-11"
+  },
   "problems": [
     {
-      "id": "mtyojdgmwd8qd",
+      "id": "default_001",
       "title": "无法控制情绪",
       "origin": "",
       "manifestations": [],
       "measures": [],
       "status": "active",
-      "createdAt": 1789235362534,
-      "updatedAt": 1789235362534,
+      "createdAt": 1789279809075,
+      "updatedAt": 1789279809075,
       "tracks": []
     },
     {
-      "id": "mtyojdgm0th7x",
+      "id": "default_002",
       "title": "极度不抗压",
       "origin": "从小家里比较紧盯着，比较强势控制",
       "manifestations": [],
       "measures": [],
       "status": "active",
-      "createdAt": 1789235362534,
-      "updatedAt": 1789235362534,
-      "tracks": []
-    },
-    {
-      "id": "mtyp9g6ej53td",
-      "title": "无法拒绝",
-      "origin": "",
-      "manifestations": [],
-      "measures": [],
-      "status": "active",
-      "createdAt": 1789236579110,
-      "updatedAt": 1789236579110,
+      "createdAt": 1789279809075,
+      "updatedAt": 1789279809075,
       "tracks": []
     }
   ],
-  "updatedAt": "2026-09-13T03:11:01.968Z"
+  "updatedAt": "2026-09-13T06:10:09.000Z"
 }
