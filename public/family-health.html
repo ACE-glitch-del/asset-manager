@@ -136,7 +136,11 @@ textarea.form-control{resize:vertical;min-height:60px}
     家人健康档案
     <span id="syncStatus" style="font-size:11px;color:var(--ink3);margin-left:8px;font-weight:400"></span>
   </div>
-  <button class="btn btn-outline" onclick="openMemberModal()">
+  <button class="btn btn-outline" onclick="openTokenModal()" title="设置GitHub Token" style="margin-right:6px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    设置
+  </button>
+  <button class="btn btn-primary" onclick="openMemberModal()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     添加家人
   </button>
@@ -256,6 +260,32 @@ textarea.form-control{resize:vertical;min-height:60px}
   </div>
 </div>
 
+<!-- Token设置弹窗 -->
+<div class="modal-mask" id="tokenModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <div class="modal-title">设置 GitHub Token</div>
+      <button class="modal-close" onclick="closeTokenModal()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" class="form-control" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" style="font-family:monospace">
+        <div class="form-hint">Token 只存在你当前浏览器里，不会上传到任何地方。用于读写仓库里的档案数据。</div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label style="font-size:12px;color:var(--ink3)">获取方式：GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token，勾选 repo 权限。</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeTokenModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveToken()">保存并连接</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -271,14 +301,63 @@ let toastT;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000)}
 function setSyncStatus(text,color){const s=document.getElementById('syncStatus');if(s){s.textContent=text;s.style.color=color||'var(--ink3)'}}
 
+const GH={owner:'ACE-glitch-del',repo:'asset-manager',path:'family-health-data.json',get token(){return localStorage.getItem('gh_token')||''}};
+let fileSha=null;
+
+async function ghLoad(){
+  const res=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path,{headers:{'Authorization':'token '+GH.token,'User-Agent':'family-health'}});
+  if(res.status===404)return null;
+  if(!res.ok)throw new Error('GitHub '+res.status);
+  const j=await res.json();
+  fileSha=j.sha;
+  return JSON.parse(decodeURIComponent(escape(atob(j.content))));
+}
+
+async function ghSave(data){
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+  const res=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path,{
+    method:'PUT',
+    headers:{'Authorization':'token '+GH.token,'Content-Type':'application/json','User-Agent':'family-health'},
+    body:JSON.stringify({message:'更新家庭健康档案 '+new Date().toISOString(),content,sha:fileSha||undefined,branch:'main'})
+  });
+  if(!res.ok)throw new Error('GitHub '+res.status);
+  const j=await res.json();
+  fileSha=j.content.sha;
+  return true;
+}
+
+function openTokenModal(){
+  document.getElementById('tokenInput').value=GH.token;
+  document.getElementById('tokenModal').classList.add('show');
+}
+function closeTokenModal(){document.getElementById('tokenModal').classList.remove('show')}
+function saveToken(){
+  const t=document.getElementById('tokenInput').value.trim();
+  if(!t){toast('请输入Token');return}
+  localStorage.setItem('gh_token',t);
+  closeTokenModal();
+  toast('Token已保存');
+  loadData();
+}
+document.getElementById('tokenModal').addEventListener('click',e=>{if(e.target.id==='tokenModal')closeTokenModal()});
+
 async function loadData(){
+  if(!GH.token){
+    setSyncStatus('未设置Token','#ef4444');
+    toast('请先点右上角「设置」填写GitHub Token');
+    initDefaultMembers();
+    renderList();renderDetail();
+    return;
+  }
   setSyncStatus('加载中...');
   try{
-    const res=await fetch('/api/family-health');
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    state.members=data.members||[];
-    if(state.members.length===0){initDefaultMembers();await saveData(true)}
+    const data=await ghLoad();
+    if(data&&data.members){
+      state.members=data.members;
+    }else{
+      initDefaultMembers();
+      await ghSave({members:state.members});
+    }
     if(state.members.length&&!state.currentId)state.currentId=state.members[0].id;
     setSyncStatus('已同步','#22c55e');
   }catch(e){
@@ -286,7 +365,7 @@ async function loadData(){
     setSyncStatus('离线模式','#f59e0b');
     if(state.members.length===0)initDefaultMembers();
     if(state.members.length&&!state.currentId)state.currentId=state.members[0].id;
-    toast('无法连接服务器，使用本地数据');
+    toast('无法连接GitHub，使用本地数据');
   }
   renderList();renderDetail();
 }
@@ -298,10 +377,13 @@ async function saveData(immediate){
     state.saving=true;
     setSyncStatus('同步中...','#f59e0b');
     try{
-      const res=await fetch('/api/family-health',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({members:state.members})});
-      const r=await res.json();
-      setSyncStatus(r.success?'已同步 '+new Date().toLocaleTimeString():'同步失败',r.success?'#22c55e':'#ef4444');
-    }catch(e){setSyncStatus('离线（未同步）','#f59e0b')}
+      await ghSave({members:state.members});
+      setSyncStatus('已同步 '+new Date().toLocaleTimeString(),'#22c55e');
+    }catch(e){
+      console.error('保存失败',e);
+      setSyncStatus('同步失败','#ef4444');
+      toast('保存失败，请检查网络');
+    }
     state.saving=false;
   };
   if(immediate)await doSave();
