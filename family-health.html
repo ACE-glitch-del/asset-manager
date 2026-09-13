@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家人健康档案</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤</text></svg>">
+<style>
+:root{
+  --bg:#f4f7f6;--card:#fff;--ink:#1f2d3d;--ink2:#5a6b7d;--ink3:#94a3b8;
+  --line:#e6edf0;--brand:#0d9488;--brand2:#14b8a6;--brand-soft:#e6f7f5;
+  --shadow:0 1px 3px rgba(15,40,50,.06),0 4px 16px rgba(15,40,50,.05);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
+
+/* 顶栏 */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
+.brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:#fff}
+.brand .logo svg{width:20px;height:20px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-size:13.5px;font-weight:500;transition:.15s;border:1px solid transparent;white-space:nowrap}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:#0f766e}
+.btn-outline{border-color:var(--line);background:#fff;color:var(--ink2)}
+.btn-outline:hover{border-color:var(--brand);color:var(--brand)}
+.btn-danger{background:#fef2f2;color:#ef4444}
+.btn-danger:hover{background:#fee2e2}
+.btn svg{width:15px;height:15px}
+
+/* 布局 */
+.layout{display:grid;grid-template-columns:240px 1fr;gap:20px;padding:20px;max-width:1100px;margin:0 auto}
+@media(max-width:760px){.layout{grid-template-columns:1fr;padding:14px}}
+
+/* 成员侧栏 */
+.sidebar{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;height:fit-content;position:sticky;top:76px}
+.sidebar h3{font-size:13px;color:var(--ink3);font-weight:600;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.member-list{display:flex;flex-direction:column;gap:6px}
+.member-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.15s;border:1px solid transparent}
+.member-item:hover{background:var(--bg)}
+.member-item.active{background:var(--brand-soft);border-color:#b2e8e2}
+.member-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:600;font-size:15px;flex-shrink:0}
+.member-info{flex:1;min-width:0}
+.member-name{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.member-meta{font-size:12px;color:var(--ink3)}
+.member-del{opacity:0;color:var(--ink3);padding:4px;border-radius:6px;transition:.15s}
+.member-item:hover .member-del{opacity:1}
+.member-del:hover{color:#ef4444;background:#fef2f2}
+.add-member{width:100%;margin-top:10px;padding:9px;border:1.5px dashed var(--line);border-radius:10px;color:var(--ink3);font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
+.add-member:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+
+/* 移动端选择器 */
+.mobile-select{display:none;margin-bottom:14px}
+.mobile-select select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--line);font-size:15px;background:#fff}
+@media(max-width:760px){.sidebar{display:none}.mobile-select{display:block}}
+
+/* 档案卡 */
+.profile-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.profile-header{padding:24px;display:flex;align-items:center;gap:18px;background:linear-gradient(135deg,var(--brand-soft),#f0faf8);border-bottom:1px solid var(--line)}
+.profile-avatar{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:26px;flex-shrink:0;box-shadow:0 4px 12px rgba(13,148,136,.2)}
+.profile-name{font-size:22px;font-weight:700;margin-bottom:2px}
+.profile-sub{font-size:13.5px;color:var(--ink2)}
+.profile-edit{margin-left:auto}
+
+.section{padding:20px 24px;border-bottom:1px solid var(--line)}
+.section:last-child{border-bottom:none}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.section-title .icon{width:28px;height:28px;border-radius:8px;background:var(--brand-soft);display:grid;place-items:center;color:var(--brand)}
+.section-title .icon svg{width:16px;height:16px}
+
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+.info-item label{display:block;font-size:12px;color:var(--ink3);margin-bottom:3px}
+.info-item .val{font-size:14.5px;font-weight:500}
+.info-item .val.empty{color:var(--ink3);font-style:italic;font-weight:400}
+
+.habit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.habit-grid{grid-template-columns:1fr}}
+.habit-item{background:var(--bg);border-radius:10px;padding:12px 14px}
+.habit-item label{display:block;font-size:12px;color:var(--ink3);margin-bottom:4px}
+.habit-item .val{font-size:14px;font-weight:500;line-height:1.5}
+.habit-item .val.empty{color:var(--ink3);font-style:italic;font-weight:400}
+
+.base-text{font-size:14px;line-height:1.8;color:var(--ink2);white-space:pre-wrap}
+.base-text.empty{color:var(--ink3);font-style:italic}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.tag.warn{background:#fef3c7;color:#b45309}
+.tag.danger{background:#fee2e2;color:#b91c1c}
+.tag.ok{background:#dcfce7;color:#15803d}
+.tag.info{background:#dbeafe;color:#1d4ed8}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--ink3);font-size:14px}
+.empty-state svg{width:48px;height:48px;margin-bottom:12px;opacity:.4}
+
+/* 弹窗 */
+.modal-mask{position:fixed;inset:0;background:rgba(15,30,40,.45);z-index:100;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
+.modal-mask.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{color:var(--ink3);padding:4px;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:var(--bg)}
+.modal-body{padding:18px 20px}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:var(--ink2);margin-bottom:5px}
+.form-group label .req{color:#ef4444}
+.form-control{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:9px;outline:none;transition:.15s;background:#fff}
+.form-control:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+textarea.form-control{resize:vertical;min-height:60px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-hint{font-size:11.5px;color:var(--ink3);margin-top:3px}
+
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;font-size:13.5px;z-index:200;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:760px){
+  input,select,textarea{font-size:16px !important}
+  .btn{min-height:40px}
+  .section{padding:16px}
+  .profile-header{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </div>
+    家人健康档案
+  </div>
+  <button class="btn btn-outline" onclick="openMemberModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    添加家人
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>家人 <span id="memberCount"></span></h3>
+    <div class="member-list" id="memberList"></div>
+    <button class="add-member" onclick="openMemberModal()">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      添加家人
+    </button>
+  </aside>
+
+  <main>
+    <div class="mobile-select">
+      <select id="mobileSelect" onchange="selectMember(this.value)"></select>
+    </div>
+
+    <div id="emptyState" style="display:none" class="profile-card">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div>还没有添加家人，点左上角「添加家人」开始记录</div>
+      </div>
+    </div>
+
+    <div id="profileDetail" class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar" id="pAvatar"></div>
+        <div>
+          <div class="profile-name" id="pName"></div>
+          <div class="profile-sub" id="pSub"></div>
+        </div>
+        <button class="btn btn-outline profile-edit" onclick="openMemberModal(true)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          编辑
+        </button>
+      </div>
+
+      <!-- 基本情况 -->
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            基本情况
+          </div>
+        </div>
+        <div class="info-grid" id="basicGrid"></div>
+      </div>
+
+      <!-- 身体习惯 -->
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h7"/><circle cx="4.5" cy="6.5" r="1.5"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="4.5" cy="17.5" r="1.5"/></svg></span>
+            身体习惯
+          </div>
+        </div>
+        <div class="habit-grid" id="habitGrid"></div>
+      </div>
+
+      <!-- 健康底子 -->
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+            健康底子
+          </div>
+        </div>
+        <div id="baseTags" class="tag-row"></div>
+        <div class="base-text" id="baseText" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="modal-mask" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">添加家人</div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>称呼 <span class="req">*</span></label><input class="form-control" id="f_name" placeholder="如：爸爸、妈妈、爷爷"></div>
+        <div class="form-group"><label>性别</label><select class="form-control" id="f_gender"><option>男</option><option>女</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>出生日期</label><input type="date" class="form-control" id="f_birth"></div>
+        <div class="form-group"><label>血型</label><select class="form-control" id="f_blood"><option value="">未知</option><option>A型</option><option>B型</option><option>AB型</option><option>O型</option></select></div>
+      </div>
+
+      <div style="font-size:13px;font-weight:600;color:var(--ink);margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)">身体习惯</div>
+      <div class="form-row">
+        <div class="form-group"><label>运动习惯</label><input class="form-control" id="f_exercise" placeholder="如：每天散步、每周打球"></div>
+        <div class="form-group"><label>饮食习惯</label><input class="form-control" id="f_diet" placeholder="如：口味偏咸、爱吃素"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>作息</label><input class="form-control" id="f_sleep" placeholder="如：早睡早起、经常熬夜"></div>
+        <div class="form-group"><label>烟酒</label><input class="form-control" id="f_smoke" placeholder="如：不抽烟不喝酒、每天半包烟"></div>
+      </div>
+
+      <div style="font-size:13px;font-weight:600;color:var(--ink);margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)">健康底子</div>
+      <div class="form-group"><label>基础病 / 慢性病</label><input class="form-control" id="f_disease" placeholder="如：高血压、糖尿病，多个用逗号隔开"></div>
+      <div class="form-group"><label>过敏史</label><input class="form-control" id="f_allergy" placeholder="如：青霉素、海鲜"></div>
+      <div class="form-group"><label>长期用药</label><input class="form-control" id="f_medicine" placeholder="如：氨氯地平、二甲双胍"></div>
+      <div class="form-group"><label>体质 / 整体情况</label><textarea class="form-control" id="f_note" placeholder="如：底子不错，就是膝盖不好；体质偏弱，容易感冒"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveMember()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='family_health_simple_v1';
+const COLORS=['#0d9488','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+let state={members:[],currentId:null,editingId:null};
+
+function load(){try{const r=localStorage.getItem(STORAGE_KEY);if(r)state.members=JSON.parse(r).members||[]}catch(e){}if(state.members.length&&!state.currentId)state.currentId=state.members[0].id}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({members:state.members}))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function cur(){return state.members.find(m=>m.id===state.currentId)}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function age(birth){if(!birth)return'';const b=new Date(birth),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a>=0?a:''}
+
+let toastT;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000)}
+
+function openModal(){document.getElementById('editModal').classList.add('show')}
+function closeModal(){document.getElementById('editModal').classList.remove('show')}
+document.getElementById('editModal').addEventListener('click',e=>{if(e.target.id==='editModal')closeModal()});
+
+function renderList(){
+  document.getElementById('memberCount').textContent=state.members.length+' 人';
+  document.getElementById('memberList').innerHTML=state.members.map(m=>{
+    const a=age(m.birth);
+    return `<div class="member-item ${m.id===state.currentId?'active':''}" onclick="selectMember('${m.id}')">
+      <div class="member-avatar" style="background:${m.color}">${esc(m.name.charAt(0))}</div>
+      <div class="member-info"><div class="member-name">${esc(m.name)}</div><div class="member-meta">${m.gender||''}${a?' · '+a+'岁':''}</div></div>
+      <button class="member-del" onclick="event.stopPropagation();delMember('${m.id}')" title="删除">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+  const sel=document.getElementById('mobileSelect');
+  sel.innerHTML=state.members.map(m=>`<option value="${m.id}" ${m.id===state.currentId?'selected':''}>${esc(m.name)}${m.gender?'（'+m.gender+'）':''}</option>`).join('');
+}
+
+function selectMember(id){state.currentId=id;renderList();renderDetail()}
+
+function renderDetail(){
+  const m=cur();
+  const empty=document.getElementById('emptyState'),detail=document.getElementById('profileDetail');
+  if(!m){empty.style.display='';detail.style.display='none';return}
+  empty.style.display='none';detail.style.display='';
+  document.getElementById('pAvatar').style.background=m.color;
+  document.getElementById('pAvatar').textContent=m.name.charAt(0);
+  document.getElementById('pName').textContent=m.name;
+  const a=age(m.birth);
+  document.getElementById('pSub').textContent=[m.gender,a?a+'岁':'',m.bloodType].filter(Boolean).join(' · ');
+
+  // 基本情况
+  const basics=[
+    {label:'年龄',val:a?a+' 岁':''},
+    {label:'性别',val:m.gender},
+    {label:'出生日期',val:m.birth},
+    {label:'血型',val:m.bloodType},
+  ];
+  document.getElementById('basicGrid').innerHTML=basics.map(b=>
+    `<div class="info-item"><label>${b.label}</label><div class="val ${b.val?'':'empty'}">${b.val?esc(b.val):'未填'}</div></div>`
+  ).join('');
+
+  // 身体习惯
+  const habits=[
+    {label:'运动',val:m.exercise},
+    {label:'饮食',val:m.diet},
+    {label:'作息',val:m.sleep},
+    {label:'烟酒',val:m.smoke},
+  ];
+  document.getElementById('habitGrid').innerHTML=habits.map(h=>
+    `<div class="habit-item"><label>${h.label}</label><div class="val ${h.val?'':'empty'}">${h.val?esc(h.val):'未填'}</div></div>`
+  ).join('');
+
+  // 健康底子
+  const tags=[];
+  if(m.disease) m.disease.split(/[,，、]/).filter(Boolean).forEach(d=>tags.push({text:d.trim(),cls:'warn'}));
+  if(m.allergy) m.allergy.split(/[,，、]/).filter(Boolean).forEach(d=>tags.push({text:'过敏：'+d.trim(),cls:'danger'}));
+  if(m.medicine) tags.push({text:'长期用药',cls:'info'});
+  if(!tags.length) tags.push({text:'暂无基础病',cls:'ok'});
+  document.getElementById('baseTags').innerHTML=tags.map(t=>`<span class="tag ${t.cls}">${esc(t.text)}</span>`).join('');
+  document.getElementById('baseText').textContent=m.note||'（未填写体质说明）';
+  document.getElementById('baseText').className='base-text'+(m.note?'':' empty');
+}
+
+function openMemberModal(edit){
+  state.editingId=edit?state.currentId:null;
+  document.getElementById('modalTitle').textContent=edit?'编辑 '+cur().name:'添加家人';
+  const ids=['f_name','f_birth','f_blood','f_exercise','f_diet','f_sleep','f_smoke','f_disease','f_allergy','f_medicine','f_note'];
+  if(edit){
+    const m=cur();
+    document.getElementById('f_name').value=m.name||'';
+    document.getElementById('f_gender').value=m.gender||'男';
+    document.getElementById('f_birth').value=m.birth||'';
+    document.getElementById('f_blood').value=m.bloodType||'';
+    document.getElementById('f_exercise').value=m.exercise||'';
+    document.getElementById('f_diet').value=m.diet||'';
+    document.getElementById('f_sleep').value=m.sleep||'';
+    document.getElementById('f_smoke').value=m.smoke||'';
+    document.getElementById('f_disease').value=m.disease||'';
+    document.getElementById('f_allergy').value=m.allergy||'';
+    document.getElementById('f_medicine').value=m.medicine||'';
+    document.getElementById('f_note').value=m.note||'';
+  }else{
+    ids.forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f_gender').value='男';
+  }
+  openModal();
+}
+
+function saveMember(){
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){toast('请填写称呼');return}
+  const data={
+    name,gender:document.getElementById('f_gender').value,
+    birth:document.getElementById('f_birth').value||'',
+    bloodType:document.getElementById('f_blood').value,
+    exercise:document.getElementById('f_exercise').value.trim(),
+    diet:document.getElementById('f_diet').value.trim(),
+    sleep:document.getElementById('f_sleep').value.trim(),
+    smoke:document.getElementById('f_smoke').value.trim(),
+    disease:document.getElementById('f_disease').value.trim(),
+    allergy:document.getElementById('f_allergy').value.trim(),
+    medicine:document.getElementById('f_medicine').value.trim(),
+    note:document.getElementById('f_note').value.trim()
+  };
+  if(state.editingId){
+    const i=state.members.findIndex(m=>m.id===state.editingId);
+    if(i>=0)state.members[i]={...state.members[i],...data};
+  }else{
+    const nm={id:uid(),color:COLORS[state.members.length%COLORS.length],...data};
+    state.members.push(nm);state.currentId=nm.id;
+  }
+  save();renderList();renderDetail();closeModal();toast('已保存');
+}
+
+function delMember(id){
+  const m=state.members.find(x=>x.id===id);
+  if(!m)return;
+  if(!confirm('确定删除「'+m.name+'」的档案？'))return;
+  state.members=state.members.filter(x=>x.id!==id);
+  if(state.currentId===id)state.currentId=state.members[0]?.id||null;
+  save();renderList();renderDetail();toast('已删除');
+}
+
+function initFamily(){
+  state.members=[
+    {id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',
+      exercise:'',diet:'',sleep:'',smoke:'',
+      disease:'慢性阻塞性肺病,2型糖尿病,高血压病2级',allergy:'',medicine:'',
+      note:'86岁。2026年5月因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危。出生日期具体月日不详，按1940年估算。'},
+    {id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',
+      exercise:'',diet:'',sleep:'',smoke:'',
+      disease:'心律失常,心脏起搏器植入术后',allergy:'',medicine:'',
+      note:'2024年5月动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早。后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。'},
+    {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',
+      exercise:'',diet:'',sleep:'',smoke:'',
+      disease:'右眼脉络膜恶性黑色素瘤肝转移,血脂异常,甲状腺功能异常',allergy:'',medicine:'仑伐替尼,特瑞普利单抗,白蛋白紫杉醇,优甲乐,氢化可的松',
+      note:'57岁，职业教师。2022年4月确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术。2024年7月发现肝转移（TxN0M1b IV期），11月行左肝外叶及S5/S6段切除术+射频消融术。2025年9月、2026年1月先后行肝肿瘤冷冻消融术。目前在中山大学肿瘤防治中心接受仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗的多模式综合治疗，病情相对稳定。伴血脂偏高、甲状腺功能异常（服优甲乐替代）。需每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿。'},
+    {id:uid(),name:'张伟霞',gender:'女',birth:'1973-09-10',bloodType:'',color:'#ec4899',
+      exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
+    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',
+      exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''},
+    {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',
+      exercise:'',diet:'',sleep:'',smoke:'',disease:'',allergy:'',medicine:'',note:''}
+  ];
+  state.currentId=state.members[0].id;
+  save();
+}
+
+function ensureGrandparents(){
+  let added=false;
+  if(!state.members.some(m=>m.name==='罗沛桥')){
+    state.members.unshift({id:uid(),name:'罗沛桥',gender:'男',birth:'1940-01-01',bloodType:'',color:'#f97316',
+      exercise:'',diet:'',sleep:'',smoke:'',
+      disease:'慢性阻塞性肺病,2型糖尿病,高血压病2级',allergy:'',medicine:'',
+      note:'86岁。2026年5月因支气管肺炎住院，确诊：慢性阻塞性肺病、2型糖尿病伴周围神经病变及肾病等并发症、高血压病2级极高危。出生日期具体月日不详，按1940年估算。'});
+    added=true;
+  }
+  if(!state.members.some(m=>m.name==='莫秋妹')){
+    state.members.splice(1,0,{id:uid(),name:'莫秋妹',gender:'女',birth:'1943-11-01',bloodType:'',color:'#f59e0b',
+      exercise:'',diet:'',sleep:'',smoke:'',
+      disease:'心律失常,心脏起搏器植入术后',allergy:'',medicine:'',
+      note:'2024年5月动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早。后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。'});
+    added=true;
+  }
+  if(added)save();
+}
+
+function updateGrandmaHealth(){
+  const g=state.members.find(m=>m.name==='莫秋妹');
+  if(g && !g.disease.includes('起搏器')){
+    g.disease='心律失常,心脏起搏器植入术后';
+    g.note='2024年5月动态心电图提示：窦性心律，偶发房早（成对出现）、短阵房速，偶发室早。后植入心脏起搏器，电池寿命约10年，需定期复查起搏器功能。';
+    save();
+  }
+}
+
+function updateDadHealth(){
+  const d=state.members.find(m=>m.name==='罗海华');
+  if(d && !d.disease.includes('黑色素瘤')){
+    d.disease='右眼脉络膜恶性黑色素瘤肝转移,血脂异常,甲状腺功能异常';
+    d.medicine='仑伐替尼,特瑞普利单抗,白蛋白紫杉醇,优甲乐,氢化可的松';
+    d.note='57岁，职业教师。2022年4月确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术。2024年7月发现肝转移（TxN0M1b IV期），11月行左肝外叶及S5/S6段切除术+射频消融术。2025年9月、2026年1月先后行肝肿瘤冷冻消融术。目前在中山大学肿瘤防治中心接受仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗的多模式综合治疗，病情相对稳定。伴血脂偏高、甲状腺功能异常（服优甲乐替代）。需每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿。';
+    save();
+  }
+}
+
+load();
+if(!state.members.length){initFamily()}
+else{ensureGrandparents();updateGrandmaHealth();updateDadHealth()}
+renderList();renderDetail();
+</script>
+</body>
+</html>
