@@ -454,7 +454,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "陈家三子，陈建军之父",
     "traits": "",
-    "spouseId": null,
+    "spouseId": "p32",
     "parentIds": [
       "p27",
       "p28"
@@ -469,7 +469,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "陈建军之母，信息待补充",
     "traits": "",
-    "spouseId": null,
+    "spouseId": "p31",
     "parentIds": [],
     "deceased": false
   },
@@ -685,7 +685,7 @@
     "occupation": "（点击可编辑姓名/职业）",
     "status": "罗永金之长女，罗沛桥之大姐，罗水观之母",
     "traits": "",
-    "spouseId": null,
+    "spouseId": "p41",
     "parentIds": [
       "p38",
       "p39"
@@ -700,7 +700,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "罗水观之父，信息待补充",
     "traits": "",
-    "spouseId": null,
+    "spouseId": "p40",
     "parentIds": [],
     "deceased": false
   },
@@ -772,7 +772,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "罗永金之三子，三姐弟中排行第三，尚健在，身体还可以",
     "traits": "",
-    "spouseId": null,
+    "spouseId": "p46",
     "parentIds": [
       "p38",
       "p39"
@@ -787,7 +787,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "信息待补充",
     "traits": "",
-    "spouseId": null,
+    "spouseId": "p45",
     "parentIds": [],
     "deceased": false
   },
