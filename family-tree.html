@@ -1372,16 +1372,24 @@ function getSampleData() {
     'p36': { id:'p36', name:'陈建军', gender:'male', birthYear:null, occupation:'在职', status:'陈老三之子，陈倩仪之父', traits:'', spouseId:'p37', parentIds:['p31','p32'], deceased:false },
     'p37': { id:'p37', name:'陈建军妻子', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈倩仪之母，信息待补充', traits:'', spouseId:'p36', parentIds:[], deceased:false },
 
+    // ===== 罗氏先祖（罗沛桥爷爷辈）=====
+    'p52': { id:'p52', name:'罗氏先祖', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥之爷爷，罗洁修之父，信息待补充', traits:'', spouseId:'p53', parentIds:[], deceased:true },
+    'p53': { id:'p53', name:'罗氏先祖配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥之奶奶，信息待补充', traits:'', spouseId:'p52', parentIds:[], deceased:false },
+
     // ===== 罗氏先祖（罗沛桥三兄弟的父母）=====
-    'p38': { id:'p38', name:'罗氏先祖', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥三兄弟之父，信息待补充', traits:'', spouseId:'p39', parentIds:[], deceased:true },
+    'p38': { id:'p38', name:'罗氏先祖', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥三兄弟之父，罗洁修之兄', traits:'', spouseId:'p39', parentIds:['p52','p53'], deceased:true },
     'p39': { id:'p39', name:'罗氏先祖配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥三兄弟之母，信息待补充', traits:'', spouseId:'p38', parentIds:[], deceased:false },
+
+    // ===== 罗洁修一家（罗沛桥之叔，罗向平三兄弟之父）=====
+    'p54': { id:'p54', name:'罗洁修', gender:'male', birthYear:null, occupation:'（点击可编辑职业）', status:'罗沛桥父亲之亲弟弟，罗向平三兄弟之父', traits:'', spouseId:'p55', parentIds:['p52','p53'], deceased:false },
+    'p55': { id:'p55', name:'罗洁修配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗向平三兄弟之母，信息待补充', traits:'', spouseId:'p54', parentIds:[], deceased:false },
 
     // ===== 罗沛桥大哥一家（长子，已故，会城中学校长，家族门面）=====
     'p40': { id:'p40', name:'罗沛桥大哥', gender:'male', birthYear:null, occupation:'原四会会城中学校长', status:'三兄弟中排行老大，已故，家族中混得最好，是家族最大门面', traits:'', spouseId:'p41', parentIds:['p38','p39'], deceased:true },
     'p41': { id:'p41', name:'大哥配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥大哥之妻，尚健在', traits:'', spouseId:'p40', parentIds:[], deceased:false },
-    'p42': { id:'p42', name:'罗向平', gender:'male', birthYear:null, occupation:'广州公职人员（处长级）', status:'罗沛桥大哥之长子，在广州立足，身居高位', traits:'', spouseId:null, parentIds:['p40','p41'], deceased:false },
-    'p43': { id:'p43', name:'罗向东', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗沛桥大哥之次子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p40','p41'], deceased:false },
-    'p44': { id:'p44', name:'罗向文', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗沛桥大哥之三子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p40','p41'], deceased:false },
+    'p42': { id:'p42', name:'罗向平', gender:'male', birthYear:null, occupation:'广州公职人员（处长级）', status:'罗洁修之长子，在广州立足，身居高位', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
+    'p43': { id:'p43', name:'罗向东', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗洁修之次子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
+    'p44': { id:'p44', name:'罗向文', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗洁修之三子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
 
     // ===== 罗沛桥三弟一家（三子，健在）=====
     'p45': { id:'p45', name:'罗沛桥三弟', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'三兄弟中排行第三，尚健在，身体还可以', traits:'', spouseId:'p46', parentIds:['p38','p39'], deceased:false },
@@ -1673,8 +1681,8 @@ function renderTree() {
     return;
   }
 
-  // ===== 渲染罗氏完整家族树（根：罗氏先祖 p38）=====
-  const luoRoot = getMember('p38');
+  // ===== 渲染罗氏完整家族树（根：罗氏先祖 p52）=====
+  const luoRoot = getMember('p52');
   const luoRendered = new Set();
   let luoHtml = '<ul>';
   if (luoRoot) luoHtml += renderNode(luoRoot, luoRendered, []);
@@ -1725,7 +1733,7 @@ function renderTree() {
   bindPersonClicks(treeEl);
 }
 
-// 判断是否罗氏成员（罗氏先祖 p38 的后代及其配偶）
+// 判断是否罗氏成员（罗氏先祖 p52 的后代及其配偶）
 function isLuoMember(m) {
   function isDescendant(id, ancestorId) {
     const m2 = getMember(id);
@@ -1733,8 +1741,8 @@ function isLuoMember(m) {
     if (m2.parentIds.includes(ancestorId)) return true;
     return m2.parentIds.some(pid => isDescendant(pid, ancestorId));
   }
-  if (isDescendant(m.id, 'p38')) return true;
-  if (m.spouseId && isDescendant(m.spouseId, 'p38')) return true;
+  if (isDescendant(m.id, 'p52')) return true;
+  if (m.spouseId && isDescendant(m.spouseId, 'p52')) return true;
   return false;
 }
 
