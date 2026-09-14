@@ -103,7 +103,7 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 
 /* 跟踪更新编辑行 */
 .update-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
-.update-row input[type=date]{width:130px;flex-shrink:0}
+.update-date{width:110px;flex-shrink:0;font-size:13px;color:var(--ink3);background:var(--bg);padding:8px 10px;border-radius:8px;text-align:center;font-weight:500;margin-top:2px}
 .update-row textarea{flex:1;min-height:50px;resize:vertical}
 .update-row .del-update{background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--ink3);flex-shrink:0;margin-top:4px}
 .update-row .del-update:hover{color:#ef4444;background:var(--bg)}
@@ -575,7 +575,7 @@ function renderUpdates(updates){
   }
   list.innerHTML=updates.map((u,i)=>{
     const rid='u_'+(updateRowCount++);
-    return '<div class="update-row" data-rid="'+rid+'"><input type="date" class="form-control u-date" value="'+(u.date||'')+'"><textarea class="form-control u-content" placeholder="这次跟踪了什么、有什么变化">'+esc(u.content||'')+'</textarea><button type="button" class="del-update" onclick="this.parentElement.remove()" title="删除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+    return '<div class="update-row" data-rid="'+rid+'" data-date="'+(u.date||'')+'"><div class="update-date">'+(u.date||'')+'</div><textarea class="form-control u-content" placeholder="这次跟踪了什么、有什么变化">'+esc(u.content||'')+'</textarea><button type="button" class="del-update" onclick="this.parentElement.remove()" title="删除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
   }).join('');
 }
 function addUpdateRow(){
@@ -587,7 +587,8 @@ function addUpdateRow(){
   const row=document.createElement('div');
   row.className='update-row';
   row.dataset.rid=rid;
-  row.innerHTML='<input type="date" class="form-control u-date" value="'+today+'"><textarea class="form-control u-content" placeholder="这次跟踪了什么、有什么变化"></textarea><button type="button" class="del-update" onclick="this.parentElement.remove()" title="删除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  row.dataset.date=today;
+  row.innerHTML='<div class="update-date">'+today+'</div><textarea class="form-control u-content" placeholder="这次跟踪了什么、有什么变化"></textarea><button type="button" class="del-update" onclick="this.parentElement.remove()" title="删除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
   list.appendChild(row);
 }
 function openProblemModal(id){
@@ -620,7 +621,7 @@ function saveProblem(){
   // 收集所有更新行
   const updates=[];
   document.querySelectorAll('#updatesList .update-row').forEach(row=>{
-    const date=row.querySelector('.u-date').value;
+    const date=row.dataset.date||'';
     const content=row.querySelector('.u-content').value.trim();
     if(content)updates.push({id:uid(),date,content});
   });
