@@ -1029,13 +1029,29 @@ function renderTagChips(type) {
   const wrap = document.getElementById(type === 'events' ? 'eventsWrap' : 'solutionsWrap');
   const arr = type === 'events' ? state.tempEvents : state.tempSolutions;
   const inputId = type === 'events' ? 'f_event_input' : 'f_solution_input';
-  const placeholder = type === 'events' ? '输入具体事件后按回车添加' : '输入解决方法后按回车添加';
+  const placeholder = type === 'events' ? '写下发生的事，按回车或点别处自动添加，可多条' : '写下解决方法，按回车或点别处自动添加，可多条';
 
   const chips = arr.map((item, i) => `
     <span class="tag-chip">${esc(item)}<span class="remove" onclick="removeTag('${type}', ${i})">&times;</span></span>
   `).join('');
 
-  wrap.innerHTML = chips + `<input type="text" class="tag-input" id="${inputId}" placeholder="${placeholder}" onkeydown="handleTagInput(event, '${type}')">`;
+  wrap.innerHTML = chips + `<input type="text" class="tag-input" id="${inputId}" placeholder="${placeholder}" onkeydown="handleTagInput(event, '${type}')" onblur="collectTagInput('${type}')">`;
+}
+
+function collectTagInput(type) {
+  const inputId = type === 'events' ? 'f_event_input' : 'f_solution_input';
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const val = input.value.trim();
+  if (val) {
+    if (type === 'events') {
+      if (!state.tempEvents.includes(val)) state.tempEvents.push(val);
+    } else {
+      if (!state.tempSolutions.includes(val)) state.tempSolutions.push(val);
+    }
+    input.value = '';
+    renderTagChips(type);
+  }
 }
 
 function removeTag(type, index) {
@@ -1045,6 +1061,10 @@ function removeTag(type, index) {
 }
 
 function saveProblem() {
+  // 先把输入框里未提交的文字自动收进去
+  collectTagInput('events');
+  collectTagInput('solutions');
+
   const title = document.getElementById('f_title').value.trim();
   const cause = document.getElementById('f_cause').value.trim();
 
