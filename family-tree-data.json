@@ -685,12 +685,12 @@
     "occupation": "（点击可编辑姓名/职业）",
     "status": "罗永金之长女，罗沛桥之大姐，罗水观之母",
     "traits": "",
-    "spouseId": "p41",
+    "spouseId": null,
     "parentIds": [
       "p38",
       "p39"
     ],
-    "deceased": false
+    "deceased": true
   },
   "p41": {
     "id": "p41",
@@ -700,7 +700,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "罗水观之父，信息待补充",
     "traits": "",
-    "spouseId": "p40",
+    "spouseId": null,
     "parentIds": [],
     "deceased": false
   },
