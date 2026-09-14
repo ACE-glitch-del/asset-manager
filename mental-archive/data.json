@@ -43,7 +43,20 @@
       "createdAt": 1789381955164,
       "updatedAt": 1789381955164,
       "tracks": []
+    },
+    {
+      "id": "mu1fbyce07sp4",
+      "title": "自残倾向",
+      "cause": "",
+      "events": [
+        "我从小就是，不开心闹变扭，就是会搓脚，这几乎是我唯一想到的一种发泄方式，也属于是有用的，能引起注意嘛。"
+      ],
+      "solutions": [],
+      "status": "active",
+      "createdAt": 1789401298334,
+      "updatedAt": 1789401298334,
+      "tracks": []
     }
   ],
-  "updatedAt": "2026-09-14T15:53:52.641Z"
+  "updatedAt": "2026-09-14T15:55:01.336Z"
 }
