@@ -578,7 +578,9 @@ function renderUpdates(updates){
     list.innerHTML='<div class="update-empty">暂无跟踪记录，点上方「+ 添加更新」</div>';
     return;
   }
-  list.innerHTML=updates.map((u,i)=>{
+  // 按日期倒序，最新的在上面
+  const sorted=[...updates].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  list.innerHTML=sorted.map((u,i)=>{
     const rid='u_'+(updateRowCount++);
     return '<div class="update-row" data-rid="'+rid+'" data-date="'+(u.date||'')+'"><div class="update-date">'+(u.date||'')+'</div><textarea class="form-control u-content" placeholder="这次跟踪了什么、有什么变化">'+esc(u.content||'')+'</textarea><button type="button" class="del-update" onclick="this.parentElement.remove()" title="删除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
   }).join('');
