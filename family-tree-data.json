@@ -766,13 +766,13 @@
   },
   "p45": {
     "id": "p45",
-    "name": "罗杰豪爸爸",
+    "name": "罗玉科",
     "gender": "male",
     "birthYear": null,
     "occupation": "（点击可编辑姓名）",
     "status": "罗永金之三子，三姐弟中排行第三，尚健在，身体还可以",
     "traits": "",
-    "spouseId": "p46",
+    "spouseId": null,
     "parentIds": [
       "p38",
       "p39"
@@ -787,7 +787,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "信息待补充",
     "traits": "",
-    "spouseId": "p45",
+    "spouseId": null,
     "parentIds": [],
     "deceased": false
   },
