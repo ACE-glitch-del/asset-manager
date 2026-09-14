@@ -650,21 +650,6 @@
     "parentIds": [],
     "deceased": false
   },
-  "p40": {
-    "id": "p40",
-    "name": "罗沛桥大哥",
-    "gender": "male",
-    "birthYear": null,
-    "occupation": "原四会会城中学校长",
-    "status": "三兄弟中排行老大，已故，家族中混得最好，是家族最大门面",
-    "traits": "",
-    "spouseId": "p41",
-    "parentIds": [
-      "p38",
-      "p39"
-    ],
-    "deceased": true
-  },
   "p41": {
     "id": "p41",
     "name": "大哥配偶",
@@ -673,7 +658,7 @@
     "occupation": "（点击可编辑姓名）",
     "status": "罗沛桥大哥之妻，尚健在",
     "traits": "",
-    "spouseId": "p40",
+    "spouseId": null,
     "parentIds": [],
     "deceased": false
   },
