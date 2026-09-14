@@ -100,6 +100,14 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 .problem-content{font-size:13.5px;color:var(--ink2);line-height:1.7;white-space:pre-wrap}
 .problem-update{font-size:13px;color:var(--ink2);line-height:1.6;margin-top:8px;padding:8px 10px;background:#fff;border-radius:8px;border-left:3px solid var(--brand);white-space:pre-wrap}
 .update-label{display:inline-block;font-size:11px;font-weight:600;color:var(--brand);background:var(--brand-soft);padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle}
+
+/* 跟踪更新编辑行 */
+.update-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.update-row input[type=date]{width:130px;flex-shrink:0}
+.update-row textarea{flex:1;min-height:50px;resize:vertical}
+.update-row .del-update{background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--ink3);flex-shrink:0;margin-top:4px}
+.update-row .del-update:hover{color:#ef4444;background:var(--bg)}
+.update-empty{color:var(--ink3);font-size:13px;font-style:italic;padding:8px 0}
 .problem-date{font-size:11.5px;color:var(--ink3);margin-top:8px;display:flex;align-items:center;gap:4px}
 .add-problem{width:100%;padding:12px;border:1.5px dashed var(--line);border-radius:12px;background:none;color:var(--ink3);font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:.15s}
 .add-problem:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
@@ -303,8 +311,14 @@ textarea.form-control{resize:vertical;min-height:60px}
     </div>
     <div class="modal-body">
       <div class="form-group"><label>问题 <span class="req">*</span></label><input class="form-control" id="pf_title" placeholder="如：脾胃不好、高血压、睡眠差"></div>
-      <div class="form-group"><label>问题描述 / 症状表现</label><textarea class="form-control" id="pf_desc" rows="4" placeholder="怎么个不好法，有哪些症状表现，如：很容易饱、吸收运化不了、头晕、失眠等"></textarea></div>
-      <div class="form-group"><label>跟踪更新 / 最新情况</label><textarea class="form-control" id="pf_update" rows="3" placeholder="用药、复查结果、最新变化等，没有可以不填"></textarea></div>
+      <div class="form-group"><label>问题描述 / 症状表现</label><textarea class="form-control" id="pf_desc" rows="3" placeholder="怎么个不好法，有哪些症状表现"></textarea></div>
+      <div class="form-group">
+        <label style="display:flex;justify-content:space-between;align-items:center">
+          <span>跟踪更新</span>
+          <button type="button" class="btn btn-outline" style="padding:4px 10px;font-size:12px;min-height:auto" onclick="addUpdateRow()">+ 添加更新</button>
+        </label>
+        <div id="updatesList"></div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeProblemModal()">取消</button>
@@ -492,7 +506,19 @@ function renderDetail(){
   const problems=Array.isArray(m.problems)?m.problems:[];
   document.getElementById('problemsList').innerHTML=problems.length?problems.map(p=>{
     const desc=p.desc||p.content||'';
-    return '<div class="problem-card" onclick="editProblem(\''+p.id+'\')"><div class="problem-card-head"><div class="problem-title">'+esc(p.title||'')+'</div><div class="problem-actions"><button class="problem-action-btn del" onclick="event.stopPropagation();delProblem(\''+p.id+'\')" title="删除"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>'+(desc?'<div class="problem-content">'+esc(desc)+'</div>':'')+(p.update?'<div class="problem-update"><span class="update-label">跟踪</span>'+esc(p.update)+'</div>':'')+(p.date?'<div class="problem-date"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>更新于 '+esc(p.date)+'</div>':'')+'</div>';
+    // 取最新的一条更新
+    let latestUpdate='';
+    let latestUpdateDate='';
+    if(Array.isArray(p.updates)&&p.updates.length){
+      const sorted=[...p.updates].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+      latestUpdate=sorted[0].content||'';
+      latestUpdateDate=sorted[0].date||'';
+    }else if(p.update){
+      latestUpdate=p.update;
+      latestUpdateDate=p.date||'';
+    }
+    const showDate=latestUpdateDate||p.date||'';
+    return '<div class="problem-card" onclick="editProblem(\''+p.id+'\')"><div class="problem-card-head"><div class="problem-title">'+esc(p.title||'')+'</div><div class="problem-actions"><button class="problem-action-btn del" onclick="event.stopPropagation();delProblem(\''+p.id+'\')" title="删除"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>'+(desc?'<div class="problem-content">'+esc(desc)+'</div>':'')+(latestUpdate?'<div class="problem-update"><span class="update-label">最新跟踪</span>'+(latestUpdateDate?latestUpdateDate+'：':'')+esc(latestUpdate)+'</div>':'')+(showDate?'<div class="problem-date"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>更新于 '+esc(showDate)+'</div>':'')+'</div>';
   }).join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0;font-style:italic">暂无健康问题，点下方按钮添加</div>';
   // 病史总览
   const histSection=document.getElementById('historySection');
@@ -540,6 +566,30 @@ function saveMember(){
 
 // 健康问题卡片
 let editingProblemId=null;
+let updateRowCount=0;
+function renderUpdates(updates){
+  const list=document.getElementById('updatesList');
+  if(!updates||!updates.length){
+    list.innerHTML='<div class="update-empty">暂无跟踪记录，点上方「+ 添加更新」</div>';
+    return;
+  }
+  list.innerHTML=updates.map((u,i)=>{
+    const rid='u_'+(updateRowCount++);
+    return '<div class="update-row" data-rid="'+rid+'"><input type="date" class="form-control u-date" value="'+(u.date||'')+'"><textarea class="form-control u-content" placeholder="这次跟踪了什么、有什么变化">'+esc(u.content||'')+'</textarea><button type="button" class="del-update" onclick="this.parentElement.remove()" title="删除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+  }).join('');
+}
+function addUpdateRow(){
+  const list=document.getElementById('updatesList');
+  const empty=list.querySelector('.update-empty');
+  if(empty)empty.remove();
+  const rid='u_'+(updateRowCount++);
+  const today=new Date().toISOString().slice(0,10);
+  const row=document.createElement('div');
+  row.className='update-row';
+  row.dataset.rid=rid;
+  row.innerHTML='<input type="date" class="form-control u-date" value="'+today+'"><textarea class="form-control u-content" placeholder="这次跟踪了什么、有什么变化"></textarea><button type="button" class="del-update" onclick="this.parentElement.remove()" title="删除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  list.appendChild(row);
+}
 function openProblemModal(id){
   editingProblemId=id||null;
   const m=cur();
@@ -549,12 +599,15 @@ function openProblemModal(id){
     if(p){
       document.getElementById('pf_title').value=p.title||'';
       document.getElementById('pf_desc').value=p.desc||p.content||'';
-      document.getElementById('pf_update').value=p.update||'';
+      // 兼容旧数据：如果有update字符串，转成一条更新
+      let updates=p.updates||[];
+      if(!updates.length&&p.update)updates=[{date:p.date||'',content:p.update}];
+      renderUpdates(updates);
     }
   }else{
     document.getElementById('pf_title').value='';
     document.getElementById('pf_desc').value='';
-    document.getElementById('pf_update').value='';
+    renderUpdates([]);
   }
   document.getElementById('problemModal').classList.add('show');
 }
@@ -564,16 +617,25 @@ function saveProblem(){
   const title=document.getElementById('pf_title').value.trim();
   if(!title){toast('请填写问题');return}
   const desc=document.getElementById('pf_desc').value.trim();
-  const update=document.getElementById('pf_update').value.trim();
+  // 收集所有更新行
+  const updates=[];
+  document.querySelectorAll('#updatesList .update-row').forEach(row=>{
+    const date=row.querySelector('.u-date').value;
+    const content=row.querySelector('.u-content').value.trim();
+    if(content)updates.push({id:uid(),date,content});
+  });
+  // 按日期排序，最新的在前面
+  updates.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const m=cur();
   if(!m)return;
   if(!Array.isArray(m.problems))m.problems=[];
   const today=new Date().toISOString().slice(0,10);
+  const latestDate=updates.length?updates[0].date:today;
   if(editingProblemId){
     const i=m.problems.findIndex(p=>p.id===editingProblemId);
-    if(i>=0)m.problems[i]={...m.problems[i],title,desc,update,date:today};
+    if(i>=0)m.problems[i]={...m.problems[i],title,desc,updates,date:latestDate};
   }else{
-    m.problems.push({id:uid(),title,desc,update,date:today});
+    m.problems.push({id:uid(),title,desc,updates,date:latestDate});
   }
   saveData();renderDetail();closeProblemModal();toast('已保存');
 }
