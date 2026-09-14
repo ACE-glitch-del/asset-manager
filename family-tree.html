@@ -1390,19 +1390,20 @@ function getSampleData() {
     'p60': { id:'p60', name:'罗曙光', gender:'male', birthYear:null, occupation:'（点击可编辑职业）', status:'罗永龙之子，罗静文之父', traits:'', spouseId:'p61', parentIds:['p58','p59'], deceased:false },
     'p61': { id:'p61', name:'罗曙光配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗静文之母，信息待补充', traits:'', spouseId:'p60', parentIds:[], deceased:false },
 
-    // ===== 罗沛桥大哥一家（长子，已故，会城中学校长，家族门面）=====
-    'p40': { id:'p40', name:'罗沛桥大哥', gender:'male', birthYear:null, occupation:'原四会会城中学校长', status:'三兄弟中排行老大，已故，家族中混得最好，是家族最大门面', traits:'', spouseId:'p41', parentIds:['p38','p39'], deceased:true },
-    'p41': { id:'p41', name:'大哥配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥大哥之妻，尚健在', traits:'', spouseId:'p40', parentIds:[], deceased:false },
-    'p42': { id:'p42', name:'罗向平', gender:'male', birthYear:null, occupation:'广州公职人员（处长级）', status:'罗洁修之长子，在广州立足，身居高位', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
-    'p43': { id:'p43', name:'罗向东', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗洁修之次子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
-    'p44': { id:'p44', name:'罗向文', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗洁修之三子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
+    // ===== 大姑一家（罗永金之长女，罗水观之母）=====
+    'p40': { id:'p40', name:'大姑（罗水观妈妈）', gender:'female', birthYear:null, occupation:'（点击可编辑姓名/职业）', status:'罗永金之长女，罗沛桥之大姐，罗水观之母', traits:'', spouseId:'p41', parentIds:['p38','p39'], deceased:false },
+    'p41': { id:'p41', name:'大姑配偶', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗水观之父，信息待补充', traits:'', spouseId:'p40', parentIds:[], deceased:false },
+    'p62': { id:'p62', name:'罗水观', gender:'male', birthYear:null, occupation:'（点击可编辑职业）', status:'大姑之子，罗沛桥之外甥', traits:'', spouseId:null, parentIds:['p40','p41'], deceased:false },
+    'p42': { id:'p42', name:'罗向平', gender:'male', birthYear:null, occupation:'广州公职人员（处长级）', status:'罗永清之长子，在广州立足，身居高位', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
+    'p43': { id:'p43', name:'罗向东', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗永清之次子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
+    'p44': { id:'p44', name:'罗向文', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗永清之三子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p54','p55'], deceased:false },
 
-    // ===== 罗沛桥三弟一家（三子，健在）=====
-    'p45': { id:'p45', name:'罗沛桥三弟', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'三兄弟中排行第三，尚健在，身体还可以', traits:'', spouseId:'p46', parentIds:['p38','p39'], deceased:false },
-    'p46': { id:'p46', name:'三弟配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p45', parentIds:[], deceased:false },
-    'p47': { id:'p47', name:'罗洁珍', gender:'female', birthYear:null, occupation:'（点击可编辑职业）', status:'罗沛桥三弟之大女儿', traits:'', spouseId:null, parentIds:['p45','p46'], deceased:false },
-    'p48': { id:'p48', name:'罗洁平', gender:'female', birthYear:null, occupation:'（点击可编辑职业）', status:'罗沛桥三弟之二女儿', traits:'', spouseId:null, parentIds:['p45','p46'], deceased:false },
-    'p49': { id:'p49', name:'罗杰豪', gender:'male', birthYear:null, occupation:'在职', status:'罗沛桥三弟之子，育有一子罗逸骏', traits:'', spouseId:'p50', parentIds:['p45','p46'], deceased:false },
+    // ===== 罗杰豪爸爸一家（罗永金之三子，三姐弟中排行第三）=====
+    'p45': { id:'p45', name:'罗杰豪爸爸', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗永金之三子，三姐弟中排行第三，尚健在，身体还可以', traits:'', spouseId:'p46', parentIds:['p38','p39'], deceased:false },
+    'p46': { id:'p46', name:'罗杰豪妈妈', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p45', parentIds:[], deceased:false },
+    'p47': { id:'p47', name:'罗洁珍', gender:'female', birthYear:null, occupation:'（点击可编辑职业）', status:'罗杰豪之亲姐姐', traits:'', spouseId:null, parentIds:['p45','p46'], deceased:false },
+    'p48': { id:'p48', name:'罗洁萍', gender:'female', birthYear:null, occupation:'（点击可编辑职业）', status:'罗杰豪之亲妹妹', traits:'', spouseId:null, parentIds:['p45','p46'], deceased:false },
+    'p49': { id:'p49', name:'罗杰豪', gender:'male', birthYear:null, occupation:'在职', status:'罗洁珍之弟、罗洁萍之兄，育有一子罗逸骏', traits:'', spouseId:'p50', parentIds:['p45','p46'], deceased:false },
     'p50': { id:'p50', name:'罗杰豪配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗逸骏之母，信息待补充', traits:'', spouseId:'p49', parentIds:[], deceased:false },
     'p51': { id:'p51', name:'罗逸骏', gender:'male', birthYear:null, occupation:'大学生', status:'罗杰豪之子，刚考上大学，外貌气质很好，学习成绩优异，大有可为', traits:'', spouseId:null, parentIds:['p49','p50'], deceased:false },
 
