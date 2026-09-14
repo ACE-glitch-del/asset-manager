@@ -100,6 +100,8 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 .problem-content{font-size:13.5px;color:var(--ink2);line-height:1.7;white-space:pre-wrap}
 .problem-update{font-size:13px;color:var(--ink2);line-height:1.6;margin-top:8px;padding:8px 10px;background:#fff;border-radius:8px;border-left:3px solid var(--brand);white-space:pre-wrap}
 .update-label{display:inline-block;font-size:11px;font-weight:600;color:var(--brand);background:var(--brand-soft);padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle}
+.problem-principle{font-size:12.5px;color:#b45309;background:#fef3c7;border-left:3px solid #f59e0b;padding:6px 10px;border-radius:6px;margin-top:8px;line-height:1.6}
+.problem-principle::before{content:'原则：';font-weight:600;color:#92400e}
 
 /* 跟踪更新编辑行 */
 .update-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
@@ -311,7 +313,8 @@ textarea.form-control{resize:vertical;min-height:80px}
     </div>
     <div class="modal-body">
       <div class="form-group"><label>问题 <span class="req">*</span></label><input class="form-control" id="pf_title" placeholder="如：脾胃不好、高血压、睡眠差"></div>
-      <div class="form-group"><label>问题描述 / 症状表现</label><textarea class="form-control" id="pf_desc" rows="4" placeholder="怎么个不好法，有哪些症状表现"></textarea></div>
+      <div class="form-group"><label>问题描述 / 症状表现</label><textarea class="form-control" id="pf_desc" rows="3" placeholder="怎么个不好法，有哪些症状表现"></textarea></div>
+      <div class="form-group"><label>应对原则 <span style="color:var(--ink3);font-weight:400;font-size:12px">（短小精悍，运动/饮食/作息等注意事项）</span></label><input class="form-control" id="pf_principle" placeholder="如：避免大汗运动，忌生冷，早睡养阴"></div>
       <div class="form-group">
         <label style="display:flex;justify-content:space-between;align-items:center">
           <span>跟踪更新</span>
@@ -459,7 +462,7 @@ async function saveData(immediate){
 
 function initDefaultMembers(){
   state.members=[
-    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',problems:[{id:uid(),title:'脾胃不好',desc:'最近很容易饱，喝酒醉了也很难恢复，肚子胀胀的，睡都睡不着，我自己都怀疑肠胃或者肝有问题。脾胃有问题就很麻烦，第二天大脑完全没有状态',updates:[{id:uid(),date:'2026-09-14 10:00',content:'八段锦调理脾胃需单举，先学习一下要领'},{id:uid(),date:'2026-09-14 12:30',content:'学到了，就是抡着胳膊转圈，手举到头顶伸直。'}],date:'2026-09-14 12:30'},{id:uid(),title:'肾阴虚严重',desc:'',updates:[{id:uid(),date:'2026-09-14 11:00',content:'找了一下，还是八段锦双手攀足固腰肾最对症下药'}],date:'2026-09-14 11:00'}],history:''},
+    {id:uid(),name:'罗宇阳',gender:'男',birth:'1996-04-11',bloodType:'',color:'#0d9488',problems:[{id:uid(),title:'脾胃不好',desc:'最近很容易饱，喝酒醉了也很难恢复，肚子胀胀的，睡都睡不着，我自己都怀疑肠胃或者肝有问题。脾胃有问题就很麻烦，第二天大脑完全没有状态',principle:'忌生冷油腻，饮食七分饱；少喝酒，饭后散步',updates:[{id:uid(),date:'2026-09-14 10:00',content:'八段锦调理脾胃需单举，先学习一下要领'},{id:uid(),date:'2026-09-14 12:30',content:'学到了，就是抡着胳膊转圈，手举到头顶伸直。'}],date:'2026-09-14 12:30'},{id:uid(),title:'肾阴虚严重',desc:'',principle:'避免大汗运动，大汗伤津液；早睡养阴，忌熬夜；少吃辛辣',updates:[{id:uid(),date:'2026-09-14 11:00',content:'找了一下，还是八段锦双手攀足固腰肾最对症下药'}],date:'2026-09-14 11:00'}],history:''},
     {id:uid(),name:'陈倩仪',gender:'女',birth:'2000-09-14',bloodType:'',color:'#8b5cf6',problems:[],history:''},
     {id:uid(),name:'罗海华',gender:'男',birth:'1968-10-07',bloodType:'',color:'#3b82f6',problems:[{id:uid(),title:'右眼脉络膜恶性黑色素瘤肝转移',desc:'TxN0M1b IV期。2022年4月确诊，2024年7月肝转移。目前在中山大学肿瘤防治中心接受多模式综合治疗，病情相对稳定。',date:'2026-04'},{id:uid(),title:'长期用药',desc:'仑伐替尼（靶向）、特瑞普利单抗（免疫）、白蛋白紫杉醇（化疗）、优甲乐、氢化可的松',date:'2026-04'},{id:uid(),title:'血脂异常',desc:'血脂偏高，饮食控制中',date:'2026-04'},{id:uid(),title:'甲状腺功能异常',desc:'服优甲乐替代治疗',date:'2026-04'},{id:uid(),title:'复查要求',desc:'每周复查血常规、肝肾功能，定期CT/MRI，监测血压及蛋白尿',date:'2026-04'}],history:'2022年4月 | 中山大学肿瘤防治中心 | 确诊右眼脉络膜恶性黑色素瘤，行右眼同位素敷贴术\n2024年7月 | 中山大学肿瘤防治中心 | 复查发现肝转移（TxN0M1b IV期）\n2024年11月 | 中山大学肿瘤防治中心 | 行左肝外叶及S5/S6段切除术+射频消融术\n2025年9月 | 中山大学肿瘤防治中心 | 行肝肿瘤冷冻消融术\n2026年1月 | 中山大学肿瘤防治中心 | 第6次双路治疗，肝动脉造影+灌注术+栓塞术\n2026年4月 | 中山大学肿瘤防治中心 | 最新：行肝肿物冷冻消融术+第9次双路治疗；目前仑伐替尼靶向+特瑞普利单抗免疫+白蛋白紫杉醇化疗中'},
     {id:uid(),name:'张伟霞',gender:'女',birth:'1973-09-10',bloodType:'',color:'#ec4899',problems:[],history:''},
@@ -518,7 +521,7 @@ function renderDetail(){
       latestUpdateDate=p.date||'';
     }
     const showDate=latestUpdateDate||p.date||'';
-    return '<div class="problem-card" onclick="editProblem(\''+p.id+'\')"><div class="problem-card-head"><div class="problem-title">'+esc(p.title||'')+'</div><div class="problem-actions"><button class="problem-action-btn del" onclick="event.stopPropagation();delProblem(\''+p.id+'\')" title="删除"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>'+(desc?'<div class="problem-content">'+esc(desc)+'</div>':'')+(latestUpdate?'<div class="problem-update"><span class="update-label">最新跟踪</span>'+(latestUpdateDate?latestUpdateDate+'：':'')+esc(latestUpdate)+'</div>':'')+(showDate?'<div class="problem-date"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>更新于 '+esc(showDate)+'</div>':'')+'</div>';
+    return '<div class="problem-card" onclick="editProblem(\''+p.id+'\')"><div class="problem-card-head"><div class="problem-title">'+esc(p.title||'')+'</div><div class="problem-actions"><button class="problem-action-btn del" onclick="event.stopPropagation();delProblem(\''+p.id+'\')" title="删除"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>'+(desc?'<div class="problem-content">'+esc(desc)+'</div>':'')+(p.principle?'<div class="problem-principle">'+esc(p.principle)+'</div>':'')+(latestUpdate?'<div class="problem-update"><span class="update-label">最新跟踪</span>'+(latestUpdateDate?latestUpdateDate+'：':'')+esc(latestUpdate)+'</div>':'')+(showDate?'<div class="problem-date"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>更新于 '+esc(showDate)+'</div>':'')+'</div>';
   }).join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0;font-style:italic">暂无健康问题，点下方按钮添加</div>';
   // 病史总览
   const histSection=document.getElementById('historySection');
@@ -607,6 +610,7 @@ function openProblemModal(id){
     if(p){
       document.getElementById('pf_title').value=p.title||'';
       document.getElementById('pf_desc').value=p.desc||p.content||'';
+      document.getElementById('pf_principle').value=p.principle||'';
       // 兼容旧数据：如果有update字符串，转成一条更新
       let updates=p.updates||[];
       if(!updates.length&&p.update)updates=[{date:p.date||'',content:p.update}];
@@ -615,6 +619,7 @@ function openProblemModal(id){
   }else{
     document.getElementById('pf_title').value='';
     document.getElementById('pf_desc').value='';
+    document.getElementById('pf_principle').value='';
     renderUpdates([]);
   }
   document.getElementById('problemModal').classList.add('show');
@@ -625,6 +630,7 @@ function saveProblem(){
   const title=document.getElementById('pf_title').value.trim();
   if(!title){toast('请填写问题');return}
   const desc=document.getElementById('pf_desc').value.trim();
+  const principle=document.getElementById('pf_principle').value.trim();
   // 收集所有更新行
   const updates=[];
   document.querySelectorAll('#updatesList .update-row').forEach(row=>{
@@ -641,9 +647,9 @@ function saveProblem(){
   const latestDate=updates.length?updates[0].date:today;
   if(editingProblemId){
     const i=m.problems.findIndex(p=>p.id===editingProblemId);
-    if(i>=0)m.problems[i]={...m.problems[i],title,desc,updates,date:latestDate};
+    if(i>=0)m.problems[i]={...m.problems[i],title,desc,principle,updates,date:latestDate};
   }else{
-    m.problems.push({id:uid(),title,desc,updates,date:latestDate});
+    m.problems.push({id:uid(),title,desc,principle,updates,date:latestDate});
   }
   saveData();renderDetail();closeProblemModal();toast('已保存');
 }
