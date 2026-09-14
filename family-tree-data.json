@@ -718,14 +718,14 @@
   },
   "p40": {
     "id": "p40",
-    "name": "大姑",
+    "name": "罗凤娣",
     "gender": "female",
     "birthYear": null,
     "occupation": "（点击可编辑姓名/职业）",
     "relation": "大姑婆",
     "status": "罗永金之长女，罗沛桥之大姐，罗水观之母",
     "traits": "",
-    "spouseId": "p41",
+    "spouseId": null,
     "parentIds": [
       "p38",
       "p39"
@@ -741,7 +741,7 @@
     "relation": "大姑公",
     "status": "罗水观之父，信息待补充",
     "traits": "",
-    "spouseId": "p40",
+    "spouseId": null,
     "parentIds": [],
     "deceased": false
   },
