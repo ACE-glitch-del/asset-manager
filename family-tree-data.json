@@ -1,1 +1,1116 @@
-{"p1":{"id":"p1","name":"罗沛桥","gender":"male","birthYear":1940,"occupation":"退休","relation":"爷爷","status":"身体健康，居住四会市地豆镇，三兄弟中排行第二","traits":"","spouseId":"p2","parentIds":["p38","p39"],"order":2,"deceased":false},"p2":{"id":"p2","name":"莫秋妹","gender":"female","birthYear":1943,"occupation":"家庭主妇","relation":"奶奶","status":"身体健康，居住四会市地豆镇东平村营脚","traits":"慈祥善良，勤劳朴实，子孙满堂","spouseId":"p1","parentIds":[],"deceased":false},"p3":{"id":"p3","name":"罗海明","gender":"male","birthYear":null,"occupation":"大伯（长子）","relation":"大伯","status":"罗沛桥、莫秋妹长子，罗海清、罗海华之兄","traits":"","spouseId":"p4","parentIds":["p1","p2"],"order":1,"deceased":false},"p4":{"id":"p4","name":"大伯母","gender":"female","birthYear":null,"occupation":"大伯母（点击可编辑姓名）","relation":"大伯母","status":"信息待补充","traits":"","spouseId":"p3","parentIds":[],"deceased":false},"p5":{"id":"p5","name":"罗海清","gender":"male","birthYear":null,"occupation":"二伯（次子）","relation":"二伯","status":"罗沛桥、莫秋妹次子，罗海明之弟、罗海华之兄","traits":"","spouseId":"p6","parentIds":["p1","p2"],"order":2,"deceased":false},"p6":{"id":"p6","name":"二伯母","gender":"female","birthYear":null,"occupation":"二伯母（点击可编辑姓名）","relation":"二伯母","status":"信息待补充","traits":"","spouseId":"p5","parentIds":[],"deceased":false},"p7":{"id":"p7","name":"罗海华","gender":"male","birthYear":1968,"occupation":"在职","relation":"爸爸","status":"居住四会市城中街道城南","traits":"","spouseId":"p8","parentIds":["p1","p2"],"order":3,"deceased":false},"p8":{"id":"p8","name":"张伟霞","gender":"female","birthYear":1973,"occupation":"幼儿园高级教师","relation":"妈妈","status":"在职，临近退休，关注教育政策","traits":"温柔耐心，专业过硬，重视子女教育","spouseId":"p7","parentIds":[],"deceased":false},"p11":{"id":"p11","name":"罗嘉敏","gender":"female","birthYear":1985,"occupation":"在职","relation":"堂姐","status":"罗海明与前妻所生之长女，罗嘉鳞同母姐姐，居住四会市大沙镇大布村大沙园，育有一女李艳","traits":"","spouseId":"p63","parentIds":["p3"],"order":1,"deceased":false},"p63":{"id":"p63","name":"罗嘉敏配偶（李）","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"堂姐夫","status":"李艳之父，信息待补充","traits":"","spouseId":"p11","parentIds":[],"deceased":false},"p64":{"id":"p64","name":"李艳","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂侄女","status":"罗嘉敏之女","traits":"","spouseId":null,"parentIds":["p11","p63"],"deceased":false},"p9":{"id":"p9","name":"罗嘉鳞","gender":"male","birthYear":null,"occupation":"在职","relation":"堂哥","status":"罗海明与前妻所生之子，罗宇阳堂哥，育有两子一女","traits":"","spouseId":"p10","parentIds":["p3"],"order":2,"deceased":false},"p10":{"id":"p10","name":"罗嘉鳞妻子","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"堂嫂","status":"信息待补充","traits":"","spouseId":"p9","parentIds":[],"deceased":false},"p13":{"id":"p13","name":"罗嘉怡","gender":"female","birthYear":null,"occupation":"在读大学生","relation":"堂妹","status":"罗海明私生女，目前在读大学","traits":"","spouseId":null,"parentIds":["p3"],"order":3,"deceased":false},"p12":{"id":"p12","name":"罗嘉盈","gender":"female","birthYear":2004,"occupation":"在读大学生","relation":"堂妹","status":"罗海明与现任妻子所生之小女，目前在读大学","traits":"","spouseId":null,"parentIds":["p3","p4"],"order":4,"deceased":false},"p14":{"id":"p14","name":"罗国健","gender":"male","birthYear":null,"occupation":"在职","relation":"堂弟","status":"罗海清之子，已婚，育有三女一子","traits":"","spouseId":"p15","parentIds":["p5","p6"],"order":1,"deceased":false},"p15":{"id":"p15","name":"罗国健妻子","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"堂弟妹","status":"信息待补充","traits":"","spouseId":"p14","parentIds":[],"deceased":false},"p16":{"id":"p16","name":"罗家欣","gender":"female","birthYear":null,"occupation":"在职","relation":"堂妹","status":"罗海清之女，已婚","traits":"","spouseId":"p17","parentIds":["p5","p6"],"order":2,"deceased":false},"p17":{"id":"p17","name":"罗家欣配偶","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"堂妹夫","status":"信息待补充","traits":"","spouseId":"p16","parentIds":[],"deceased":false},"p18":{"id":"p18","name":"罗宇阳","gender":"male","birthYear":1996,"occupation":"四会市消防救援大队","relation":"我","status":"已婚，2025年9月23日登记结婚","traits":"","spouseId":"p19","parentIds":["p7","p8"],"deceased":false},"p19":{"id":"p19","name":"陈倩仪","gender":"female","birthYear":2000,"occupation":"在职","relation":"老婆","status":"已婚，2025年9月23日与罗宇阳登记结婚，陈建军之女","traits":"","spouseId":"p18","parentIds":["p36","p37"],"deceased":false},"p20":{"id":"p20","name":"罗梓一","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂侄","status":"罗嘉鳞之长子","traits":"","spouseId":null,"parentIds":["p9","p10"],"order":1,"deceased":false},"p21":{"id":"p21","name":"罗梓言","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂侄女","status":"罗嘉鳞之二女","traits":"","spouseId":null,"parentIds":["p9","p10"],"order":2,"deceased":false},"p22":{"id":"p22","name":"罗梓田","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂侄","status":"罗嘉鳞之三子","traits":"","spouseId":null,"parentIds":["p9","p10"],"order":3,"deceased":false},"p23":{"id":"p23","name":"罗海清孙女1","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","status":"罗海清之孙女，信息待补充","traits":"","spouseId":null,"parentIds":["p14","p15"],"order":1,"deceased":false},"p24":{"id":"p24","name":"罗海清孙女2","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","status":"罗海清之孙女，信息待补充","traits":"","spouseId":null,"parentIds":["p14","p15"],"order":2,"deceased":false},"p25":{"id":"p25","name":"罗海清孙女3","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","status":"罗海清之孙女，信息待补充","traits":"","spouseId":null,"parentIds":["p14","p15"],"order":3,"deceased":false},"p26":{"id":"p26","name":"罗海清孙子","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","status":"罗海清之孙子，信息待补充","traits":"","spouseId":null,"parentIds":["p14","p15"],"order":4,"deceased":false},"p27":{"id":"p27","name":"陈家爷爷","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"外公","status":"育有六姊妹（五男一女），信息待补充","traits":"","spouseId":"p28","parentIds":[],"deceased":false},"p28":{"id":"p28","name":"陈家奶奶","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"外婆","status":"信息待补充","traits":"","spouseId":"p27","parentIds":[],"deceased":false},"p29":{"id":"p29","name":"陈老大","gender":"male","birthYear":null,"occupation":"老中医","status":"陈家长子，性格随和，喜欢钻研药材泡酒","traits":"","spouseId":null,"parentIds":["p27","p28"],"deceased":false},"p30":{"id":"p30","name":"陈老二","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","status":"陈家次子，信息待补充","traits":"","spouseId":null,"parentIds":["p27","p28"],"deceased":false},"p31":{"id":"p31","name":"陈老三","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","status":"陈家三子，陈建军之父","traits":"","spouseId":"p32","parentIds":["p27","p28"],"deceased":false},"p32":{"id":"p32","name":"陈老三妻子","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","status":"陈建军之母，信息待补充","traits":"","spouseId":"p31","parentIds":[],"deceased":false},"p33":{"id":"p33","name":"陈老四","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","status":"陈家四子，信息待补充","traits":"","spouseId":null,"parentIds":["p27","p28"],"deceased":false},"p34":{"id":"p34","name":"陈老五","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","status":"陈家五子，身形偏瘦，为人精干，做事有能力","traits":"","spouseId":null,"parentIds":["p27","p28"],"deceased":false},"p35":{"id":"p35","name":"陈老六","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","status":"陈家六女（唯一的女儿），信息待补充","traits":"","spouseId":null,"parentIds":["p27","p28"],"deceased":false},"p36":{"id":"p36","name":"陈建军","gender":"male","birthYear":null,"occupation":"在职","relation":"岳父","status":"陈老三之子，陈倩仪之父","traits":"","spouseId":"p37","parentIds":["p31","p32"],"deceased":false},"p37":{"id":"p37","name":"陈建军妻子","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"岳母","status":"陈倩仪之母，信息待补充","traits":"","spouseId":"p36","parentIds":[],"deceased":false},"p52":{"id":"p52","name":"罗氏先祖","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"高祖父","status":"罗沛桥之爷爷，罗洁修之父，信息待补充","traits":"","spouseId":"p53","parentIds":[],"deceased":true},"p53":{"id":"p53","name":"罗氏先祖配偶","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"高祖母","status":"罗沛桥之奶奶，信息待补充","traits":"","spouseId":"p52","parentIds":[],"deceased":false},"p38":{"id":"p38","name":"罗永金","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"太公","status":"永字辈老大，罗沛桥三姐弟之父","traits":"","spouseId":"p39","parentIds":["p52","p53"],"order":1,"deceased":true},"p39":{"id":"p39","name":"罗永金配偶","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"太婆","status":"罗沛桥三姐弟之母，信息待补充","traits":"","spouseId":"p38","parentIds":[],"deceased":false},"p65":{"id":"p65","name":"罗永廷","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"叔公","status":"永字辈老二，罗永金之弟，信息待补充","traits":"","spouseId":null,"parentIds":["p52","p53"],"order":2,"deceased":false},"p66":{"id":"p66","name":"永字辈三姑","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名/职业）","relation":"姑婆","status":"永字辈老三（女），罗永金之妹，信息待补充","traits":"","spouseId":null,"parentIds":["p52","p53"],"order":3,"deceased":false},"p67":{"id":"p67","name":"永字辈老四","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名/职业）","relation":"叔公","status":"永字辈老四，信息待补充","traits":"","spouseId":null,"parentIds":["p52","p53"],"order":4,"deceased":false},"p54":{"id":"p54","name":"罗永清（罗洁修）","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"五叔公","status":"永字辈老五，小名罗洁修，罗向平三兄弟之父","traits":"","spouseId":"p55","parentIds":["p52","p53"],"order":5,"deceased":false},"p55":{"id":"p55","name":"五太","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"五太婆","status":"罗永清之妻，罗向平三兄弟之母","traits":"","spouseId":"p54","parentIds":[],"deceased":false},"p58":{"id":"p58","name":"罗永龙","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"六叔公","status":"永字辈老六，罗永清之弟，罗静文之爷爷","traits":"","spouseId":"p59","parentIds":["p52","p53"],"order":6,"deceased":false},"p59":{"id":"p59","name":"罗永龙配偶","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"六叔婆","status":"罗曙光之母，信息待补充","traits":"","spouseId":"p58","parentIds":[],"deceased":false},"p72":{"id":"p72","name":"罗连英","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂姑","status":"罗永龙之长女，最大","traits":"","spouseId":null,"parentIds":["p58","p59"],"order":1,"deceased":false},"p73":{"id":"p73","name":"罗炳英","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂姑","status":"罗永龙之次女","traits":"","spouseId":null,"parentIds":["p58","p59"],"order":2,"deceased":false},"p74":{"id":"p74","name":"罗秋英（秋姑）","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂姑","status":"罗永龙之三女，高中时给别人养，罗宇阳称秋姑","traits":"","spouseId":null,"parentIds":["p58","p59"],"order":3,"deceased":false},"p68":{"id":"p68","name":"罗胜筹","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂叔","status":"罗永龙之四子，秋姑之弟，育有一子一女","traits":"","spouseId":"p69","parentIds":["p58","p59"],"order":4,"deceased":false},"p69":{"id":"p69","name":"罗胜筹配偶","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"堂婶","status":"罗伟斌之母，信息待补充","traits":"","spouseId":"p68","parentIds":[],"deceased":false},"p70":{"id":"p70","name":"罗伟斌","gender":"male","birthYear":null,"occupation":"清华在职研究生","relation":"堂弟","status":"罗胜筹之子，清华大学在职研究生，学业优异","traits":"","spouseId":null,"parentIds":["p68","p69"],"order":1,"deceased":false},"p71":{"id":"p71","name":"罗胜筹女儿","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名/职业）","relation":"堂妹","status":"罗胜筹之女，罗伟斌之妹，信息待补充","traits":"","spouseId":null,"parentIds":["p68","p69"],"order":2,"deceased":false},"p75":{"id":"p75","name":"罗彩霞","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂姑","status":"罗永龙之五女，罗胜筹之妹","traits":"","spouseId":null,"parentIds":["p58","p59"],"order":5,"deceased":false},"p60":{"id":"p60","name":"罗曙光","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂叔","status":"罗永龙之六子（最小），罗静文之父","traits":"","spouseId":"p61","parentIds":["p58","p59"],"order":6,"deceased":false},"p61":{"id":"p61","name":"罗曙光配偶","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"堂婶","status":"罗静文之母，信息待补充","traits":"","spouseId":"p60","parentIds":[],"deceased":false},"p40":{"id":"p40","name":"罗凤娣","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"大姑婆","status":"罗永金之长女，罗沛桥之亲大姐，罗水观之母","traits":"","spouseId":"p41","parentIds":["p38","p39"],"order":1,"deceased":false},"p41":{"id":"p41","name":"大姑配偶","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"大姑公","status":"罗水观之父，信息待补充","traits":"","spouseId":"p40","parentIds":[],"deceased":false},"p62":{"id":"p62","name":"罗水观","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"表伯","status":"大姑之子，罗沛桥之外甥","traits":"","spouseId":null,"parentIds":["p40","p41"],"deceased":false},"p42":{"id":"p42","name":"罗向平","gender":"male","birthYear":null,"occupation":"广州公职人员（处长级）","relation":"堂伯","status":"罗永清之长子，在广州立足，身居高位","traits":"","spouseId":null,"parentIds":["p54","p55"],"order":1,"deceased":false},"p43":{"id":"p43","name":"罗向东","gender":"male","birthYear":null,"occupation":"广州国企高管","relation":"堂伯","status":"罗永清之次子，在广州立足，能力很强","traits":"","spouseId":null,"parentIds":["p54","p55"],"order":2,"deceased":false},"p44":{"id":"p44","name":"罗向文","gender":"male","birthYear":null,"occupation":"广州国企高管","relation":"堂叔","status":"罗永清之三子，在广州立足，能力很强","traits":"","spouseId":null,"parentIds":["p54","p55"],"order":3,"deceased":false},"p45":{"id":"p45","name":"罗杰豪爸爸","gender":"male","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"叔公","status":"罗永金之三子，三姐弟中排行第三，尚健在，身体还可以","traits":"","spouseId":"p46","parentIds":["p38","p39"],"order":3,"deceased":false},"p46":{"id":"p46","name":"罗杰豪妈妈","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","relation":"叔婆","status":"信息待补充","traits":"","spouseId":"p45","parentIds":[],"deceased":false},"p47":{"id":"p47","name":"罗洁珍","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂姑","status":"罗杰豪之亲姐姐","traits":"","spouseId":null,"parentIds":["p45","p46"],"order":1,"deceased":false},"p48":{"id":"p48","name":"罗洁萍","gender":"female","birthYear":null,"occupation":"（点击可编辑职业）","relation":"堂姑","status":"罗杰豪之亲妹妹","traits":"","spouseId":null,"parentIds":["p45","p46"],"order":3,"deceased":false},"p49":{"id":"p49","name":"罗杰豪","gender":"male","birthYear":null,"occupation":"在职","relation":"二叔","status":"罗洁珍之弟、罗洁萍之兄，育有一子罗逸骏","traits":"","spouseId":"p50","parentIds":["p45","p46"],"order":2,"deceased":false},"p50":{"id":"p50","name":"罗杰豪配偶","gender":"female","birthYear":null,"occupation":"（点击可编辑姓名）","status":"罗逸骏之母，信息待补充","traits":"","spouseId":"p49","parentIds":[],"deceased":false},"p51":{"id":"p51","name":"罗逸骏","gender":"male","birthYear":null,"occupation":"大学生","relation":"堂侄","status":"罗杰豪之子，刚考上大学，外貌气质很好，学习成绩优异，大有可为","traits":"","spouseId":null,"parentIds":["p49","p50"],"deceased":false},"p57":{"id":"p57","name":"罗静文","gender":"male","birthYear":null,"occupation":"（点击可编辑职业）","relation":"文叔","status":"罗曙光之子，罗永龙之孙，罗宇阳称其为文叔（堂叔）","traits":"","spouseId":null,"parentIds":["p60","p61"],"deceased":false}}
+{
+  "p1": {
+    "id": "p1",
+    "name": "罗沛桥",
+    "gender": "male",
+    "birthYear": 1940,
+    "occupation": "退休",
+    "relation": "爷爷",
+    "status": "身体健康，居住四会市地豆镇，三兄弟中排行第二",
+    "traits": "",
+    "spouseId": "p2",
+    "parentIds": [
+      "p38",
+      "p39"
+    ],
+    "deceased": false
+  },
+  "p2": {
+    "id": "p2",
+    "name": "莫秋妹",
+    "gender": "female",
+    "birthYear": 1943,
+    "occupation": "家庭主妇",
+    "relation": "奶奶",
+    "status": "身体健康，居住四会市地豆镇东平村营脚",
+    "traits": "慈祥善良，勤劳朴实，子孙满堂",
+    "spouseId": "p1",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p3": {
+    "id": "p3",
+    "name": "罗海明",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "大伯（长子）",
+    "relation": "大伯",
+    "status": "罗沛桥、莫秋妹长子，罗海清、罗海华之兄",
+    "traits": "",
+    "spouseId": "p4",
+    "parentIds": [
+      "p1",
+      "p2"
+    ],
+    "deceased": false
+  },
+  "p4": {
+    "id": "p4",
+    "name": "大伯母",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "大伯母（点击可编辑姓名）",
+    "relation": "大伯母",
+    "status": "信息待补充",
+    "traits": "",
+    "spouseId": "p3",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p5": {
+    "id": "p5",
+    "name": "罗海清",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "二伯（次子）",
+    "relation": "二伯",
+    "status": "罗沛桥、莫秋妹次子，罗海明之弟、罗海华之兄",
+    "traits": "",
+    "spouseId": "p6",
+    "parentIds": [
+      "p1",
+      "p2"
+    ],
+    "deceased": false
+  },
+  "p6": {
+    "id": "p6",
+    "name": "二伯母",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "二伯母（点击可编辑姓名）",
+    "relation": "二伯母",
+    "status": "信息待补充",
+    "traits": "",
+    "spouseId": "p5",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p7": {
+    "id": "p7",
+    "name": "罗海华",
+    "gender": "male",
+    "birthYear": 1968,
+    "occupation": "在职",
+    "relation": "爸爸",
+    "status": "居住四会市城中街道城南",
+    "traits": "",
+    "spouseId": "p8",
+    "parentIds": [
+      "p1",
+      "p2"
+    ],
+    "deceased": false
+  },
+  "p8": {
+    "id": "p8",
+    "name": "张伟霞",
+    "gender": "female",
+    "birthYear": 1973,
+    "occupation": "幼儿园高级教师",
+    "relation": "妈妈",
+    "status": "在职，临近退休，关注教育政策",
+    "traits": "温柔耐心，专业过硬，重视子女教育",
+    "spouseId": "p7",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p11": {
+    "id": "p11",
+    "name": "罗嘉敏",
+    "gender": "female",
+    "birthYear": 1985,
+    "occupation": "在职",
+    "relation": "堂姐",
+    "status": "罗海明与前妻所生之长女，罗嘉鳞同母姐姐，居住四会市大沙镇大布村大沙园，育有一女李艳",
+    "traits": "",
+    "spouseId": "p63",
+    "parentIds": [
+      "p3"
+    ],
+    "deceased": false
+  },
+  "p63": {
+    "id": "p63",
+    "name": "罗嘉敏配偶（李）",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "堂姐夫",
+    "status": "李艳之父，信息待补充",
+    "traits": "",
+    "spouseId": "p11",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p64": {
+    "id": "p64",
+    "name": "李艳",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂侄女",
+    "status": "罗嘉敏之女",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p11",
+      "p63"
+    ],
+    "deceased": false
+  },
+  "p9": {
+    "id": "p9",
+    "name": "罗嘉鳞",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "在职",
+    "relation": "堂哥",
+    "status": "罗海明与前妻所生之子，罗宇阳堂哥，育有两子一女",
+    "traits": "",
+    "spouseId": "p10",
+    "parentIds": [
+      "p3"
+    ],
+    "deceased": false
+  },
+  "p10": {
+    "id": "p10",
+    "name": "罗嘉鳞妻子",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "堂嫂",
+    "status": "信息待补充",
+    "traits": "",
+    "spouseId": "p9",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p13": {
+    "id": "p13",
+    "name": "罗嘉怡",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "在读大学生",
+    "relation": "堂妹",
+    "status": "罗海明私生女，目前在读大学",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p3"
+    ],
+    "deceased": false
+  },
+  "p12": {
+    "id": "p12",
+    "name": "罗嘉盈",
+    "gender": "female",
+    "birthYear": 2004,
+    "occupation": "在读大学生",
+    "relation": "堂妹",
+    "status": "罗海明与现任妻子所生之小女，目前在读大学",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p3",
+      "p4"
+    ],
+    "deceased": false
+  },
+  "p14": {
+    "id": "p14",
+    "name": "罗国健",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "在职",
+    "relation": "堂弟",
+    "status": "罗海清之子，已婚，育有三女一子",
+    "traits": "",
+    "spouseId": "p15",
+    "parentIds": [
+      "p5",
+      "p6"
+    ],
+    "deceased": false
+  },
+  "p15": {
+    "id": "p15",
+    "name": "罗国健妻子",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "堂弟妹",
+    "status": "信息待补充",
+    "traits": "",
+    "spouseId": "p14",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p16": {
+    "id": "p16",
+    "name": "罗家欣",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "在职",
+    "relation": "堂妹",
+    "status": "罗海清之女，已婚",
+    "traits": "",
+    "spouseId": "p17",
+    "parentIds": [
+      "p5",
+      "p6"
+    ],
+    "deceased": false
+  },
+  "p17": {
+    "id": "p17",
+    "name": "罗家欣配偶",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "堂妹夫",
+    "status": "信息待补充",
+    "traits": "",
+    "spouseId": "p16",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p18": {
+    "id": "p18",
+    "name": "罗宇阳",
+    "gender": "male",
+    "birthYear": 1996,
+    "occupation": "四会市消防救援大队",
+    "relation": "我",
+    "status": "已婚，2025年9月23日登记结婚",
+    "traits": "",
+    "spouseId": "p19",
+    "parentIds": [
+      "p7",
+      "p8"
+    ],
+    "deceased": false
+  },
+  "p19": {
+    "id": "p19",
+    "name": "陈倩仪",
+    "gender": "female",
+    "birthYear": 2000,
+    "occupation": "在职",
+    "relation": "老婆",
+    "status": "已婚，2025年9月23日与罗宇阳登记结婚，陈建军之女",
+    "traits": "",
+    "spouseId": "p18",
+    "parentIds": [
+      "p36",
+      "p37"
+    ],
+    "deceased": false
+  },
+  "p20": {
+    "id": "p20",
+    "name": "罗梓一",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂侄",
+    "status": "罗嘉鳞之长子",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p9",
+      "p10"
+    ],
+    "deceased": false
+  },
+  "p21": {
+    "id": "p21",
+    "name": "罗梓言",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂侄女",
+    "status": "罗嘉鳞之二女",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p9",
+      "p10"
+    ],
+    "deceased": false
+  },
+  "p22": {
+    "id": "p22",
+    "name": "罗梓田",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂侄",
+    "status": "罗嘉鳞之三子",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p9",
+      "p10"
+    ],
+    "deceased": false
+  },
+  "p23": {
+    "id": "p23",
+    "name": "罗海清孙女1",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗海清之孙女，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p14",
+      "p15"
+    ],
+    "deceased": false
+  },
+  "p24": {
+    "id": "p24",
+    "name": "罗海清孙女2",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗海清之孙女，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p14",
+      "p15"
+    ],
+    "deceased": false
+  },
+  "p25": {
+    "id": "p25",
+    "name": "罗海清孙女3",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗海清之孙女，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p14",
+      "p15"
+    ],
+    "deceased": false
+  },
+  "p26": {
+    "id": "p26",
+    "name": "罗梓乐",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗海清之孙子，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p14",
+      "p15"
+    ],
+    "deceased": false,
+    "relation": ""
+  },
+  "p27": {
+    "id": "p27",
+    "name": "陈家爷爷",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "外公",
+    "status": "育有六姊妹（五男一女），信息待补充",
+    "traits": "",
+    "spouseId": "p28",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p28": {
+    "id": "p28",
+    "name": "陈家奶奶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "外婆",
+    "status": "信息待补充",
+    "traits": "",
+    "spouseId": "p27",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p29": {
+    "id": "p29",
+    "name": "陈老大",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "老中医",
+    "status": "陈家长子，性格随和，喜欢钻研药材泡酒",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p27",
+      "p28"
+    ],
+    "deceased": false
+  },
+  "p30": {
+    "id": "p30",
+    "name": "陈老二",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "陈家次子，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p27",
+      "p28"
+    ],
+    "deceased": false
+  },
+  "p31": {
+    "id": "p31",
+    "name": "陈老三",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "陈家三子，陈建军之父",
+    "traits": "",
+    "spouseId": "p32",
+    "parentIds": [
+      "p27",
+      "p28"
+    ],
+    "deceased": false
+  },
+  "p32": {
+    "id": "p32",
+    "name": "陈老三妻子",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "陈建军之母，信息待补充",
+    "traits": "",
+    "spouseId": "p31",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p33": {
+    "id": "p33",
+    "name": "陈老四",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "陈家四子，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p27",
+      "p28"
+    ],
+    "deceased": false
+  },
+  "p34": {
+    "id": "p34",
+    "name": "陈老五",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "陈家五子，身形偏瘦，为人精干，做事有能力",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p27",
+      "p28"
+    ],
+    "deceased": false
+  },
+  "p35": {
+    "id": "p35",
+    "name": "陈老六",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "陈家六女（唯一的女儿），信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p27",
+      "p28"
+    ],
+    "deceased": false
+  },
+  "p36": {
+    "id": "p36",
+    "name": "陈建军",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "在职",
+    "relation": "岳父",
+    "status": "陈老三之子，陈倩仪之父",
+    "traits": "",
+    "spouseId": "p37",
+    "parentIds": [
+      "p31",
+      "p32"
+    ],
+    "deceased": false
+  },
+  "p37": {
+    "id": "p37",
+    "name": "陈建军妻子",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "岳母",
+    "status": "陈倩仪之母，信息待补充",
+    "traits": "",
+    "spouseId": "p36",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p52": {
+    "id": "p52",
+    "name": "罗氏先祖",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "高祖父",
+    "status": "罗沛桥之爷爷，罗洁修之父，信息待补充",
+    "traits": "",
+    "spouseId": "p53",
+    "parentIds": [],
+    "deceased": true
+  },
+  "p53": {
+    "id": "p53",
+    "name": "罗氏先祖配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "高祖母",
+    "status": "罗沛桥之奶奶，信息待补充",
+    "traits": "",
+    "spouseId": "p52",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p38": {
+    "id": "p38",
+    "name": "罗永金",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "太公",
+    "status": "罗沛桥三兄弟之父，罗洁修之兄",
+    "traits": "",
+    "spouseId": "p39",
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "deceased": true
+  },
+  "p39": {
+    "id": "p39",
+    "name": "罗氏先祖配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "太婆",
+    "status": "罗沛桥三兄弟之母，信息待补充",
+    "traits": "",
+    "spouseId": "p38",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p54": {
+    "id": "p54",
+    "name": "罗永清（罗洁修）",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "叔公",
+    "status": "罗永金之亲弟弟，永字辈，小名罗洁修，罗向平三兄弟之父",
+    "traits": "",
+    "spouseId": "p55",
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "deceased": false
+  },
+  "p55": {
+    "id": "p55",
+    "name": "罗洁修配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "叔婆",
+    "status": "罗向平三兄弟之母，信息待补充",
+    "traits": "",
+    "spouseId": "p54",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p58": {
+    "id": "p58",
+    "name": "罗永龙",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "叔公",
+    "status": "罗永清之亲弟弟，永字辈，罗静文之爷爷",
+    "traits": "",
+    "spouseId": "p59",
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "deceased": false
+  },
+  "p59": {
+    "id": "p59",
+    "name": "罗永龙配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "叔婆",
+    "status": "罗曙光之母，信息待补充",
+    "traits": "",
+    "spouseId": "p58",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p60": {
+    "id": "p60",
+    "name": "罗曙光",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂叔",
+    "status": "罗永龙之子，罗静文之父",
+    "traits": "",
+    "spouseId": "p61",
+    "parentIds": [
+      "p58",
+      "p59"
+    ],
+    "deceased": false
+  },
+  "p61": {
+    "id": "p61",
+    "name": "罗曙光配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "堂婶",
+    "status": "罗静文之母，信息待补充",
+    "traits": "",
+    "spouseId": "p60",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p40": {
+    "id": "p40",
+    "name": "大姑（罗水观妈妈）",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名/职业）",
+    "relation": "大姑婆",
+    "status": "罗永金之长女，罗沛桥之大姐，罗水观之母",
+    "traits": "",
+    "spouseId": "p41",
+    "parentIds": [
+      "p38",
+      "p39"
+    ],
+    "deceased": false
+  },
+  "p41": {
+    "id": "p41",
+    "name": "大姑配偶",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "大姑公",
+    "status": "罗水观之父，信息待补充",
+    "traits": "",
+    "spouseId": "p40",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p62": {
+    "id": "p62",
+    "name": "罗水观",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "表伯",
+    "status": "大姑之子，罗沛桥之外甥",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p40",
+      "p41"
+    ],
+    "deceased": false
+  },
+  "p42": {
+    "id": "p42",
+    "name": "罗向平",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "广州公职人员（处长级）",
+    "relation": "堂伯",
+    "status": "罗永清之长子，在广州立足，身居高位",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p54",
+      "p55"
+    ],
+    "deceased": false
+  },
+  "p43": {
+    "id": "p43",
+    "name": "罗向东",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "广州国企高管",
+    "relation": "堂伯",
+    "status": "罗永清之次子，在广州立足，能力很强",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p54",
+      "p55"
+    ],
+    "deceased": false
+  },
+  "p44": {
+    "id": "p44",
+    "name": "罗向文",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "广州国企高管",
+    "relation": "堂叔",
+    "status": "罗永清之三子，在广州立足，能力很强",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p54",
+      "p55"
+    ],
+    "deceased": false
+  },
+  "p45": {
+    "id": "p45",
+    "name": "罗杰豪爸爸",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "叔公",
+    "status": "罗永金之三子，三姐弟中排行第三，尚健在，身体还可以",
+    "traits": "",
+    "spouseId": "p46",
+    "parentIds": [
+      "p38",
+      "p39"
+    ],
+    "deceased": false
+  },
+  "p46": {
+    "id": "p46",
+    "name": "罗杰豪妈妈",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "叔婆",
+    "status": "信息待补充",
+    "traits": "",
+    "spouseId": "p45",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p47": {
+    "id": "p47",
+    "name": "罗洁珍",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂姑",
+    "status": "罗杰豪之亲姐姐",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p45",
+      "p46"
+    ],
+    "deceased": false
+  },
+  "p48": {
+    "id": "p48",
+    "name": "罗洁萍",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂姑",
+    "status": "罗杰豪之亲妹妹",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p45",
+      "p46"
+    ],
+    "deceased": false
+  },
+  "p49": {
+    "id": "p49",
+    "name": "罗杰豪",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "在职",
+    "relation": "二叔",
+    "status": "罗洁珍之弟、罗洁萍之兄，育有一子罗逸骏",
+    "traits": "",
+    "spouseId": "p50",
+    "parentIds": [
+      "p45",
+      "p46"
+    ],
+    "deceased": false
+  },
+  "p50": {
+    "id": "p50",
+    "name": "罗杰豪配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗逸骏之母，信息待补充",
+    "traits": "",
+    "spouseId": "p49",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p51": {
+    "id": "p51",
+    "name": "罗逸骏",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "大学生",
+    "relation": "堂侄",
+    "status": "罗杰豪之子，刚考上大学，外貌气质很好，学习成绩优异，大有可为",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p49",
+      "p50"
+    ],
+    "deceased": false
+  },
+  "p57": {
+    "id": "p57",
+    "name": "罗静文",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "文叔",
+    "status": "罗曙光之子，罗永龙之孙，罗宇阳称其为文叔（堂叔）",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p60",
+      "p61"
+    ],
+    "deceased": false
+  },
+  "p65": {
+    "id": "p65",
+    "name": "罗永廷",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "叔公",
+    "status": "永字辈老二，罗永金之弟，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "order": 2,
+    "deceased": false
+  },
+  "p66": {
+    "id": "p66",
+    "name": "永字辈三姑",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名/职业）",
+    "relation": "姑婆",
+    "status": "永字辈老三（女），罗永金之妹，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "order": 3,
+    "deceased": false
+  },
+  "p67": {
+    "id": "p67",
+    "name": "永字辈老四",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名/职业）",
+    "relation": "叔公",
+    "status": "永字辈老四，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "order": 4,
+    "deceased": false
+  },
+  "p72": {
+    "id": "p72",
+    "name": "罗连英",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂姑",
+    "status": "罗永龙之长女，最大",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p58",
+      "p59"
+    ],
+    "order": 1,
+    "deceased": false
+  },
+  "p73": {
+    "id": "p73",
+    "name": "罗炳英",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂姑",
+    "status": "罗永龙之次女",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p58",
+      "p59"
+    ],
+    "order": 2,
+    "deceased": false
+  },
+  "p74": {
+    "id": "p74",
+    "name": "罗秋英（秋姑）",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂姑",
+    "status": "罗永龙之三女，高中时给别人养，罗宇阳称秋姑",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p58",
+      "p59"
+    ],
+    "order": 3,
+    "deceased": false
+  },
+  "p68": {
+    "id": "p68",
+    "name": "罗胜筹",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂叔",
+    "status": "罗永龙之四子，秋姑之弟，育有一子一女",
+    "traits": "",
+    "spouseId": "p69",
+    "parentIds": [
+      "p58",
+      "p59"
+    ],
+    "order": 4,
+    "deceased": false
+  },
+  "p69": {
+    "id": "p69",
+    "name": "罗胜筹配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "relation": "堂婶",
+    "status": "罗伟斌之母，信息待补充",
+    "traits": "",
+    "spouseId": "p68",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p70": {
+    "id": "p70",
+    "name": "罗伟斌",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "清华在职研究生",
+    "relation": "堂弟",
+    "status": "罗胜筹之子，清华大学在职研究生，学业优异",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p68",
+      "p69"
+    ],
+    "order": 1,
+    "deceased": false
+  },
+  "p71": {
+    "id": "p71",
+    "name": "罗胜筹女儿",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名/职业）",
+    "relation": "堂妹",
+    "status": "罗胜筹之女，罗伟斌之妹，信息待补充",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p68",
+      "p69"
+    ],
+    "order": 2,
+    "deceased": false
+  },
+  "p75": {
+    "id": "p75",
+    "name": "罗彩霞",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "relation": "堂姑",
+    "status": "罗永龙之五女，罗胜筹之妹",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p58",
+      "p59"
+    ],
+    "order": 5,
+    "deceased": false
+  }
+}
