@@ -127,7 +127,7 @@
       "name": "社保/个人所得税",
       "category": "税费",
       "accountId": 1,
-      "amount": 310.0,
+      "amount": 310,
       "active": true
     },
     {
@@ -135,7 +135,7 @@
       "name": "手机话费",
       "category": "通讯",
       "accountId": 1,
-      "amount": 200.0,
+      "amount": 200,
       "active": true
     },
     {
@@ -143,7 +143,7 @@
       "name": "保险费（年缴折算）",
       "category": "保险",
       "accountId": 1,
-      "amount": 313.0,
+      "amount": 313,
       "active": true
     },
     {
@@ -151,7 +151,7 @@
       "name": "视频/软件订阅",
       "category": "订阅",
       "accountId": 1,
-      "amount": 100.0,
+      "amount": 100,
       "active": true
     },
     {
@@ -159,7 +159,7 @@
       "name": "ETC高速费",
       "category": "交通",
       "accountId": 1,
-      "amount": 180.0,
+      "amount": 180,
       "active": true
     },
     {
@@ -167,7 +167,7 @@
       "name": "餐饮日常",
       "category": "餐饮",
       "accountId": 3,
-      "amount": 500.0,
+      "amount": 500,
       "active": true
     }
   ],
@@ -10153,6 +10153,13 @@
     "myView": "外部环境复杂：美联储加息预期+地缘冲突+油价上涨，对全球风险资产形成压制。国内政策持续发力但内需恢复缓慢，经济处于弱复苏状态。\n\n对A股的影响：外部流动性收紧压制估值，但国内政策托底+估值低位，下行空间有限。整体是震荡磨底格局，适合定投而非追涨。\n\n操作策略：维持宽基指数定投，个股精选政策受益和业绩确定性强的品种，黄金作为对冲继续持有。"
   },
   "stockAnalysis": {},
+  "experienceItems": [
+    {
+      "id": 1,
+      "title": "绝不加杠杆，绝不打不知过去的仗",
+      "content": "绝不加杠杆，绝不打不知过去的仗"
+    }
+  ],
   "experiencePrinciples": "绝不加杠杆，绝不打不知过去的仗",
   "learning": {
     "concepts": [
@@ -10215,5 +10222,35 @@
         "content": "了解一个票，首先先了解它的过去。比如登海种业以前最高最低是多少价位，分别是什么原因导致的？跟现在相比有什么相似和不同之处？现在处于历史高位还是低位？就能大概知道现在处于哪个历史阶段。有个概念。比如我的阿里和顺丰，几乎都是在历史高位建仓，不知过去，是很不负责任的，后果也是很血腥。"
       }
     ]
-  }
+  },
+  "investTasks": [
+    {
+      "id": 1,
+      "title": "研究美联储9月议息会议对A股的影响",
+      "status": "doing",
+      "progress": "已看完会议纪要，正在分析历史加息周期走势",
+      "updatedAt": "2026-09-10"
+    },
+    {
+      "id": 2,
+      "title": "整理持仓个股的三季报业绩预告",
+      "status": "todo",
+      "progress": "",
+      "updatedAt": ""
+    },
+    {
+      "id": 3,
+      "title": "学习可转债打新策略",
+      "status": "done",
+      "progress": "已完成，开通了可转债权限，准备参与打新",
+      "updatedAt": "2026-09-05"
+    },
+    {
+      "id": 4,
+      "title": "我的且慢的基金情况需要更新进来，有什么问题下一步要怎么做",
+      "status": "todo",
+      "progress": "",
+      "updatedAt": "2026-09-14"
+    }
+  ]
 }
