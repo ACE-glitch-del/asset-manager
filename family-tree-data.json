@@ -518,16 +518,43 @@
     "parentIds": [],
     "deceased": false
   },
-  "p38": {
-    "id": "p38",
+  "p52": {
+    "id": "p52",
     "name": "罗氏先祖",
     "gender": "male",
     "birthYear": null,
     "occupation": "（点击可编辑姓名）",
-    "status": "罗沛桥三兄弟之父，信息待补充",
+    "status": "罗沛桥之爷爷，罗洁修之父，信息待补充",
+    "traits": "",
+    "spouseId": "p53",
+    "parentIds": [],
+    "deceased": true
+  },
+  "p53": {
+    "id": "p53",
+    "name": "罗氏先祖配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗沛桥之奶奶，信息待补充",
+    "traits": "",
+    "spouseId": "p52",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p38": {
+    "id": "p38",
+    "name": "罗永金",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "status": "罗沛桥三兄弟之父，罗洁修之兄",
     "traits": "",
     "spouseId": "p39",
-    "parentIds": [],
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
     "deceased": true
   },
   "p39": {
@@ -539,6 +566,87 @@
     "status": "罗沛桥三兄弟之母，信息待补充",
     "traits": "",
     "spouseId": "p38",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p54": {
+    "id": "p54",
+    "name": "罗永清（罗洁修）",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "status": "罗永金之亲弟弟，永字辈，小名罗洁修，罗向平三兄弟之父",
+    "traits": "",
+    "spouseId": "p55",
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "deceased": false
+  },
+  "p55": {
+    "id": "p55",
+    "name": "罗洁修配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗向平三兄弟之母，信息待补充",
+    "traits": "",
+    "spouseId": "p54",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p58": {
+    "id": "p58",
+    "name": "罗永龙",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "status": "罗永清之亲弟弟，永字辈，罗静文之爷爷",
+    "traits": "",
+    "spouseId": "p59",
+    "parentIds": [
+      "p52",
+      "p53"
+    ],
+    "deceased": false
+  },
+  "p59": {
+    "id": "p59",
+    "name": "罗永龙配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗曙光之母，信息待补充",
+    "traits": "",
+    "spouseId": "p58",
+    "parentIds": [],
+    "deceased": false
+  },
+  "p60": {
+    "id": "p60",
+    "name": "罗曙光",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "status": "罗永龙之子，罗静文之父",
+    "traits": "",
+    "spouseId": "p61",
+    "parentIds": [
+      "p58",
+      "p59"
+    ],
+    "deceased": false
+  },
+  "p61": {
+    "id": "p61",
+    "name": "罗曙光配偶",
+    "gender": "female",
+    "birthYear": null,
+    "occupation": "（点击可编辑姓名）",
+    "status": "罗静文之母，信息待补充",
+    "traits": "",
+    "spouseId": "p60",
     "parentIds": [],
     "deceased": false
   },
@@ -575,12 +683,12 @@
     "gender": "male",
     "birthYear": null,
     "occupation": "广州公职人员（处长级）",
-    "status": "罗沛桥大哥之长子，在广州立足，身居高位",
+    "status": "罗洁修之长子，在广州立足，身居高位",
     "traits": "",
     "spouseId": null,
     "parentIds": [
-      "p40",
-      "p41"
+      "p54",
+      "p55"
     ],
     "deceased": false
   },
@@ -590,12 +698,12 @@
     "gender": "male",
     "birthYear": null,
     "occupation": "广州国企高管",
-    "status": "罗沛桥大哥之次子，在广州立足，能力很强",
+    "status": "罗洁修之次子，在广州立足，能力很强",
     "traits": "",
     "spouseId": null,
     "parentIds": [
-      "p40",
-      "p41"
+      "p54",
+      "p55"
     ],
     "deceased": false
   },
@@ -605,12 +713,12 @@
     "gender": "male",
     "birthYear": null,
     "occupation": "广州国企高管",
-    "status": "罗沛桥大哥之三子，在广州立足，能力很强",
+    "status": "罗洁修之三子，在广州立足，能力很强",
     "traits": "",
     "spouseId": null,
     "parentIds": [
-      "p40",
-      "p41"
+      "p54",
+      "p55"
     ],
     "deceased": false
   },
@@ -710,6 +818,21 @@
     "parentIds": [
       "p49",
       "p50"
+    ],
+    "deceased": false
+  },
+  "p57": {
+    "id": "p57",
+    "name": "罗静文",
+    "gender": "male",
+    "birthYear": null,
+    "occupation": "（点击可编辑职业）",
+    "status": "罗曙光之子，罗永龙之孙，罗宇阳称其为文叔（堂叔）",
+    "traits": "",
+    "spouseId": null,
+    "parentIds": [
+      "p60",
+      "p61"
     ],
     "deceased": false
   }
