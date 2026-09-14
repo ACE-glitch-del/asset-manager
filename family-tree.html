@@ -145,6 +145,35 @@ body {
   border-color: #c08080;
 }
 
+/* 同步按钮状态 */
+.sync-btn { position: relative; }
+.sync-btn.syncing { color: var(--accent); border-color: var(--accent); }
+.sync-btn.syncing svg { animation: spin 1s linear infinite; }
+.sync-btn.synced { color: #4a8c5c; border-color: #4a8c5c; }
+.sync-btn.error { color: #a04040; border-color: #d4a0a0; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sync-info {
+  font-size: 13px;
+  color: var(--ink-light);
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  line-height: 1.6;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--ink-light);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
 .btn-sm {
   padding: 5px 12px;
   font-size: 12px;
@@ -1165,6 +1194,10 @@ body {
     <div class="header-subtitle">家族关系管理系统</div>
   </div>
   <div class="header-actions">
+    <button class="btn sync-btn" id="syncBtn" onclick="openSyncSettings()" title="云端同步设置">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <span id="syncStatusText">未同步</span>
+    </button>
     <button class="btn" onclick="exportData()" title="导出家族数据">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <span>导出</span>
@@ -1223,13 +1256,46 @@ body {
   </div>
 </div>
 
+<!-- ===== 云端同步设置弹窗 ===== -->
+<div class="modal-overlay" id="syncModalOverlay" onclick="if(event.target===this)closeSyncSettings()">
+  <div class="modal">
+    <div class="modal-title">云端同步设置</div>
+    <div class="form-group">
+      <label>GitHub Token</label>
+      <input type="password" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxx" class="form-input">
+      <div class="form-hint">Token仅保存在本浏览器，用于读写仓库数据。需有 repo 权限。</div>
+    </div>
+    <div class="form-group">
+      <label>同步状态</label>
+      <div id="syncInfo" class="sync-info">未配置</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSyncSettings()">关闭</button>
+      <button class="btn" onclick="pullFromCloud()">从云端拉取</button>
+      <button class="btn btn-primary" onclick="saveSyncSettings()">保存并同步</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Toast ===== -->
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
 // ===== 数据层 =====
 const STORAGE_KEY = 'family_tree_data';
+const TOKEN_KEY = 'family_tree_github_token';
 const CURRENT_YEAR = 2026;
+
+// GitHub 云端同步配置
+const GITHUB = {
+  owner: 'ACE-glitch-del',
+  repo: 'asset-manager',
+  branch: 'main',
+  dataPath: 'family-tree-data.json'
+};
+
+let syncTimer = null;
+let cloudSha = null; // 云端数据文件的sha，用于更新
 
 let members = {}; // id -> member object
 let selectedId = null;
@@ -1331,6 +1397,180 @@ function getSampleData() {
 // ===== 持久化 =====
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+  // 自动推送到云端（防抖）
+  scheduleCloudPush();
+}
+
+// ===== GitHub 云端同步 =====
+function getGithubToken() {
+  return localStorage.getItem(TOKEN_KEY) || '';
+}
+
+function setGithubToken(token) {
+  if (token) localStorage.setItem(TOKEN_KEY, token);
+  else localStorage.removeItem(TOKEN_KEY);
+}
+
+function updateSyncStatus(state, text) {
+  const btn = document.getElementById('syncBtn');
+  const txt = document.getElementById('syncStatusText');
+  if (!btn || !txt) return;
+  btn.className = 'btn sync-btn ' + state;
+  txt.textContent = text;
+}
+
+function scheduleCloudPush() {
+  if (!getGithubToken()) return;
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    pushCloudData();
+  }, 1500); // 1.5秒防抖
+}
+
+// 从云端拉取数据
+async function fetchCloudData() {
+  const token = getGithubToken();
+  if (!token) return { ok: false, error: '未配置Token' };
+
+  const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.dataPath}?ref=${GITHUB.branch}`;
+  try {
+    const resp = await fetch(url, {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (resp.status === 404) {
+      return { ok: true, data: null, sha: null }; // 文件不存在
+    }
+    if (!resp.ok) {
+      return { ok: false, error: `HTTP ${resp.status}` };
+    }
+    const result = await resp.json();
+    cloudSha = result.sha;
+    // content是base64编码的
+    const content = decodeURIComponent(escape(atob(result.content)));
+    const data = JSON.parse(content);
+    return { ok: true, data: data, sha: result.sha };
+  } catch(e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+// 推送数据到云端
+async function pushCloudData() {
+  const token = getGithubToken();
+  if (!token) return;
+
+  updateSyncStatus('syncing', '同步中…');
+
+  // 如果还没有cloudSha，先获取一下
+  if (!cloudSha) {
+    const check = await fetchCloudData();
+    if (check.ok && check.sha) cloudSha = check.sha;
+  }
+
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(members, null, 2))));
+  const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.dataPath}`;
+  const payload = {
+    message: '同步家族谱数据',
+    content: content,
+    branch: GITHUB.branch
+  };
+  if (cloudSha) payload.sha = cloudSha;
+
+  try {
+    const resp = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.message || `HTTP ${resp.status}`);
+    }
+    const result = await resp.json();
+    cloudSha = result.content.sha;
+    updateSyncStatus('synced', '已同步');
+    return { ok: true };
+  } catch(e) {
+    updateSyncStatus('error', '同步失败');
+    console.error('云端推送失败', e);
+    return { ok: false, error: e.message };
+  }
+}
+
+// 从云端拉取并覆盖本地数据
+async function pullFromCloud() {
+  updateSyncStatus('syncing', '拉取中…');
+  const result = await fetchCloudData();
+  if (!result.ok) {
+    updateSyncStatus('error', '拉取失败');
+    showToast('拉取失败：' + result.error, 'error');
+    return;
+  }
+  if (!result.data) {
+    updateSyncStatus('synced', '已同步');
+    showToast('云端暂无数据', 'info');
+    return;
+  }
+  members = result.data;
+  saveData(); // 保存到本地（会触发推送，但因为数据相同，sha一致不会有问题）
+  renderTree();
+  closePanel();
+  updateSyncStatus('synced', '已同步');
+  showToast('已从云端拉取最新数据', 'success');
+}
+
+// 同步设置弹窗
+function openSyncSettings() {
+  const token = getGithubToken();
+  document.getElementById('githubTokenInput').value = token;
+  const info = document.getElementById('syncInfo');
+  if (token) {
+    info.innerHTML = `Token已配置（${token.substring(0, 6)}…${token.substring(-4)}）<br>仓库：${GITHUB.owner}/${GITHUB.repo}<br>数据文件：${GITHUB.dataPath}`;
+  } else {
+    info.textContent = '未配置Token，数据仅保存在本浏览器。';
+  }
+  document.getElementById('syncModalOverlay').classList.add('active');
+}
+
+function closeSyncSettings() {
+  document.getElementById('syncModalOverlay').classList.remove('active');
+}
+
+function saveSyncSettings() {
+  const token = document.getElementById('githubTokenInput').value.trim();
+  setGithubToken(token);
+  closeSyncSettings();
+  if (token) {
+    updateSyncStatus('syncing', '连接中…');
+    // 先尝试拉取云端数据
+    fetchCloudData().then(result => {
+      if (result.ok && result.data) {
+        // 云端有数据，询问是否覆盖本地
+        if (confirm('云端已有家族数据，是否用云端数据覆盖本地？\n\n点"确定"用云端数据，点"取消"保留本地数据并推送到云端。')) {
+          members = result.data;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+          renderTree();
+          updateSyncStatus('synced', '已同步');
+          showToast('已加载云端数据', 'success');
+        } else {
+          pushCloudData();
+        }
+      } else {
+        // 云端无数据，推送本地数据
+        pushCloudData();
+      }
+    });
+  } else {
+    updateSyncStatus('', '未同步');
+    showToast('已关闭云端同步', 'info');
+  }
 }
 
 function loadData() {
@@ -2181,6 +2421,8 @@ function init() {
     if (e.key === 'Escape') {
       if (document.getElementById('modalOverlay').classList.contains('active')) {
         closeModal();
+      } else if (document.getElementById('syncModalOverlay').classList.contains('active')) {
+        closeSyncSettings();
       } else {
         closePanel();
       }
@@ -2189,6 +2431,27 @@ function init() {
 
   renderStats();
   renderTree();
+
+  // 如果配置了Token，自动从云端拉取最新数据
+  if (getGithubToken()) {
+    updateSyncStatus('syncing', '同步中…');
+    fetchCloudData().then(result => {
+      if (result.ok && result.data) {
+        members = result.data;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+        renderTree();
+        renderStats();
+        updateSyncStatus('synced', '已同步');
+      } else if (result.ok && !result.data) {
+        // 云端无数据，推送本地
+        pushCloudData();
+      } else {
+        updateSyncStatus('error', '同步失败');
+      }
+    });
+  } else {
+    updateSyncStatus('', '未同步');
+  }
 }
 
 init();
