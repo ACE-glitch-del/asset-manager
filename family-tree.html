@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家族谱 · 家族关系管理系统</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+/* ===== 全局重置与变量 ===== */
+:root {
+  --bg: #f3ede2;
+  --bg-paper: #faf6ee;
+  --ink: #2c2416;
+  --ink-light: #6b5d48;
+  --ink-faint: #a89880;
+  --line: #c9b896;
+  --line-strong: #8b7355;
+  --male: #4a6d8c;
+  --male-bg: #e8f0f7;
+  --female: #9c5c7a;
+  --female-bg: #f7e8f0;
+  --accent: #b5452b;
+  --accent-light: #d4715a;
+  --gold: #c9a96e;
+  --shadow: 0 2px 12px rgba(44, 36, 22, 0.08);
+  --shadow-hover: 0 4px 20px rgba(44, 36, 22, 0.15);
+  --radius: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== 顶部导航 ===== */
+.header {
+  background: var(--bg-paper);
+  border-bottom: 2px solid var(--line);
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 4px rgba(44,36,22,0.06);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-seal {
+  width: 36px;
+  height: 36px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+  box-shadow: 0 2px 6px rgba(181,69,43,0.3);
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--ink-faint);
+  letter-spacing: 2px;
+  border-left: 1px solid var(--line);
+  padding-left: 16px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg-paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  border-color: var(--line-strong);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-light);
+  color: #fff;
+}
+
+.btn-danger {
+  background: #fff;
+  border-color: #d4a0a0;
+  color: #a04040;
+}
+
+.btn-danger:hover {
+  background: #fdf0f0;
+  border-color: #c08080;
+}
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+.btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ===== 主内容区 ===== */
+.main {
+  padding: 32px;
+  min-height: calc(100vh - 64px);
+}
+
+.tree-container {
+  background: var(--bg-paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 40px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 500px;
+  box-shadow: inset 0 0 40px rgba(201,184,150,0.1);
+  position: relative;
+}
+
+.tree-container::-webkit-scrollbar {
+  height: 8px;
+}
+.tree-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tree-container::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+
+/* ===== 中心布局：以夫妻为中心 ===== */
+.family-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: max-content;
+  margin: 0 auto;
+  padding: 10px 0;
+}
+
+.family-upper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  width: 100%;
+}
+
+.family-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.family-side-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-light);
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+  padding: 4px 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.family-side-title.luo { color: var(--male); border-color: var(--male); }
+.family-side-title.chen { color: var(--female); border-color: var(--female); }
+
+/* 中心夫妻 */
+.family-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+  position: relative;
+  z-index: 5;
+}
+
+.center-couple {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+}
+
+.center-couple .person {
+  width: 200px;
+  min-height: 110px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 24px rgba(181,69,43,0.18);
+  border-width: 3px;
+}
+
+.center-couple .person:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(181,69,43,0.25);
+}
+
+.center-couple .person-name {
+  font-size: 20px;
+}
+
+.center-couple .couple-link {
+  width: 36px;
+}
+
+.center-couple .couple-link-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+}
+
+.center-label {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 2px;
+  margin-top: 8px;
+  padding: 2px 12px;
+  background: rgba(181,69,43,0.08);
+  border-radius: 10px;
+}
+
+/* 父母层（中心夫妻正上方） */
+.family-parents {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 60px;
+  margin: 0;
+  position: relative;
+}
+
+.parent-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.parent-label {
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  padding: 2px 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.parent-block .couple .person {
+  box-shadow: 0 2px 12px rgba(74,109,140,0.15);
+}
+
+/* 父母到中心的Y型连接线 */
+.connector-yz {
+  display: flex;
+  justify-content: center;
+  height: 32px;
+  position: relative;
+}
+
+.connector-yz::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 2px;
+  background: var(--line-strong);
+}
+
+.connector-yz::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 32px;
+  background: var(--line-strong);
+}
+
+/* 旁系树到父母的连接提示 */
+.side-tree-hint {
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* 核心家庭（顶部高亮） */
+.core-family {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 20px 32px;
+  background: linear-gradient(135deg, rgba(181,69,43,0.04), rgba(201,169,110,0.06));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.core-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 6px;
+  margin-bottom: 14px;
+  padding: 4px 20px;
+  border-bottom: 2px solid var(--accent);
+}
+
+/* 上下连接线 */
+.connector-up {
+  width: 2px;
+  height: 32px;
+  background: var(--line-strong);
+  position: relative;
+}
+
+.connector-up::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 2px;
+  background: var(--line-strong);
+}
+
+.connector-down {
+  width: 2px;
+  height: 28px;
+  background: var(--line-strong);
+}
+
+/* 下方子女 */
+.family-lower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 60px;
+}
+
+.family-lower .tree {
+  margin-top: 0;
+}
+
+.lower-hint {
+  font-size: 12px;
+  color: var(--ink-faint);
+  padding: 16px;
+  font-style: italic;
+}
+
+/* 侧树中的父母节点高亮（连接到中心） */
+.person.parent-of-center {
+  box-shadow: 0 0 0 2px rgba(181,69,43,0.25);
+}
+
+/* ===== 家族树 ===== */
+.tree {
+  display: flex;
+  justify-content: center;
+  min-width: max-content;
+  margin: 0 auto;
+}
+
+.tree ul {
+  padding-top: 28px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  transition: all 0.3s ease;
+}
+
+.tree li {
+  position: relative;
+  padding: 28px 8px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 连接线 - 横线 */
+.tree li::before,
+.tree li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  border-top: 2px solid var(--line-strong);
+  width: 50%;
+  height: 28px;
+}
+
+.tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid var(--line-strong);
+}
+
+/* 独子去掉连接线 */
+.tree li:only-child::before,
+.tree li:only-child::after {
+  display: none;
+}
+.tree li:only-child {
+  padding-top: 0;
+}
+
+/* 第一个和最后一个子节点的圆角 */
+.tree li:first-child::before {
+  border: 0 none;
+}
+.tree li:last-child::after {
+  border: 0 none;
+}
+.tree li:last-child::before {
+  border-right: 2px solid var(--line-strong);
+  border-radius: 0 6px 0 0;
+}
+.tree li:first-child::after {
+  border-radius: 6px 0 0 0;
+}
+
+/* 代际之间的竖线 */
+.tree ul ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border-left: 2px solid var(--line-strong);
+  width: 0;
+  height: 28px;
+}
+
+/* ===== 夫妻节点组 ===== */
+.couple {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.couple-link {
+  width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.couple-link::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed var(--gold);
+  transform: translateY(-50%);
+}
+
+.couple-link-icon {
+  width: 20px;
+  height: 20px;
+  background: var(--bg-paper);
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  font-size: 10px;
+  color: var(--gold);
+}
+
+/* ===== 成员卡片 ===== */
+.person {
+  width: 160px;
+  min-height: 90px;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.person:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.person.male {
+  background: var(--male-bg);
+  border-color: var(--male);
+}
+
+.person.female {
+  background: var(--female-bg);
+  border-color: var(--female);
+}
+
+.person.selected {
+  box-shadow: 0 0 0 3px rgba(181,69,43,0.3), var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.person-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.person-gender-tag {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.person.male .person-gender-tag {
+  background: var(--male);
+  color: #fff;
+}
+
+.person.female .person-gender-tag {
+  background: var(--female);
+  color: #fff;
+}
+
+.person-age {
+  font-size: 12px;
+  color: var(--ink-light);
+  margin-bottom: 2px;
+}
+
+.person-occupation {
+  font-size: 12px;
+  color: var(--ink-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person-deceased {
+  opacity: 0.55;
+  position: relative;
+}
+
+.person-deceased::after {
+  content: '已故';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  color: var(--ink-faint);
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--ink-faint);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.empty-state-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ink-light);
+}
+
+.empty-state-desc {
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* ===== 右侧详情面板 ===== */
+.panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(44, 36, 22, 0.3);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.panel-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: -480px;
+  width: 460px;
+  max-width: 90vw;
+  height: 100vh;
+  background: var(--bg-paper);
+  border-left: 2px solid var(--line);
+  z-index: 201;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 24px rgba(44,36,22,0.1);
+}
+
+.side-panel.active {
+  right: 0;
+}
+
+.panel-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.panel-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-light);
+  transition: all 0.2s;
+}
+
+.panel-close:hover {
+  background: #fff;
+  color: var(--ink);
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+.panel-body::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+
+/* ===== 详情视图 ===== */
+.detail-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.detail-avatar.male { background: var(--male); }
+.detail-avatar.female { background: var(--female); }
+
+.detail-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.detail-meta {
+  font-size: 13px;
+  color: var(--ink-light);
+  margin-bottom: 24px;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.6;
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  min-height: 38px;
+}
+
+.detail-value.empty {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.detail-relations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.relation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.relation-chip:hover {
+  border-color: var(--line-strong);
+  background: var(--bg);
+}
+
+.relation-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.relation-chip .dot.male { background: var(--male); }
+.relation-chip .dot.female { background: var(--female); }
+
+.panel-actions {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.panel-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ===== 表单 ===== */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-light);
+  margin-bottom: 6px;
+}
+
+.form-label .required {
+  color: var(--accent);
+  margin-left: 2px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: 'Noto Sans SC', sans-serif;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(181,69,43,0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-hint {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+
+/* 性别单选 */
+.gender-options {
+  display: flex;
+  gap: 10px;
+}
+
+.gender-option {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.gender-option:hover {
+  border-color: var(--line-strong);
+}
+
+.gender-option.selected.male {
+  border-color: var(--male);
+  background: var(--male-bg);
+  color: var(--male);
+  font-weight: 500;
+}
+
+.gender-option.selected.female {
+  border-color: var(--female);
+  background: var(--female-bg);
+  color: var(--female);
+  font-weight: 500;
+}
+
+/* 多选父母 */
+.parent-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.parent-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.parent-checkbox:hover {
+  background: var(--bg);
+}
+
+.parent-checkbox.checked {
+  background: var(--male-bg);
+  border-color: var(--male);
+}
+
+.parent-checkbox input {
+  margin: 0;
+}
+
+/* ===== 统计栏 ===== */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: var(--bg-paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 140px;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.stat-icon.total { background: #e8e0d0; color: var(--ink-light); }
+.stat-icon.male { background: var(--male-bg); color: var(--male); }
+.stat-icon.female { background: var(--female-bg); color: var(--female); }
+.stat-icon.gen { background: #f0e8d8; color: var(--gold); }
+
+.stat-number {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 2px;
+}
+
+/* ===== 确认弹窗 ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(44, 36, 22, 0.4);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--bg-paper);
+  border-radius: 12px;
+  padding: 28px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 8px 40px rgba(44,36,22,0.2);
+  transform: scale(0.95);
+  transition: transform 0.2s;
+}
+
+.modal-overlay.active .modal {
+  transform: scale(1);
+}
+
+.modal-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.modal-desc {
+  font-size: 14px;
+  color: var(--ink-light);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ===== Toast 提示 ===== */
+.toast-container {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.toast {
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
+  white-space: nowrap;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* ===== 底部信息 ===== */
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  letter-spacing: 1px;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .header { padding: 0 16px; height: 56px; }
+  .logo { font-size: 18px; letter-spacing: 2px; }
+  .header-subtitle { display: none; }
+  .header-actions .btn span { display: none; }
+  .header-actions .btn { padding: 8px 10px; }
+  .main { padding: 16px; }
+  .tree-container { padding: 20px 16px; }
+  .person { width: 130px; min-height: 76px; padding: 10px; }
+  .person-name { font-size: 14px; }
+  .person-age, .person-occupation { font-size: 11px; }
+  .stats-bar { gap: 8px; }
+  .stat-card { min-width: 100px; padding: 8px 12px; }
+  .stat-number { font-size: 18px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部导航 ===== -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">
+      <div class="logo-seal">谱</div>
+      家族谱
+    </div>
+    <div class="header-subtitle">家族关系管理系统</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="exportData()" title="导出家族数据">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span>导出</span>
+    </button>
+    <button class="btn" onclick="document.getElementById('importFile').click()" title="导入家族数据">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>导入</span>
+    </button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn" onclick="resetSample()" title="重置为示例数据">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      <span>示例</span>
+    </button>
+    <button class="btn btn-primary" onclick="openAddPanel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      添加成员
+    </button>
+  </div>
+</header>
+
+<!-- ===== 主内容 ===== -->
+<main class="main">
+  <!-- 统计栏 -->
+  <div class="stats-bar" id="statsBar"></div>
+
+  <!-- 家族树 -->
+  <div class="tree-container" id="treeContainer">
+    <div class="tree" id="tree"></div>
+  </div>
+</main>
+
+<div class="footer">数据保存在本地浏览器中 · 建议定期导出备份</div>
+
+<!-- ===== 右侧面板 ===== -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<aside class="side-panel" id="sidePanel">
+  <div class="panel-header">
+    <div class="panel-title" id="panelTitle">成员详情</div>
+    <button class="panel-close" onclick="closePanel()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-actions" id="panelActions"></div>
+</aside>
+
+<!-- ===== 确认弹窗 ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">确认操作</div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" id="modalConfirmBtn">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ===== 数据层 =====
+const STORAGE_KEY = 'family_tree_data';
+const CURRENT_YEAR = 2026;
+
+let members = {}; // id -> member object
+let selectedId = null;
+let panelMode = 'detail'; // 'detail' | 'add' | 'edit'
+let editingId = null;
+
+// 家族数据
+function getSampleData() {
+  return {
+    // ===== 第一代 - 爷爷奶奶 =====
+    'p1': { id:'p1', name:'罗沛桥', gender:'male', birthYear:1940, occupation:'退休', status:'身体健康，居住四会市地豆镇，三兄弟中排行第二', traits:'', spouseId:'p2', parentIds:['p38','p39'], deceased:false },
+    'p2': { id:'p2', name:'莫秋妹', gender:'female', birthYear:1943, occupation:'家庭主妇', status:'身体健康，居住四会市地豆镇东平村营脚', traits:'慈祥善良，勤劳朴实，子孙满堂', spouseId:'p1', parentIds:[], deceased:false },
+
+    // ===== 第二代 - 三兄弟 =====
+    // 老大 罗海明一家
+    'p3': { id:'p3', name:'罗海明', gender:'male', birthYear:null, occupation:'大伯（长子）', status:'罗沛桥、莫秋妹长子，罗海清、罗海华之兄', traits:'', spouseId:'p4', parentIds:['p1','p2'], deceased:false },
+    'p4': { id:'p4', name:'大伯母', gender:'female', birthYear:null, occupation:'大伯母（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p3', parentIds:[], deceased:false },
+
+    // 老二 罗海清一家
+    'p5': { id:'p5', name:'罗海清', gender:'male', birthYear:null, occupation:'二伯（次子）', status:'罗沛桥、莫秋妹次子，罗海明之弟、罗海华之兄', traits:'', spouseId:'p6', parentIds:['p1','p2'], deceased:false },
+    'p6': { id:'p6', name:'二伯母', gender:'female', birthYear:null, occupation:'二伯母（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p5', parentIds:[], deceased:false },
+
+    // 老三 罗海华一家（用户父母）
+    'p7': { id:'p7', name:'罗海华', gender:'male', birthYear:1968, occupation:'在职', status:'居住四会市城中街道城南', traits:'', spouseId:'p8', parentIds:['p1','p2'], deceased:false },
+    'p8': { id:'p8', name:'张伟霞', gender:'female', birthYear:1973, occupation:'幼儿园高级教师', status:'在职，临近退休，关注教育政策', traits:'温柔耐心，专业过硬，重视子女教育', spouseId:'p7', parentIds:[], deceased:false },
+
+    // ===== 第三代 - 罗海明子女（1儿3女）=====
+    // 大女儿：罗嘉敏（前妻所生，比罗嘉鳞大）
+    'p11': { id:'p11', name:'罗嘉敏', gender:'female', birthYear:1985, occupation:'在职', status:'罗海明与前妻所生之长女，罗嘉鳞同母姐姐，居住四会市大沙镇大布村大沙园', traits:'', spouseId:null, parentIds:['p3'], deceased:false },
+    // 儿子：罗嘉鳞（前妻所生）
+    'p9': { id:'p9', name:'罗嘉鳞', gender:'male', birthYear:null, occupation:'在职', status:'罗海明与前妻所生之子，罗宇阳堂哥，育有两子一女', traits:'', spouseId:'p10', parentIds:['p3'], deceased:false },
+    'p10': { id:'p10', name:'罗嘉鳞妻子', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p9', parentIds:[], deceased:false },
+    // 私生女：罗嘉怡（在读大学）
+    'p13': { id:'p13', name:'罗嘉怡', gender:'female', birthYear:null, occupation:'在读大学生', status:'罗海明私生女，目前在读大学', traits:'', spouseId:null, parentIds:['p3'], deceased:false },
+    // 小女儿：罗嘉盈（现任所生，在读大学）
+    'p12': { id:'p12', name:'罗嘉盈', gender:'female', birthYear:2004, occupation:'在读大学生', status:'罗海明与现任妻子所生之小女，目前在读大学', traits:'', spouseId:null, parentIds:['p3','p4'], deceased:false },
+
+    // ===== 第三代 - 罗海清子女（1儿1女，均已婚）=====
+    'p14': { id:'p14', name:'罗海清儿子', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗海清之子，已婚，育有三女一子', traits:'', spouseId:'p15', parentIds:['p5','p6'], deceased:false },
+    'p15': { id:'p15', name:'罗海清儿媳', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p14', parentIds:[], deceased:false },
+    'p16': { id:'p16', name:'罗海清女儿', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗海清之女，已婚', traits:'', spouseId:'p17', parentIds:['p5','p6'], deceased:false },
+    'p17': { id:'p17', name:'罗海清女婿', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p16', parentIds:[], deceased:false },
+
+    // ===== 第三代 - 罗海华子女 =====
+    'p18': { id:'p18', name:'罗宇阳', gender:'male', birthYear:1996, occupation:'四会市消防救援大队', status:'已婚，2025年9月23日登记结婚', traits:'', spouseId:'p19', parentIds:['p7','p8'], deceased:false },
+    'p19': { id:'p19', name:'陈倩仪', gender:'female', birthYear:2000, occupation:'在职', status:'已婚，2025年9月23日与罗宇阳登记结婚，陈建军之女', traits:'', spouseId:'p18', parentIds:['p36','p37'], deceased:false },
+
+    // ===== 第四代 - 罗嘉鳞子女（儿、女、儿）=====
+    'p20': { id:'p20', name:'罗嘉鳞长子', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗嘉鳞之长子，信息待补充', traits:'', spouseId:null, parentIds:['p9','p10'], deceased:false },
+    'p21': { id:'p21', name:'罗嘉鳞女儿', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗嘉鳞之女，信息待补充', traits:'', spouseId:null, parentIds:['p9','p10'], deceased:false },
+    'p22': { id:'p22', name:'罗嘉鳞次子', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗嘉鳞之次子，信息待补充', traits:'', spouseId:null, parentIds:['p9','p10'], deceased:false },
+
+    // ===== 第四代 - 罗海清儿子的子女（3女1儿）=====
+    'p23': { id:'p23', name:'罗海清孙女1', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗海清之孙女，信息待补充', traits:'', spouseId:null, parentIds:['p14','p15'], deceased:false },
+    'p24': { id:'p24', name:'罗海清孙女2', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗海清之孙女，信息待补充', traits:'', spouseId:null, parentIds:['p14','p15'], deceased:false },
+    'p25': { id:'p25', name:'罗海清孙女3', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗海清之孙女，信息待补充', traits:'', spouseId:null, parentIds:['p14','p15'], deceased:false },
+    'p26': { id:'p26', name:'罗海清孙子', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗海清之孙子，信息待补充', traits:'', spouseId:null, parentIds:['p14','p15'], deceased:false },
+
+    // ===== 陈家（陈倩仪家族）=====
+    // 陈家第一代 - 六姊妹的父母
+    'p27': { id:'p27', name:'陈家爷爷', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'育有六姊妹（五男一女），信息待补充', traits:'', spouseId:'p28', parentIds:[], deceased:false },
+    'p28': { id:'p28', name:'陈家奶奶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p27', parentIds:[], deceased:false },
+
+    // 陈家第二代 - 六姊妹（五男一女，从大到小）
+    'p29': { id:'p29', name:'陈老大', gender:'male', birthYear:null, occupation:'老中医', status:'陈家长子，性格随和，喜欢钻研药材泡酒', traits:'', spouseId:null, parentIds:['p27','p28'], deceased:false },
+    'p30': { id:'p30', name:'陈老二', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈家次子，信息待补充', traits:'', spouseId:null, parentIds:['p27','p28'], deceased:false },
+    'p31': { id:'p31', name:'陈老三', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈家三子，陈建军之父', traits:'', spouseId:'p32', parentIds:['p27','p28'], deceased:false },
+    'p32': { id:'p32', name:'陈老三妻子', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈建军之母，信息待补充', traits:'', spouseId:'p31', parentIds:[], deceased:false },
+    'p33': { id:'p33', name:'陈老四', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈家四子，信息待补充', traits:'', spouseId:null, parentIds:['p27','p28'], deceased:false },
+    'p34': { id:'p34', name:'陈老五', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈家五子，身形偏瘦，为人精干，做事有能力', traits:'', spouseId:null, parentIds:['p27','p28'], deceased:false },
+    'p35': { id:'p35', name:'陈老六', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈家六女（唯一的女儿），信息待补充', traits:'', spouseId:null, parentIds:['p27','p28'], deceased:false },
+
+    // 陈家第三代 - 陈建军一家
+    'p36': { id:'p36', name:'陈建军', gender:'male', birthYear:null, occupation:'在职', status:'陈老三之子，陈倩仪之父', traits:'', spouseId:'p37', parentIds:['p31','p32'], deceased:false },
+    'p37': { id:'p37', name:'陈建军妻子', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'陈倩仪之母，信息待补充', traits:'', spouseId:'p36', parentIds:[], deceased:false },
+
+    // ===== 罗氏先祖（罗沛桥三兄弟的父母）=====
+    'p38': { id:'p38', name:'罗氏先祖', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥三兄弟之父，信息待补充', traits:'', spouseId:'p39', parentIds:[], deceased:true },
+    'p39': { id:'p39', name:'罗氏先祖配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥三兄弟之母，信息待补充', traits:'', spouseId:'p38', parentIds:[], deceased:false },
+
+    // ===== 罗沛桥大哥一家（长子，已故，会城中学校长，家族门面）=====
+    'p40': { id:'p40', name:'罗沛桥大哥', gender:'male', birthYear:null, occupation:'原四会会城中学校长', status:'三兄弟中排行老大，已故，家族中混得最好，是家族最大门面', traits:'', spouseId:'p41', parentIds:['p38','p39'], deceased:true },
+    'p41': { id:'p41', name:'大哥配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗沛桥大哥之妻，尚健在', traits:'', spouseId:'p40', parentIds:[], deceased:false },
+    'p42': { id:'p42', name:'罗向平', gender:'male', birthYear:null, occupation:'广州公职人员（处长级）', status:'罗沛桥大哥之长子，在广州立足，身居高位', traits:'', spouseId:null, parentIds:['p40','p41'], deceased:false },
+    'p43': { id:'p43', name:'罗向东', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗沛桥大哥之次子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p40','p41'], deceased:false },
+    'p44': { id:'p44', name:'罗向文', gender:'male', birthYear:null, occupation:'广州国企高管', status:'罗沛桥大哥之三子，在广州立足，能力很强', traits:'', spouseId:null, parentIds:['p40','p41'], deceased:false },
+
+    // ===== 罗沛桥三弟一家（三子，健在）=====
+    'p45': { id:'p45', name:'罗沛桥三弟', gender:'male', birthYear:null, occupation:'（点击可编辑姓名）', status:'三兄弟中排行第三，尚健在，身体还可以', traits:'', spouseId:'p46', parentIds:['p38','p39'], deceased:false },
+    'p46': { id:'p46', name:'三弟配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'信息待补充', traits:'', spouseId:'p45', parentIds:[], deceased:false },
+    'p47': { id:'p47', name:'罗洁珍', gender:'female', birthYear:null, occupation:'（点击可编辑职业）', status:'罗沛桥三弟之大女儿', traits:'', spouseId:null, parentIds:['p45','p46'], deceased:false },
+    'p48': { id:'p48', name:'罗洁平', gender:'female', birthYear:null, occupation:'（点击可编辑职业）', status:'罗沛桥三弟之二女儿', traits:'', spouseId:null, parentIds:['p45','p46'], deceased:false },
+    'p49': { id:'p49', name:'罗杰豪', gender:'male', birthYear:null, occupation:'在职', status:'罗沛桥三弟之子，育有一子罗逸骏', traits:'', spouseId:'p50', parentIds:['p45','p46'], deceased:false },
+    'p50': { id:'p50', name:'罗杰豪配偶', gender:'female', birthYear:null, occupation:'（点击可编辑姓名）', status:'罗逸骏之母，信息待补充', traits:'', spouseId:'p49', parentIds:[], deceased:false },
+    'p51': { id:'p51', name:'罗逸骏', gender:'male', birthYear:null, occupation:'大学生', status:'罗杰豪之子，刚考上大学，外貌气质很好，学习成绩优异，大有可为', traits:'', spouseId:null, parentIds:['p49','p50'], deceased:false }
+  };
+}
+
+// ===== 持久化 =====
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+}
+
+function loadData() {
+  const defaultData = getSampleData();
+  const raw = localStorage.getItem(STORAGE_KEY);
+
+  if (raw) {
+    try {
+      const userData = JSON.parse(raw);
+      // 合并新成员：保留用户已有的修改，只添加默认数据中新增的成员
+      let added = 0;
+      for (const id in defaultData) {
+        if (!userData[id]) {
+          userData[id] = defaultData[id];
+          added++;
+        }
+      }
+      members = userData;
+      if (added > 0) saveData(); // 有新成员才保存
+      return;
+    } catch(e) {
+      console.error('数据解析失败，使用默认数据', e);
+    }
+  }
+
+  // 首次打开或数据损坏，用默认数据
+  members = defaultData;
+  saveData();
+}
+
+// ===== 工具函数 =====
+function genId() {
+  return 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+}
+
+function calcAge(birthYear) {
+  if (!birthYear) return null;
+  return CURRENT_YEAR - parseInt(birthYear);
+}
+
+function getMember(id) {
+  return members[id] || null;
+}
+
+function getChildren(parentId) {
+  return Object.values(members).filter(m => m.parentIds && m.parentIds.includes(parentId));
+}
+
+function getSpouse(member) {
+  if (!member || !member.spouseId) return null;
+  return getMember(member.spouseId);
+}
+
+// 找到家族根节点（没有父母且有子女或配偶的最老一代）
+function getRootMembers() {
+  const all = Object.values(members);
+  if (all.length === 0) return [];
+  // 没有父母的成员
+  const noParents = all.filter(m => !m.parentIds || m.parentIds.length === 0);
+  // 优先选有子女的
+  const withChildren = noParents.filter(m => getChildren(m.id).length > 0);
+  if (withChildren.length > 0) return withChildren;
+  return noParents;
+}
+
+// 判断一个成员是否已经在树中被渲染（作为某人的配偶或子女）
+function isRenderedAsDependent(memberId, renderedSet) {
+  return renderedSet.has(memberId);
+}
+
+// ===== 树状图渲染 =====
+// 中心人物配置
+const CENTER_MALE_ID = 'p18';   // 罗宇阳
+const CENTER_FEMALE_ID = 'p19'; // 陈倩仪
+
+function renderTree() {
+  const treeEl = document.getElementById('tree');
+  const all = Object.values(members);
+
+  if (all.length === 0) {
+    treeEl.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="empty-state-title">家族谱空空如也</div>
+        <div class="empty-state-desc">点击右上角"添加成员"，开始记录你的家族故事</div>
+        <button class="btn btn-primary" onclick="openAddPanel()">添加第一位成员</button>
+      </div>`;
+    return;
+  }
+
+  const centerMale = getMember(CENTER_MALE_ID);
+  const centerFemale = getMember(CENTER_FEMALE_ID);
+
+  // 如果中心人物不存在，回退到传统单树布局
+  if (!centerMale || !centerFemale) {
+    renderTraditionalTree(treeEl, all);
+    bindPersonClicks(treeEl);
+    return;
+  }
+
+  // ===== 渲染罗氏完整家族树（根：罗氏先祖 p38）=====
+  const luoRoot = getMember('p38');
+  const luoRendered = new Set();
+  let luoHtml = '<ul>';
+  if (luoRoot) luoHtml += renderNode(luoRoot, luoRendered, []);
+  // 罗氏中未被根节点覆盖的成员（如嫁入但配偶不在树中的情况）
+  all.filter(m => !luoRendered.has(m.id) && isLuoMember(m)).forEach(m => {
+    luoHtml += renderNode(m, luoRendered, []);
+  });
+  luoHtml += '</ul>';
+
+  // ===== 渲染陈氏完整家族树 =====
+  const chenRoot = getMember('p27');
+  const chenRendered = new Set();
+  let chenHtml = '<ul>';
+  if (chenRoot) chenHtml += renderNode(chenRoot, chenRendered, []);
+  all.filter(m => !chenRendered.has(m.id) && isChenMember(m)).forEach(m => {
+    chenHtml += renderNode(m, chenRendered, []);
+  });
+  chenHtml += '</ul>';
+
+  // ===== 顶部核心家庭 =====
+  const coreHtml = `
+    <div class="core-family">
+      <div class="core-title">核 心 家 庭</div>
+      <div class="center-couple">
+        ${renderPersonCard(centerMale)}
+        <div class="couple-link"><div class="couple-link-icon">囍</div></div>
+        ${renderPersonCard(centerFemale)}
+      </div>
+    </div>
+  `;
+
+  treeEl.innerHTML = `
+    <div class="family-chart">
+      ${coreHtml}
+      <div class="family-upper">
+        <div class="family-side">
+          <div class="family-side-title luo">罗 氏 家 族</div>
+          <div class="tree">${luoHtml}</div>
+        </div>
+        <div class="family-side">
+          <div class="family-side-title chen">陈 氏 家 族</div>
+          <div class="tree">${chenHtml}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  bindPersonClicks(treeEl);
+}
+
+// 判断是否罗氏成员（罗氏先祖 p38 的后代及其配偶）
+function isLuoMember(m) {
+  function isDescendant(id, ancestorId) {
+    const m2 = getMember(id);
+    if (!m2 || !m2.parentIds || m2.parentIds.length === 0) return false;
+    if (m2.parentIds.includes(ancestorId)) return true;
+    return m2.parentIds.some(pid => isDescendant(pid, ancestorId));
+  }
+  if (isDescendant(m.id, 'p38')) return true;
+  if (m.spouseId && isDescendant(m.spouseId, 'p38')) return true;
+  return false;
+}
+
+// 判断是否陈氏成员（陈家爷爷 p27 的后代及其配偶）
+function isChenMember(m) {
+  function isDescendant(id, ancestorId) {
+    const m2 = getMember(id);
+    if (!m2 || !m2.parentIds || m2.parentIds.length === 0) return false;
+    if (m2.parentIds.includes(ancestorId)) return true;
+    return m2.parentIds.some(pid => isDescendant(pid, ancestorId));
+  }
+  if (isDescendant(m.id, 'p27')) return true;
+  if (m.spouseId && isDescendant(m.spouseId, 'p27')) return true;
+  return false;
+}
+
+// 传统布局（中心人物不存在时回退）
+function renderTraditionalTree(treeEl, all) {
+  const rendered = new Set();
+  const roots = getRootMembers();
+  let html = '<ul>';
+  roots.forEach(root => {
+    if (rendered.has(root.id)) return;
+    html += renderNode(root, rendered, []);
+  });
+  const unrendered = all.filter(m => !rendered.has(m.id));
+  unrendered.forEach(m => {
+    html += renderNode(m, rendered, []);
+  });
+  html += '</ul>';
+  treeEl.innerHTML = html;
+}
+
+function bindPersonClicks(container) {
+  container.querySelectorAll('.person').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = el.dataset.id;
+      selectMember(id);
+    });
+  });
+}
+
+function renderNode(member, rendered, excludeIds) {
+  if (rendered.has(member.id)) return '';
+  rendered.add(member.id);
+
+  const spouse = getSpouse(member);
+  if (spouse) rendered.add(spouse.id);
+
+  // 获取子女（合并夫妻双方的子女）
+  let children = getChildren(member.id);
+  if (spouse) {
+    const spouseChildren = getChildren(spouse.id);
+    spouseChildren.forEach(sc => {
+      if (!children.find(c => c.id === sc.id)) children.push(sc);
+    });
+  }
+  // 排除指定ID（中心人物）
+  if (excludeIds && excludeIds.length > 0) {
+    children = children.filter(c => !excludeIds.includes(c.id));
+  }
+  // 按出生年份排序
+  children.sort((a, b) => (a.birthYear || 9999) - (b.birthYear || 9999));
+
+  let html = '<li>';
+
+  // 夫妻节点
+  html += '<div class="couple">';
+  html += renderPersonCard(member);
+  if (spouse) {
+    html += '<div class="couple-link"><div class="couple-link-icon">囍</div></div>';
+    html += renderPersonCard(spouse);
+  }
+  html += '</div>';
+
+  // 子女
+  if (children.length > 0) {
+    html += '<ul>';
+    children.forEach(child => {
+      html += renderNode(child, rendered, excludeIds);
+    });
+    html += '</ul>';
+  }
+
+  html += '</li>';
+  return html;
+}
+
+function renderPersonCard(member) {
+  const age = calcAge(member.birthYear);
+  const ageText = age ? age + '岁' : '年龄未知';
+  const deceasedClass = member.deceased ? ' person-deceased' : '';
+  const selectedClass = selectedId === member.id ? ' selected' : '';
+  const genderText = member.gender === 'male' ? '男' : '女';
+
+  // 判断是否为中心人物的父母（高亮）
+  const centerMale = getMember(CENTER_MALE_ID);
+  const centerFemale = getMember(CENTER_FEMALE_ID);
+  let parentClass = '';
+  if (centerMale && (centerMale.parentIds || []).includes(member.id)) parentClass = ' parent-of-center';
+  if (centerFemale && (centerFemale.parentIds || []).includes(member.id)) parentClass = ' parent-of-center';
+
+  return `
+    <div class="person ${member.gender}${deceasedClass}${selectedClass}${parentClass}" data-id="${member.id}">
+      <div class="person-name">
+        ${escapeHtml(member.name)}
+        <span class="person-gender-tag">${genderText}</span>
+      </div>
+      <div class="person-age">${ageText}${member.birthYear ? ' · ' + member.birthYear + '年生' : ''}</div>
+      <div class="person-occupation">${escapeHtml(member.occupation || '未填写职业')}</div>
+    </div>`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===== 统计栏 =====
+function renderStats() {
+  const all = Object.values(members);
+  const maleCount = all.filter(m => m.gender === 'male').length;
+  const femaleCount = all.filter(m => m.gender === 'female').length;
+
+  // 计算代数
+  let maxGen = 0;
+  all.forEach(m => {
+    let gen = 1;
+    let current = m;
+    const visited = new Set();
+    while (current.parentIds && current.parentIds.length > 0) {
+      if (visited.has(current.id)) break;
+      visited.add(current.id);
+      const parent = getMember(current.parentIds[0]);
+      if (!parent) break;
+      current = parent;
+      gen++;
+    }
+    maxGen = Math.max(maxGen, gen);
+  });
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div>
+        <div class="stat-number">${all.length}</div>
+        <div class="stat-label">家族成员</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon male">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="14" r="5"/><path d="M19 5l-5.5 5.5"/><path d="M19 5h-5"/><path d="M19 5v5"/></svg>
+      </div>
+      <div>
+        <div class="stat-number">${maleCount}</div>
+        <div class="stat-label">男性</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon female">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="5"/><path d="M12 14v7"/><path d="M9 18h6"/></svg>
+      </div>
+      <div>
+        <div class="stat-number">${femaleCount}</div>
+        <div class="stat-label">女性</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon gen">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="stat-number">${maxGen}</div>
+        <div class="stat-label">世代传承</div>
+      </div>
+    </div>`;
+}
+
+// ===== 面板控制 =====
+function openPanel() {
+  document.getElementById('panelOverlay').classList.add('active');
+  document.getElementById('sidePanel').classList.add('active');
+}
+
+function closePanel() {
+  document.getElementById('panelOverlay').classList.remove('active');
+  document.getElementById('sidePanel').classList.remove('active');
+  panelMode = 'detail';
+  editingId = null;
+  selectedId = null;
+  renderTree();
+}
+
+function selectMember(id) {
+  selectedId = id;
+  panelMode = 'detail';
+  editingId = null;
+  renderDetailPanel(id);
+  renderTree();
+  openPanel();
+}
+
+// ===== 详情面板 =====
+function renderDetailPanel(id) {
+  const m = getMember(id);
+  if (!m) return;
+
+  document.getElementById('panelTitle').textContent = '成员详情';
+
+  const age = calcAge(m.birthYear);
+  const spouse = getSpouse(m);
+  const children = getChildren(id);
+  if (spouse) {
+    getChildren(spouse.id).forEach(sc => {
+      if (!children.find(c => c.id === sc.id)) children.push(sc);
+    });
+  }
+  children.sort((a, b) => (a.birthYear || 9999) - (b.birthYear || 9999));
+
+  const parents = (m.parentIds || []).map(pid => getMember(pid)).filter(Boolean);
+
+  const avatarText = m.name.charAt(0);
+  const genderText = m.gender === 'male' ? '男' : '女';
+
+  let relationsHtml = '';
+  if (spouse) {
+    relationsHtml += `<div class="relation-chip" onclick="selectMember('${spouse.id}')">
+      <span class="dot ${spouse.gender}"></span>配偶：${escapeHtml(spouse.name)}
+    </div>`;
+  }
+  parents.forEach(p => {
+    relationsHtml += `<div class="relation-chip" onclick="selectMember('${p.id}')">
+      <span class="dot ${p.gender}"></span>${p.gender === 'male' ? '父亲' : '母亲'}：${escapeHtml(p.name)}
+    </div>`;
+  });
+  children.forEach(c => {
+    relationsHtml += `<div class="relation-chip" onclick="selectMember('${c.id}')">
+      <span class="dot ${c.gender}"></span>${c.gender === 'male' ? '儿子' : '女儿'}：${escapeHtml(c.name)}
+    </div>`;
+  });
+
+  document.getElementById('panelBody').innerHTML = `
+    <div style="text-align:center; margin-bottom:24px;">
+      <div class="detail-avatar ${m.gender}" style="margin:0 auto 12px;">${avatarText}</div>
+      <div class="detail-name">${escapeHtml(m.name)} ${m.deceased ? '<span style="font-size:14px;color:var(--ink-faint);">（已故）</span>' : ''}</div>
+      <div class="detail-meta">${genderText} · ${age ? age + '岁' : '年龄未知'}${m.birthYear ? ' · ' + m.birthYear + '年出生' : ''}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">职业 / 身份</div>
+      <div class="detail-value ${m.occupation ? '' : 'empty'}">${escapeHtml(m.occupation) || '未填写'}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">基本情况</div>
+      <div class="detail-value ${m.status ? '' : 'empty'}">${escapeHtml(m.status) || '未填写'}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">性格特点</div>
+      <div class="detail-value ${m.traits ? '' : 'empty'}">${escapeHtml(m.traits) || '未填写'}</div>
+    </div>
+
+    ${relationsHtml ? `
+    <div class="detail-section">
+      <div class="detail-label">家庭关系</div>
+      <div class="detail-relations">${relationsHtml}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('panelActions').innerHTML = `
+    <button class="btn btn-danger btn-sm" onclick="confirmDelete('${id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      删除
+    </button>
+    <button class="btn btn-primary" onclick="openEditPanel('${id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      编辑信息
+    </button>
+  `;
+}
+
+// ===== 添加/编辑表单 =====
+function openAddPanel() {
+  panelMode = 'add';
+  editingId = null;
+  selectedId = null;
+  document.getElementById('panelTitle').textContent = '添加成员';
+  renderForm(null);
+  openPanel();
+}
+
+function openEditPanel(id) {
+  panelMode = 'edit';
+  editingId = id;
+  selectedId = id;
+  document.getElementById('panelTitle').textContent = '编辑成员';
+  renderForm(getMember(id));
+}
+
+function renderForm(member) {
+  const isEdit = !!member;
+  const m = member || { name:'', gender:'male', birthYear:'', occupation:'', status:'', traits:'', spouseId:null, parentIds:[], deceased:false };
+
+  // 配偶候选（排除自己和已有配偶的人）
+  const spouseOptions = Object.values(members)
+    .filter(p => p.id !== m.id && !p.spouseId)
+    .sort((a, b) => (a.birthYear || 9999) - (b.birthYear || 9999));
+
+  // 父母候选（排除自己、自己的子女、自己的配偶）
+  const childIds = new Set();
+  function collectChildren(pid) {
+    getChildren(pid).forEach(c => {
+      childIds.add(c.id);
+      collectChildren(c.id);
+    });
+  }
+  if (isEdit) collectChildren(m.id);
+
+  const parentOptions = Object.values(members)
+    .filter(p => p.id !== m.id && !childIds.has(p.id) && p.id !== m.spouseId)
+    .sort((a, b) => (a.birthYear || 9999) - (b.birthYear || 9999));
+
+  const selectedParents = m.parentIds || [];
+
+  document.getElementById('panelBody').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">姓名<span class="required">*</span></label>
+      <input type="text" class="form-input" id="f_name" value="${escapeHtml(m.name)}" placeholder="请输入姓名">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">性别<span class="required">*</span></label>
+      <div class="gender-options">
+        <div class="gender-option male ${m.gender === 'male' ? 'selected' : ''}" onclick="selectGender('male')">男</div>
+        <div class="gender-option female ${m.gender === 'female' ? 'selected' : ''}" onclick="selectGender('female')">女</div>
+      </div>
+      <input type="hidden" id="f_gender" value="${m.gender}">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">出生年份</label>
+        <input type="number" class="form-input" id="f_birthYear" value="${m.birthYear || ''}" placeholder="如 1970" min="1900" max="2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">状态</label>
+        <div class="gender-options">
+          <div class="gender-option ${!m.deceased ? 'selected male' : ''}" onclick="selectDeceased(false)">在世</div>
+          <div class="gender-option ${m.deceased ? 'selected female' : ''}" onclick="selectDeceased(true)">已故</div>
+        </div>
+        <input type="hidden" id="f_deceased" value="${m.deceased ? 'true' : 'false'}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">职业 / 身份</label>
+      <input type="text" class="form-input" id="f_occupation" value="${escapeHtml(m.occupation)}" placeholder="如 教师、工程师、退休">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">基本情况</label>
+      <textarea class="form-textarea" id="f_status" placeholder="健康状况、居住地、生活状态等">${escapeHtml(m.status)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">性格特点</label>
+      <textarea class="form-textarea" id="f_traits" placeholder="性格、爱好、特长、趣事等">${escapeHtml(m.traits)}</textarea>
+    </div>
+
+    ${spouseOptions.length > 0 ? `
+    <div class="form-group">
+      <label class="form-label">配偶</label>
+      <select class="form-select" id="f_spouseId">
+        <option value="">无</option>
+        ${spouseOptions.map(s => `<option value="${s.id}" ${m.spouseId === s.id ? 'selected' : ''}>${escapeHtml(s.name)}（${s.gender === 'male' ? '男' : '女'}${s.birthYear ? ' · ' + s.birthYear : ''}）</option>`).join('')}
+      </select>
+      <div class="form-hint">选择后将自动建立夫妻关系</div>
+    </div>` : ''}
+
+    ${parentOptions.length > 0 ? `
+    <div class="form-group">
+      <label class="form-label">父母（可多选）</label>
+      <div class="parent-checkboxes" id="f_parentCheckboxes">
+        ${parentOptions.map(p => `
+          <label class="parent-checkbox ${selectedParents.includes(p.id) ? 'checked' : ''}">
+            <input type="checkbox" value="${p.id}" ${selectedParents.includes(p.id) ? 'checked' : ''} onchange="this.closest('.parent-checkbox').classList.toggle('checked', this.checked)">
+            ${escapeHtml(p.name)}（${p.gender === 'male' ? '男' : '女'}）
+          </label>
+        `).join('')}
+      </div>
+      <div class="form-hint">选择该成员的父母，用于构建家族树层级</div>
+    </div>` : `
+    <div class="form-group">
+      <label class="form-label">父母</label>
+      <div class="form-hint" style="padding:10px 0;">暂无可选的长辈成员。该成员将作为家族第一代（根节点）。</div>
+    </div>`}
+  `;
+
+  document.getElementById('panelActions').innerHTML = `
+    <button class="btn" onclick="${isEdit ? `selectMember('${m.id}')` : 'closePanel()'}">取消</button>
+    <button class="btn btn-primary" onclick="saveForm()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      ${isEdit ? '保存修改' : '确认添加'}
+    </button>
+  `;
+}
+
+function selectGender(gender) {
+  document.getElementById('f_gender').value = gender;
+  document.querySelectorAll('.gender-option').forEach(el => {
+    if (el.textContent === '男' || el.textContent === '女') {
+      const g = el.textContent === '男' ? 'male' : 'female';
+      el.classList.toggle('selected', g === gender);
+    }
+  });
+}
+
+function selectDeceased(deceased) {
+  document.getElementById('f_deceased').value = deceased ? 'true' : 'false';
+  // 更新状态选项的选中样式
+  const hiddenInput = document.getElementById('f_deceased');
+  const formGroup = hiddenInput.closest('.form-group');
+  const options = formGroup.querySelectorAll('.gender-option');
+  options.forEach((el, i) => {
+    const isSelected = (i === 0 && !deceased) || (i === 1 && deceased);
+    el.classList.toggle('selected', isSelected);
+    if (isSelected) {
+      el.classList.add(i === 0 ? 'male' : 'female');
+    } else {
+      el.classList.remove('male', 'female');
+    }
+  });
+}
+
+function saveForm() {
+  const name = document.getElementById('f_name').value.trim();
+  if (!name) {
+    showToast('请输入姓名');
+    return;
+  }
+
+  const gender = document.getElementById('f_gender').value;
+  const birthYear = document.getElementById('f_birthYear').value;
+  const occupation = document.getElementById('f_occupation').value.trim();
+  const status = document.getElementById('f_status').value.trim();
+  const traits = document.getElementById('f_traits').value.trim();
+  const deceased = document.getElementById('f_deceased').value === 'true';
+  const spouseId = document.getElementById('f_spouseId') ? document.getElementById('f_spouseId').value : '';
+
+  const parentIds = [];
+  document.querySelectorAll('#f_parentCheckboxes input:checked').forEach(cb => {
+    parentIds.push(cb.value);
+  });
+
+  if (panelMode === 'add') {
+    const id = genId();
+    const newMember = {
+      id, name, gender,
+      birthYear: birthYear ? parseInt(birthYear) : null,
+      occupation, status, traits, deceased,
+      spouseId: spouseId || null,
+      parentIds
+    };
+    members[id] = newMember;
+
+    // 更新配偶关系
+    if (spouseId) {
+      members[spouseId].spouseId = id;
+    }
+
+    selectedId = id;
+    showToast('成员添加成功');
+  } else if (panelMode === 'edit' && editingId) {
+    const m = members[editingId];
+    const oldSpouseId = m.spouseId;
+
+    m.name = name;
+    m.gender = gender;
+    m.birthYear = birthYear ? parseInt(birthYear) : null;
+    m.occupation = occupation;
+    m.status = status;
+    m.traits = traits;
+    m.deceased = deceased;
+    m.parentIds = parentIds;
+
+    // 处理配偶变更
+    if (oldSpouseId !== spouseId) {
+      // 解除旧配偶
+      if (oldSpouseId && members[oldSpouseId]) {
+        members[oldSpouseId].spouseId = null;
+      }
+      // 设置新配偶
+      if (spouseId && members[spouseId]) {
+        members[spouseId].spouseId = editingId;
+        m.spouseId = spouseId;
+      } else {
+        m.spouseId = null;
+      }
+    }
+
+    selectedId = editingId;
+    showToast('修改已保存');
+  }
+
+  saveData();
+  renderStats();
+  renderTree();
+
+  // 回到详情视图
+  if (selectedId) {
+    panelMode = 'detail';
+    renderDetailPanel(selectedId);
+  } else {
+    closePanel();
+  }
+}
+
+// ===== 删除 =====
+let pendingDeleteId = null;
+
+function confirmDelete(id) {
+  const m = getMember(id);
+  if (!m) return;
+
+  pendingDeleteId = id;
+  const children = getChildren(id);
+  const spouse = getSpouse(m);
+
+  let desc = `确定要删除「${m.name}」吗？`;
+  if (spouse) desc += `\n\n将同时解除与「${spouse.name}」的夫妻关系。`;
+  if (children.length > 0) desc += `\n\n该成员有 ${children.length} 个子女，删除后子女将失去此父母关联。`;
+  desc += '\n\n此操作不可撤销。';
+
+  document.getElementById('modalTitle').textContent = '删除成员';
+  document.getElementById('modalDesc').textContent = desc;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  pendingDeleteId = null;
+  // 恢复默认按钮状态
+  const btn = document.getElementById('modalConfirmBtn');
+  btn.textContent = '确认删除';
+  btn.onclick = executeDelete;
+}
+
+function executeDelete() {
+  if (!pendingDeleteId) return;
+  const id = pendingDeleteId;
+  const m = members[id];
+
+  // 解除配偶关系
+  if (m.spouseId && members[m.spouseId]) {
+    members[m.spouseId].spouseId = null;
+  }
+
+  // 从所有子女的 parentIds 中移除
+  Object.values(members).forEach(p => {
+    if (p.parentIds && p.parentIds.includes(id)) {
+      p.parentIds = p.parentIds.filter(pid => pid !== id);
+    }
+  });
+
+  delete members[id];
+  pendingDeleteId = null;
+
+  saveData();
+  closeModal();
+  closePanel();
+  renderStats();
+  renderTree();
+  showToast('成员已删除');
+}
+
+// ===== 导入导出 =====
+function exportData() {
+  const dataStr = JSON.stringify(members, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '家族谱数据_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('数据已导出');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (typeof data !== 'object' || data === null) throw new Error('格式错误');
+
+      // 验证数据结构
+      const valid = {};
+      Object.values(data).forEach(m => {
+        if (m && m.id && m.name && m.gender) {
+          valid[m.id] = {
+            id: m.id,
+            name: m.name,
+            gender: m.gender === 'female' ? 'female' : 'male',
+            birthYear: m.birthYear || null,
+            occupation: m.occupation || '',
+            status: m.status || '',
+            traits: m.traits || '',
+            deceased: !!m.deceased,
+            spouseId: m.spouseId || null,
+            parentIds: Array.isArray(m.parentIds) ? m.parentIds : []
+          };
+        }
+      });
+
+      if (Object.keys(valid).length === 0) {
+        showToast('文件中没有有效数据');
+        return;
+      }
+
+      members = valid;
+      saveData();
+      renderStats();
+      renderTree();
+      showToast(`成功导入 ${Object.keys(valid).length} 位成员`);
+    } catch(err) {
+      showToast('导入失败：文件格式不正确');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetSample() {
+  pendingDeleteId = null;
+  document.getElementById('modalTitle').textContent = '重置示例数据';
+  document.getElementById('modalDesc').textContent = '确定要重置为示例数据吗？当前所有数据将被覆盖，此操作不可撤销。';
+  document.getElementById('modalOverlay').classList.add('active');
+  document.getElementById('modalConfirmBtn').textContent = '确认重置';
+  document.getElementById('modalConfirmBtn').onclick = function() {
+    members = getSampleData();
+    saveData();
+    closeModal();
+    closePanel();
+    renderStats();
+    renderTree();
+    showToast('已重置为示例数据');
+    // 恢复按钮默认
+    document.getElementById('modalConfirmBtn').textContent = '确认删除';
+    document.getElementById('modalConfirmBtn').onclick = executeDelete;
+  };
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 2600);
+}
+
+// ===== 初始化 =====
+function init() {
+  loadData();
+
+  // 绑定确认弹窗默认按钮
+  document.getElementById('modalConfirmBtn').onclick = executeDelete;
+
+  // ESC 关闭面板
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('modalOverlay').classList.contains('active')) {
+        closeModal();
+      } else {
+        closePanel();
+      }
+    }
+  });
+
+  renderStats();
+  renderTree();
+}
+
+init();
+</script>
+</body>
+</html>
