@@ -445,11 +445,11 @@
   },
   "p29": {
     "id": "p29",
-    "name": "陈老大",
+    "name": "陈水苟",
     "gender": "male",
     "birthYear": null,
     "occupation": "老中医",
-    "status": "陈家长子，性格随和，喜欢钻研药材泡酒",
+    "status": "陈家长子，性格随和，老中医，喜欢钻研药材泡酒",
     "traits": "",
     "spouseId": null,
     "parentIds": [
@@ -475,11 +475,11 @@
   },
   "p31": {
     "id": "p31",
-    "name": "陈老三",
+    "name": "陈木华",
     "gender": "male",
     "birthYear": null,
     "occupation": "（点击可编辑姓名）",
-    "status": "陈家三子，陈建军之父",
+    "status": "陈家三子，陈建军之父，陈倩仪的爷爷",
     "traits": "",
     "spouseId": "p32",
     "parentIds": [
