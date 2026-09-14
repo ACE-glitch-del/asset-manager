@@ -30,7 +30,20 @@
       "createdAt": 1789315196642,
       "updatedAt": 1789379775688,
       "tracks": []
+    },
+    {
+      "id": "mu13td24fsvsz",
+      "title": "缺乏自信",
+      "cause": "",
+      "events": [
+        "不是高估就是低估，像评估轩的时候，就走了高估，但其实高估没啥问题，只是这种依据还是差了一点"
+      ],
+      "solutions": [],
+      "status": "active",
+      "createdAt": 1789381955164,
+      "updatedAt": 1789381955164,
+      "tracks": []
     }
   ],
-  "updatedAt": "2026-09-14T10:31:38.935Z"
+  "updatedAt": "2026-09-14T10:32:38.165Z"
 }
