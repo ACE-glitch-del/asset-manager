@@ -1590,6 +1590,35 @@ function saveSyncSettings() {
   }
 }
 
+// 智能合并：添加新成员 + 更新关系字段，保留用户修改的个人信息
+function mergeWithDefault(userData) {
+  const defaultData = getSampleData();
+  let changed = false;
+  // 关系字段（结构修正时需要同步更新）
+  const relationFields = ['parentIds', 'spouseId'];
+  // 个人信息字段（用户可能自己修改，保留）
+  const personalFields = ['name', 'gender', 'birthYear', 'occupation', 'status', 'traits', 'deceased'];
+
+  for (const id in defaultData) {
+    if (!userData[id]) {
+      // 新成员，直接添加
+      userData[id] = defaultData[id];
+      changed = true;
+    } else {
+      // 已有成员，更新关系字段
+      for (const field of relationFields) {
+        const oldVal = JSON.stringify(userData[id][field]);
+        const newVal = JSON.stringify(defaultData[id][field]);
+        if (oldVal !== newVal) {
+          userData[id][field] = defaultData[id][field];
+          changed = true;
+        }
+      }
+    }
+  }
+  return changed;
+}
+
 function loadData() {
   const defaultData = getSampleData();
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -1597,16 +1626,9 @@ function loadData() {
   if (raw) {
     try {
       const userData = JSON.parse(raw);
-      // 合并新成员：保留用户已有的修改，只添加默认数据中新增的成员
-      let added = 0;
-      for (const id in defaultData) {
-        if (!userData[id]) {
-          userData[id] = defaultData[id];
-          added++;
-        }
-      }
+      const changed = mergeWithDefault(userData);
       members = userData;
-      if (added > 0) saveData(); // 有新成员才保存
+      if (changed) saveData();
       return;
     } catch(e) {
       console.error('数据解析失败，使用默认数据', e);
@@ -2454,11 +2476,17 @@ function init() {
     updateSyncStatus('syncing', '同步中…');
     fetchCloudData().then(result => {
       if (result.ok && result.data) {
+        // 智能合并：云端数据为主，合并默认数据中的新成员和关系修正
+        const changed = mergeWithDefault(result.data);
         members = result.data;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
         renderTree();
         renderStats();
-        updateSyncStatus('synced', '已同步');
+        if (changed) {
+          pushCloudData(); // 有变更就推送到云端
+        } else {
+          updateSyncStatus('synced', '已同步');
+        }
       } else if (result.ok && !result.data) {
         // 云端无数据，推送本地
         pushCloudData();
