@@ -1417,11 +1417,14 @@ function getSampleData() {
 // ===== 持久化 =====
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+  localStorage.setItem('family_tree_last_local_save', Date.now().toString());
   // 自动推送到云端（防抖）
   scheduleCloudPush();
 }
 
 // ===== GitHub 云端同步 =====
+const LAST_SYNC_KEY = 'family_tree_last_sync';
+
 function getGithubToken() {
   return localStorage.getItem(TOKEN_KEY) || '';
 }
@@ -1437,6 +1440,9 @@ function updateSyncStatus(state, text) {
   if (!btn || !txt) return;
   btn.className = 'btn sync-btn ' + state;
   txt.textContent = text;
+  if (state === 'synced') {
+    localStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
+  }
 }
 
 function scheduleCloudPush() {
@@ -1444,7 +1450,34 @@ function scheduleCloudPush() {
   if (syncTimer) clearTimeout(syncTimer);
   syncTimer = setTimeout(() => {
     pushCloudData();
-  }, 1500); // 1.5秒防抖
+  }, 500); // 500ms防抖，改完很快就推
+}
+
+// 同步推送（页面关闭前用，确保不丢失）
+function pushCloudDataSync() {
+  const token = getGithubToken();
+  if (!token || !cloudSha) return; // 没有sha说明还没成功推送过，跳过
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(members, null, 2))));
+    const payload = {
+      message: '同步家族谱数据',
+      content: content,
+      branch: GITHUB.branch,
+      sha: cloudSha
+    };
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.dataPath}`, false);
+    xhr.setRequestHeader('Authorization', `token ${token}`);
+    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(payload));
+    if (xhr.status === 200 || xhr.status === 201) {
+      const result = JSON.parse(xhr.responseText);
+      cloudSha = result.content.sha;
+    }
+  } catch(e) {
+    console.error('同步推送失败', e);
+  }
 }
 
 // 从云端拉取数据
@@ -1461,14 +1494,13 @@ async function fetchCloudData() {
       }
     });
     if (resp.status === 404) {
-      return { ok: true, data: null, sha: null }; // 文件不存在
+      return { ok: true, data: null, sha: null };
     }
     if (!resp.ok) {
       return { ok: false, error: `HTTP ${resp.status}` };
     }
     const result = await resp.json();
     cloudSha = result.sha;
-    // content是base64编码的
     const content = decodeURIComponent(escape(atob(result.content)));
     const data = JSON.parse(content);
     return { ok: true, data: data, sha: result.sha };
@@ -1519,6 +1551,7 @@ async function pushCloudData() {
     return { ok: true };
   } catch(e) {
     updateSyncStatus('error', '同步失败');
+    showToast('云端同步失败，请检查网络后重试', 'error');
     console.error('云端推送失败', e);
     return { ok: false, error: e.message };
   }
@@ -2471,6 +2504,20 @@ function init() {
     }
   });
 
+  // 页面关闭前强制同步推送（防止数据丢失）
+  window.addEventListener('beforeunload', () => {
+    if (getGithubToken() && cloudSha) {
+      pushCloudDataSync();
+    }
+  });
+
+  // 页面隐藏时也推送一次（手机切后台）
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && getGithubToken() && cloudSha) {
+      pushCloudDataSync();
+    }
+  });
+
   renderStats();
   renderTree();
 
@@ -2479,22 +2526,36 @@ function init() {
     updateSyncStatus('syncing', '同步中…');
     fetchCloudData().then(result => {
       if (result.ok && result.data) {
-        // 智能合并：云端数据为主，合并默认数据中的新成员和关系修正
-        const changed = mergeWithDefault(result.data);
-        members = result.data;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
-        renderTree();
-        renderStats();
-        if (changed) {
-          pushCloudData(); // 有变更就推送到云端
+        // 比较本地和云端的修改时间，用较新的
+        const localSaveTime = parseInt(localStorage.getItem('family_tree_last_local_save') || '0');
+        const cloudMemberCount = Object.keys(result.data).length;
+        const localMemberCount = Object.keys(members).length;
+
+        // 如果本地有未同步的修改（本地保存时间晚于最后同步时间），保留本地
+        const lastSync = parseInt(localStorage.getItem(LAST_SYNC_KEY) || '0');
+        if (localSaveTime > lastSync && localMemberCount >= cloudMemberCount) {
+          // 本地更新，推送本地到云端
+          mergeWithDefault(members);
+          pushCloudData();
+          showToast('检测到本地有新修改，已保留并同步', 'info');
         } else {
-          updateSyncStatus('synced', '已同步');
+          // 云端更新，用云端
+          const changed = mergeWithDefault(result.data);
+          members = result.data;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+          renderTree();
+          renderStats();
+          if (changed) {
+            pushCloudData();
+          } else {
+            updateSyncStatus('synced', '已同步');
+          }
         }
       } else if (result.ok && !result.data) {
-        // 云端无数据，推送本地
         pushCloudData();
       } else {
         updateSyncStatus('error', '同步失败');
+        showToast('云端连接失败，使用本地数据', 'error');
       }
     });
   } else {
