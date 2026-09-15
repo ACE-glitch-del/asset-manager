@@ -337,6 +337,19 @@
   }
   .detail-title-wrap { flex: 1; min-width: 200px; }
   .detail-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .editable-title {
+    cursor: pointer; padding: 4px 8px; margin: -4px -8px;
+    border-radius: 6px; transition: background 0.2s;
+    display: inline-block;
+  }
+  .editable-title:hover { background: var(--bg-soft); }
+  .title-input {
+    font-size: 24px; font-weight: 700; font-family: inherit;
+    border: 2px solid var(--accent); border-radius: 6px;
+    padding: 4px 8px; width: 100%; box-sizing: border-box;
+    background: var(--bg-card); color: var(--text);
+    outline: none;
+  }
   .detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
   .detail-section {
@@ -1164,11 +1177,10 @@ function renderDetail() {
     <div class="detail-header">
       <div class="detail-title-wrap">
         <span class="card-status ${statusClass}" style="margin-bottom:10px;">${statusText}</span>
-        <div class="detail-title">${esc(p.title)}</div>
+        <div class="detail-title editable-title" onclick="editTitle()" title="点击编辑标题">${esc(p.title)}</div>
         <div style="font-size:13px;color:var(--text-muted);">创建于 ${formatDate(p.createdAt)}${p.updatedAt && p.updatedAt !== p.createdAt ? ' · 更新于 ' + formatDate(p.updatedAt) : ''}</div>
       </div>
       <div class="detail-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openProblemModal('${p.id}')">编辑</button>
         ${p.status === 'active'
           ? `<button class="btn btn-sm" style="background:var(--green-light);color:var(--green);" onclick="toggleStatus('${p.id}')">标记已解决</button>`
           : `<button class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);" onclick="toggleStatus('${p.id}')">重新开启</button>`
@@ -1222,6 +1234,32 @@ function renderDetail() {
       </div>
     </div>
   `;
+}
+
+function editTitle() {
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p) return;
+  const titleEl = document.querySelector('.editable-title');
+  if (!titleEl) return;
+  titleEl.outerHTML = `<input type="text" class="title-input" id="titleEditInput" value="${esc(p.title)}" onblur="saveTitle()" onkeydown="if(event.key==='Enter')this.blur()">`;
+  const input = document.getElementById('titleEditInput');
+  input.focus();
+  input.select();
+}
+
+function saveTitle() {
+  const input = document.getElementById('titleEditInput');
+  if (!input) return;
+  const val = input.value.trim();
+  const p = state.problems.find(x => x.id === state.currentDetailId);
+  if (!p) return;
+  if (val && val !== p.title) {
+    p.title = val;
+    p.updatedAt = Date.now();
+    saveData();
+    showToast('标题已更新');
+  }
+  renderDetail();
 }
 
 function editCause() {
