@@ -188,6 +188,10 @@ textarea.form-control{resize:vertical;min-height:80px}
     家人健康档案
     <span id="syncStatus" style="font-size:11px;color:var(--ink3);margin-left:8px;font-weight:400"></span>
   </div>
+  <button class="btn btn-outline" onclick="pullFromCloud()" title="从云端拉取数据（覆盖本地）" style="margin-right:6px">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    拉取
+  </button>
   <button class="btn btn-outline" onclick="openTokenModal()" title="设置GitHub Token" style="margin-right:6px">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     设置
@@ -374,10 +378,15 @@ function setSyncStatus(text,color){const s=document.getElementById('syncStatus')
 const GH={owner:'ACE-glitch-del',repo:'asset-manager',path:'family-health-data.json',get token(){return localStorage.getItem('gh_token')||''}};
 let fileSha=null;
 
+// 本地优先模式：初始化不再自动拉取云端，避免覆盖本地数据
 async function ghLoad(){
-  const res=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path,{headers:{'Authorization':'token '+GH.token,'User-Agent':'family-health'}});
+  const res=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path+'?ref=main',{headers:{'Authorization':'token '+GH.token,'Accept':'application/vnd.github.v3+json','User-Agent':'family-health'}});
   if(res.status===404)return null;
-  if(!res.ok)throw new Error('GitHub '+res.status);
+  if(!res.ok){
+    let msg='GitHub '+res.status;
+    try{const j=await res.json();if(j&&j.message)msg='GitHub '+res.status+'：'+j.message;}catch(e){}
+    throw new Error(msg);
+  }
   const j=await res.json();
   fileSha=j.sha;
   return JSON.parse(decodeURIComponent(escape(atob(j.content))));
@@ -385,15 +394,34 @@ async function ghLoad(){
 
 async function ghSave(data){
   const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+  const body={message:'更新家庭健康档案 '+new Date().toISOString(),content,branch:'main'};
+  if(fileSha)body.sha=fileSha;
   const res=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path,{
     method:'PUT',
-    headers:{'Authorization':'token '+GH.token,'Content-Type':'application/json','User-Agent':'family-health'},
-    body:JSON.stringify({message:'更新家庭健康档案 '+new Date().toISOString(),content,sha:fileSha||undefined,branch:'main'})
+    headers:{'Authorization':'token '+GH.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json','User-Agent':'family-health'},
+    body:JSON.stringify(body)
   });
-  if(!res.ok)throw new Error('GitHub '+res.status);
+  if(!res.ok){
+    let msg='GitHub '+res.status;
+    try{const j=await res.json();if(j&&j.message)msg='GitHub '+res.status+'：'+j.message;}catch(e){}
+    throw new Error(msg);
+  }
   const j=await res.json();
   fileSha=j.content.sha;
   return true;
+}
+
+// 本地 localStorage 为权威来源，云端仅作备份
+const LOCAL_KEY='family_health_data';
+function readLocalMembers(){
+  try{
+    const raw=localStorage.getItem(LOCAL_KEY);
+    if(raw){const j=JSON.parse(raw);if(j&&Array.isArray(j.members))return j.members;}
+  }catch(e){console.error('读取本地数据失败',e)}
+  return null;
+}
+function writeLocalMembers(){
+  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({members:state.members}));}catch(e){console.error('写入本地数据失败',e)}
 }
 
 function openTokenModal(){
@@ -412,14 +440,25 @@ function saveToken(){
 document.getElementById('tokenModal').addEventListener('click',e=>{if(e.target.id==='tokenModal')closeTokenModal()});
 
 async function loadData(){
-  if(!GH.token){
-    setSyncStatus('未设置Token','#ef4444');
-    toast('请先点右上角「设置」填写GitHub Token');
-    initDefaultMembers();
+  // 本地优先：先读 localStorage，不再自动从云端拉取覆盖本地
+  const localMembers=readLocalMembers();
+  if(localMembers){
+    state.members=localMembers;
+    if(state.members.length&&(!state.currentId||!state.members.find(m=>m.id===state.currentId)))state.currentId=state.members[0].id;
+    setSyncStatus(GH.token?'已连接（本地优先）':'未设置Token',GH.token?'#22c55e':'#ef4444');
     renderList();renderDetail();
     return;
   }
-  setSyncStatus('加载中...');
+  // 本地完全为空时才尝试从云端拉取作为初始化
+  if(!GH.token){
+    initDefaultMembers();
+    writeLocalMembers();
+    setSyncStatus('未设置Token','#ef4444');
+    toast('请先点右上角「设置」填写GitHub Token');
+    renderList();renderDetail();
+    return;
+  }
+  setSyncStatus('首次加载，从云端拉取...','#f59e0b');
   try{
     const data=await ghLoad();
     if(data&&data.members){
@@ -428,36 +467,73 @@ async function loadData(){
       initDefaultMembers();
       await ghSave({members:state.members});
     }
+    writeLocalMembers();
     if(state.members.length&&(!state.currentId||!state.members.find(m=>m.id===state.currentId)))state.currentId=state.members[0].id;
     setSyncStatus('已同步','#22c55e');
   }catch(e){
     console.error('加载失败',e);
     setSyncStatus('离线模式','#f59e0b');
-    if(state.members.length===0)initDefaultMembers();
+    initDefaultMembers();
+    writeLocalMembers();
     if(state.members.length&&!state.currentId)state.currentId=state.members[0].id;
     toast('无法连接GitHub，使用本地数据');
   }
   renderList();renderDetail();
 }
 
+// 手动从云端拉取（有本地数据时二次确认，防止误覆盖）
+async function pullFromCloud(){
+  if(!GH.token){toast('请先点「设置」填写GitHub Token');openTokenModal();return}
+  const hasLocal=state.members&&state.members.length>0;
+  if(hasLocal){
+    if(!confirm('本地已有数据，从云端拉取会覆盖当前所有内容，确定继续吗？'))return;
+  }
+  setSyncStatus('正在从云端拉取...','#f59e0b');
+  try{
+    const data=await ghLoad();
+    if(!data||!data.members){
+      toast('云端暂无数据');
+      setSyncStatus('已同步','#22c55e');
+      return;
+    }
+    state.members=data.members;
+    writeLocalMembers();
+    if(state.members.length&&(!state.currentId||!state.members.find(m=>m.id===state.currentId)))state.currentId=state.members[0].id;
+    renderList();renderDetail();
+    setSyncStatus('已从云端拉取','#22c55e');
+    toast('已从云端恢复数据');
+  }catch(e){
+    console.error('拉取失败',e);
+    setSyncStatus('拉取失败','#ef4444');
+    toast('拉取失败：'+e.message);
+  }
+}
+
 async function saveData(immediate){
+  // 本地 localStorage 永远是权威来源：任何变更先落本地
+  writeLocalMembers();
   if(state.saving&&immediate)return;
   clearTimeout(state.saveTimer);
   const doSave=async()=>{
     state.saving=true;
-    setSyncStatus('同步中...','#f59e0b');
-    try{
-      await ghSave({members:state.members});
-      setSyncStatus('已同步 '+new Date().toLocaleTimeString(),'#22c55e');
-    }catch(e){
-      console.error('保存失败',e);
-      setSyncStatus('同步失败','#ef4444');
-      toast('保存失败，请检查网络');
+    if(GH.token){
+      setSyncStatus('同步中...','#f59e0b');
+      try{
+        await ghSave({members:state.members});
+        setSyncStatus('已同步 '+new Date().toLocaleTimeString(),'#22c55e');
+      }catch(e){
+        console.error('保存失败',e);
+        setSyncStatus('同步失败','#ef4444');
+        toast('同步失败：'+e.message+'（数据已保存在本地，稍后可手动点同步重试）');
+      }
+    }else{
+      setSyncStatus('已本地保存（未设Token）','#f59e0b');
     }
     state.saving=false;
   };
+  // 防抖3秒自动上传云端；上传失败不影响本地数据
   if(immediate)await doSave();
-  else state.saveTimer=setTimeout(doSave,500);
+  else state.saveTimer=setTimeout(doSave,3000);
 }
 
 function initDefaultMembers(){
