@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>个人资产管理系统</title>
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@600;700;900&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" crossorigin="anonymous"></script>
@@ -3012,6 +3015,7 @@ const state = {
 /* ===== GitHub 云端同步 + 本地降级存储 ===== */
 const STORAGE_KEY = 'asset_manager_data_v1';
 const TOKEN_KEY = 'asset_manager_gh_token';
+const ASSET_DIRTY_KEY = 'asset_manager_dirty';
 const GH_OWNER = 'ACE-glitch-del';
 const GH_REPO = 'asset-manager';
 const GH_BRANCH = 'main';
@@ -3119,7 +3123,10 @@ let _cloudPushTimer = null;
 async function saveState() {
   // 本地优先：先写入 localStorage（本地是权威来源）
   const data = buildDataPayload();
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(ASSET_DIRTY_KEY, '1');
+  } catch (e) {}
 
   if (!hasToken()) {
     updateSyncIndicator('本地模式', '#999');
@@ -3133,21 +3140,28 @@ async function saveState() {
 }
 
 // 立即推送云端（用于保存Token后、刷新价格后等需要立即同步的场景）
-async function pushToCloud() {
+let _isPushing = false;
+let _pendingPush = false;
+async function pushToCloud(retryCount) {
   if (!hasToken()) return;
+  if (retryCount === undefined) retryCount = 0;
+  if (_isPushing) { _pendingPush = true; return; }
+  _isPushing = true;
+
   const data = buildDataPayload();
   const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
 
   try {
-    // 获取文件sha（如果已存在）
+    // 每次尝试都重新获取最新sha，从根本上解决409冲突
     let sha = null;
     const getRes = await fetch(url + '?ref=' + GH_BRANCH, { headers: getGhHeaders() });
     if (getRes.ok) {
       const existing = await getRes.json();
       sha = existing.sha;
     } else if (getRes.status !== 404) {
-      // 非404错误，解析错误响应体
       const errData = await getRes.json().catch(() => ({}));
+      // 5xx服务器错误可重试，4xx（除409）直接抛错
+      if (getRes.status >= 500 && retryCount < 4) throw new Error('RETRY:' + getRes.status);
       throw new Error(getRes.status + ' ' + (errData.message || getRes.statusText));
     }
 
@@ -3164,25 +3178,54 @@ async function pushToCloud() {
     });
     if (putRes.ok) {
       syncStatus = 'ok';
-      updateSyncIndicator('已同步', '#2d6a4f');
+      try { localStorage.removeItem(ASSET_DIRTY_KEY); } catch (e) {}
+      updateSyncIndicator('已同步 ' + new Date().toLocaleTimeString(), '#2d6a4f');
+      _isPushing = false;
+      if (_pendingPush) { _pendingPush = false; setTimeout(() => pushToCloud(), 500); }
       return;
     }
-    // 解析GitHub API错误响应体，显示详细message
     const errData = await putRes.json().catch(() => ({}));
-    throw new Error(putRes.status + ' ' + (errData.message || putRes.statusText));
+    const errMsg = putRes.status + ' ' + (errData.message || putRes.statusText);
+    // 409冲突或5xx服务器错误，指数退避重试
+    if ((putRes.status === 409 || putRes.status >= 500) && retryCount < 4) {
+      throw new Error('RETRY:' + errMsg);
+    }
+    throw new Error(errMsg);
   } catch (e) {
+    const msg = e.message || '';
+    const isNetErr = msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('load failed');
+    const shouldRetry = msg.startsWith('RETRY:') || isNetErr;
+    if (shouldRetry && retryCount < 4) {
+      _isPushing = false;
+      updateSyncIndicator('同步重试中…', '#c77d00');
+      const delay = 1000 * Math.pow(2, retryCount);
+      setTimeout(() => pushToCloud(retryCount + 1), delay);
+      return;
+    }
     console.warn('云端上传失败（数据已保存在本地）:', e);
     syncStatus = 'error';
-    updateSyncIndicator('离线模式', '#c77d00');
-    // 409冲突时重试一次
-    if (e.message && e.message.includes('409')) {
-      updateSyncIndicator('同步冲突，重试中…', '#c77d00');
-      setTimeout(() => pushToCloud(), 1000);
-      return;
+    updateSyncIndicator('待同步（数据在本地）', '#c77d00');
+    _isPushing = false;
+    if (_pendingPush) { _pendingPush = false; setTimeout(() => pushToCloud(), 5000); }
+    // 仅在用户手动触发时弹窗，自动重试失败只在状态栏提示，避免打扰
+    if (retryCount === 0 && !msg.startsWith('RETRY:')) {
+      console.warn('同步失败详情：' + msg.replace('RETRY:', ''));
     }
-    alert('同步失败：' + e.message + '（数据已保存在本地，稍后可手动点同步重试）');
   }
 }
+
+// 网络恢复后自动补传
+window.addEventListener('online', () => {
+  if (hasToken() && localStorage.getItem(ASSET_DIRTY_KEY)) {
+    updateSyncIndicator('网络恢复，同步中…', '#c77d00');
+    pushToCloud();
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && hasToken() && localStorage.getItem(ASSET_DIRTY_KEY)) {
+    pushToCloud();
+  }
+});
 
 // 本地优先模式：初始化只从 localStorage 读取，不自动拉取云端
 async function loadState() {
@@ -4998,6 +5041,9 @@ async function init() {
   // 如果没有配置Token，自动弹出设置框
   if (!hasToken()) {
     setTimeout(() => openTokenModal(), 600);
+  } else if (localStorage.getItem(ASSET_DIRTY_KEY)) {
+    // 上次有未同步成功的数据，打开页面自动补传
+    setTimeout(() => pushToCloud(), 1500);
   }
 }
 
