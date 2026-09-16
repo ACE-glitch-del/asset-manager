@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>家族谱 · 家族关系管理系统</title>
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <style>
@@ -1453,6 +1456,7 @@ function getSampleData() {
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
   localStorage.setItem('family_tree_last_local_save', Date.now().toString());
+  localStorage.setItem('family_tree_dirty', '1');
   // 自动推送到云端（防抖）
   scheduleCloudPush();
 }
@@ -1552,28 +1556,32 @@ async function fetchCloudData() {
 }
 
 // 推送数据到云端
-async function pushCloudData() {
+let isPushing = false;
+let pendingPush = false;
+async function pushCloudData(retryCount) {
   const token = getGithubToken();
   if (!token) return;
+  if (retryCount === undefined) retryCount = 0;
+  if (isPushing) { pendingPush = true; return; }
+  isPushing = true;
 
   updateSyncStatus('syncing', '同步中…');
 
-  // 如果还没有cloudSha，先获取一下
-  if (!cloudSha) {
-    const check = await fetchCloudData();
-    if (check.ok && check.sha) cloudSha = check.sha;
-  }
-
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(members, null, 2))));
   const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.dataPath}`;
-  const payload = {
-    message: '同步家族谱数据',
-    content: content,
-    branch: GITHUB.branch
-  };
-  if (cloudSha) payload.sha = cloudSha;
 
   try {
+    // 每次尝试都重新获取最新sha，从根本上解决409冲突
+    const check = await fetchCloudData();
+    if (check.ok && check.sha) cloudSha = check.sha;
+
+    const payload = {
+      message: '同步家族谱数据',
+      content: content,
+      branch: GITHUB.branch
+    };
+    if (cloudSha) payload.sha = cloudSha;
+
     const resp = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -1584,21 +1592,53 @@ async function pushCloudData() {
       body: JSON.stringify(payload)
     });
     if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.message || `HTTP ${resp.status}`);
+      let msg = `HTTP ${resp.status}`;
+      try { const err = await resp.json(); if (err.message) msg = resp.status + ' ' + err.message; } catch(e2) {}
+      // 409冲突或5xx服务器错误，指数退避重试
+      if (retryCount < 4 && (resp.status === 409 || resp.status >= 500)) {
+        isPushing = false;
+        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, retryCount)));
+        return pushCloudData(retryCount + 1);
+      }
+      throw new Error(msg);
     }
     const result = await resp.json();
     cloudSha = result.content.sha;
-    updateSyncStatus('synced', '已同步');
+    localStorage.removeItem('family_tree_dirty');
+    updateSyncStatus('synced', '已同步 ' + new Date().toLocaleTimeString());
+    isPushing = false;
+    if (pendingPush) { pendingPush = false; setTimeout(() => pushCloudData(), 500); }
     return { ok: true };
   } catch(e) {
-    updateSyncStatus('error', '同步失败');
-    // 本地优先模式：本地数据是权威来源，上传失败不影响本地，提示可手动重试
-    showToast('同步失败：' + e.message + '（数据已保存在本地，稍后可手动点同步重试）', 'error');
+    // 网络错误（断网、超时）也重试
+    const isNetErr = (e.message && (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')));
+    if (retryCount < 4 && isNetErr) {
+      isPushing = false;
+      updateSyncStatus('error', '网络异常，等待重试…');
+      await new Promise(r => setTimeout(r, 2000 * Math.pow(2, retryCount)));
+      return pushCloudData(retryCount + 1);
+    }
+    isPushing = false;
+    updateSyncStatus('error', '待同步（数据在本地）');
+    showToast('同步失败：' + e.message + '（数据在本地没丢，联网后自动重试）', 'error');
     console.error('云端推送失败', e);
+    if (pendingPush) { pendingPush = false; setTimeout(() => pushCloudData(), 5000); }
     return { ok: false, error: e.message };
   }
 }
+
+// 网络恢复后自动补传
+window.addEventListener('online', () => {
+  if (getGithubToken() && localStorage.getItem('family_tree_dirty')) {
+    showToast('网络恢复，正在同步…', 'info');
+    pushCloudData();
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && getGithubToken() && localStorage.getItem('family_tree_dirty')) {
+    pushCloudData();
+  }
+});
 
 // 从云端拉取并覆盖本地数据
 async function pullFromCloud() {
@@ -2616,13 +2656,18 @@ function init() {
       });
     } else {
       // 本地已有数据，直接以本地为准，不自动拉取覆盖
-      // 仅静默获取云端 sha 以便后续自动上传（不读取云端数据内容，不覆盖本地）
       updateSyncStatus('synced', '本地数据');
-      if (!cloudSha) {
-        fetchCloudData().then(result => {
-          if (result.ok && result.sha) cloudSha = result.sha;
-        }).catch(() => {});
-      }
+      // 静默获取云端sha；若上次有未同步成功的数据（dirty），自动补传
+      fetchCloudData().then(result => {
+        if (result.ok && result.sha) cloudSha = result.sha;
+        if (localStorage.getItem('family_tree_dirty')) {
+          setTimeout(() => pushCloudData(), 800);
+        }
+      }).catch(() => {
+        if (localStorage.getItem('family_tree_dirty')) {
+          setTimeout(() => pushCloudData(), 1500);
+        }
+      });
     }
   } else {
     updateSyncStatus('', '未同步');
