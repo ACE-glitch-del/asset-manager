@@ -1761,13 +1761,6 @@
       "status": "todo",
       "progress": "",
       "updatedAt": ""
-    },
-    {
-      "id": 7,
-      "title": "学习可转债打新策略",
-      "status": "done",
-      "progress": "已完成，开通了可转债权限，准备参与打新",
-      "updatedAt": "2026-09-05"
     }
   ]
 }
