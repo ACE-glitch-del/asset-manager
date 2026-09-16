@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>心镜 · 个人心理档案</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪞</text></svg>">
 <style>
@@ -1430,19 +1433,31 @@ function ghApi(method, path, body) {
   });
 }
 
+let isUploading = false;
+let pendingUpload = false;
+const DIRTY_KEY = 'mental_archive_dirty';
+
+function markDirty() { try { localStorage.setItem(DIRTY_KEY, '1'); } catch(e) {} }
+function clearDirty() { try { localStorage.removeItem(DIRTY_KEY); } catch(e) {} }
+
 function uploadToCloud(silent) {
   if (!syncReady()) {
     if (!silent) { showToast('请先配置同步设置'); openSyncModal(); }
     return;
   }
+  markDirty();
+  if (isUploading) { pendingUpload = true; return; }
+  isUploading = true;
 
   const data = JSON.stringify({ profile: state.profile, problems: state.problems, updatedAt: new Date().toISOString() }, null, 2);
   const content = btoa(unescape(encodeURIComponent(data)));
   const apiPath = `/repos/${syncConfig.owner}/${syncConfig.repo}/contents/${syncConfig.path}?ref=${syncConfig.branch}`;
+  const putPath = `/repos/${syncConfig.owner}/${syncConfig.repo}/contents/${syncConfig.path}`;
 
   if (!silent) showToast('正在上传...');
 
   function doUpload(retryCount) {
+    // 每次尝试都重新获取最新sha，从根本上解决409
     return ghApi('GET', apiPath).then(existing => {
       const body = {
         message: `更新心理档案数据 ${new Date().toLocaleString('zh-CN')}`,
@@ -1450,21 +1465,44 @@ function uploadToCloud(silent) {
         branch: syncConfig.branch
       };
       if (existing && existing.sha) body.sha = existing.sha;
-
-      return ghApi('PUT', `/repos/${syncConfig.owner}/${syncConfig.repo}/contents/${syncConfig.path}`, body);
+      return ghApi('PUT', putPath, body);
     }).then(() => {
+      isUploading = false;
+      clearDirty();
+      updateSyncStatus();
       if (!silent) showToast('已同步到云端');
+      if (pendingUpload) { pendingUpload = false; setTimeout(() => uploadToCloud(true), 500); }
     }).catch(err => {
-      // 409冲突时重试，最多2次
-      if (err.message.includes('409') && retryCount < 2) {
-        return new Promise(resolve => setTimeout(resolve, 800)).then(() => doUpload(retryCount + 1));
+      const msg = err.message || '';
+      const canRetry = retryCount < 4 && (msg.includes('409') || msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('load failed') || /^[45]\d\d/.test(msg.slice(0,3)) === false);
+      if (canRetry) {
+        const delay = 1000 * Math.pow(2, retryCount);
+        updateSyncStatus();
+        return new Promise(resolve => setTimeout(resolve, delay)).then(() => doUpload(retryCount + 1));
       }
-      showToast('同步失败：' + err.message + '（数据已保存在本地，稍后可手动点同步重试）');
+      isUploading = false;
+      updateSyncStatus();
+      showToast('同步失败：' + msg + '（数据在本地没丢，联网后会自动重试）');
+      if (pendingUpload) { pendingUpload = false; setTimeout(() => uploadToCloud(true), 5000); }
     });
   }
 
   return doUpload(0);
 }
+
+// 网络恢复后自动补传
+window.addEventListener('online', () => {
+  if (syncReady() && localStorage.getItem(DIRTY_KEY)) {
+    showToast('网络恢复，正在同步…');
+    uploadToCloud(true);
+  }
+});
+// 页面重新可见时，如果有未同步数据则补传
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && syncReady() && localStorage.getItem(DIRTY_KEY)) {
+    uploadToCloud(true);
+  }
+});
 
 function downloadFromCloud() {
   if (!syncReady()) { showToast('请先配置同步设置'); openSyncModal(); return; }
@@ -1546,8 +1584,12 @@ if (state.problems.length === 0) {
 renderProfile();
 renderList();
 
-// 注意：不再自动拉取云端数据，避免覆盖本地未同步的更改
+// 注意：永远不自动拉取云端数据覆盖本地
 // 换设备后请手动点「同步」→「从云端拉取」
+// 如果上次有没同步成功的数据（dirty标记），打开页面自动补传
+if (syncReady() && localStorage.getItem(DIRTY_KEY)) {
+  setTimeout(() => uploadToCloud(true), 1000);
+}
 
 // 点击模态框背景关闭
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
