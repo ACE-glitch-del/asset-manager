@@ -1532,7 +1532,14 @@ async function fetchCloudData() {
       return { ok: true, data: null, sha: null };
     }
     if (!resp.ok) {
-      return { ok: false, error: `HTTP ${resp.status}` };
+      // 本地优先模式：错误信息附带 GitHub 响应体中的 message，便于排障
+      try {
+        const errBody = await resp.json();
+        const msg = (errBody && errBody.message) ? `${resp.status}: ${errBody.message}` : `HTTP ${resp.status}`;
+        return { ok: false, error: msg };
+      } catch(e) {
+        return { ok: false, error: `HTTP ${resp.status}` };
+      }
     }
     const result = await resp.json();
     cloudSha = result.sha;
@@ -1586,7 +1593,8 @@ async function pushCloudData() {
     return { ok: true };
   } catch(e) {
     updateSyncStatus('error', '同步失败');
-    showToast('云端同步失败，请检查网络后重试', 'error');
+    // 本地优先模式：本地数据是权威来源，上传失败不影响本地，提示可手动重试
+    showToast('同步失败：' + e.message + '（数据已保存在本地，稍后可手动点同步重试）', 'error');
     console.error('云端推送失败', e);
     return { ok: false, error: e.message };
   }
@@ -1594,6 +1602,19 @@ async function pushCloudData() {
 
 // 从云端拉取并覆盖本地数据
 async function pullFromCloud() {
+  if (!getGithubToken()) {
+    showToast('请先配置Token', 'error');
+    return;
+  }
+  // 本地优先模式：手动拉取前确认，防止误覆盖本地数据
+  const localRaw = localStorage.getItem(STORAGE_KEY);
+  let hasLocalData = false;
+  if (localRaw) {
+    try { hasLocalData = Object.keys(JSON.parse(localRaw)).length > 0; } catch(e) {}
+  }
+  if (hasLocalData) {
+    if (!confirm('本地已有数据，从云端拉取会覆盖当前所有内容，确定继续吗？')) return;
+  }
   updateSyncStatus('syncing', '拉取中…');
   const result = await fetchCloudData();
   if (!result.ok) {
@@ -2535,6 +2556,9 @@ function showToast(msg) {
 
 // ===== 初始化 =====
 function init() {
+  // 本地优先模式：初始化不再自动拉取云端，避免覆盖本地数据
+  // 先记录初始化前本地是否已有数据，loadData() 会在本地为空时写入默认样本
+  const hadLocalData = !!localStorage.getItem(STORAGE_KEY);
   loadData();
 
   // 绑定确认弹窗默认按钮
@@ -2570,43 +2594,36 @@ function init() {
   renderStats();
   renderTree();
 
-  // 如果配置了Token，自动从云端拉取最新数据
+  // 本地优先模式：初始化不再自动拉取云端，避免覆盖本地数据
+  // 本地数据是权威来源，云端仅作为备份；只有本地完全为空时才尝试从云端恢复
   if (getGithubToken()) {
-    updateSyncStatus('syncing', '同步中…');
-    fetchCloudData().then(result => {
-      if (result.ok && result.data) {
-        // 比较本地和云端的修改时间，用较新的
-        const localSaveTime = parseInt(localStorage.getItem('family_tree_last_local_save') || '0');
-        const cloudMemberCount = Object.keys(result.data).length;
-        const localMemberCount = Object.keys(members).length;
-
-        // 如果本地有未同步的修改（本地保存时间晚于最后同步时间），保留本地
-        const lastSync = parseInt(localStorage.getItem(LAST_SYNC_KEY) || '0');
-        if (localSaveTime > lastSync && localMemberCount >= cloudMemberCount) {
-          // 本地更新，推送本地到云端
-          mergeWithDefault(members);
-          pushCloudData();
-          showToast('检测到本地有新修改，已保留并同步', 'info');
-        } else {
-          // 云端更新，用云端
-          const changed = mergeWithDefault(result.data);
+    if (!hadLocalData) {
+      // 本地完全为空（首次使用/换设备/清缓存），尝试从云端拉取一次以恢复数据
+      updateSyncStatus('syncing', '恢复中…');
+      fetchCloudData().then(result => {
+        if (result.ok && result.data) {
           members = result.data;
           localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
           renderTree();
           renderStats();
-          if (changed) {
-            pushCloudData();
-          } else {
-            updateSyncStatus('synced', '已同步');
-          }
+          updateSyncStatus('synced', '已同步');
+          showToast('已从云端恢复数据', 'success');
+        } else {
+          updateSyncStatus('synced', '已连接');
         }
-      } else if (result.ok && !result.data) {
-        pushCloudData();
-      } else {
-        updateSyncStatus('error', '同步失败');
-        showToast('云端连接失败，使用本地数据', 'error');
+      }).catch(() => {
+        updateSyncStatus('', '未同步');
+      });
+    } else {
+      // 本地已有数据，直接以本地为准，不自动拉取覆盖
+      // 仅静默获取云端 sha 以便后续自动上传（不读取云端数据内容，不覆盖本地）
+      updateSyncStatus('synced', '本地数据');
+      if (!cloudSha) {
+        fetchCloudData().then(result => {
+          if (result.ok && result.sha) cloudSha = result.sha;
+        }).catch(() => {});
       }
-    });
+    }
   } else {
     updateSyncStatus('', '未同步');
   }
