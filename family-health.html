@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>家人健康档案</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤</text></svg>">
 <style>
@@ -392,27 +395,51 @@ async function ghLoad(){
   return JSON.parse(decodeURIComponent(escape(atob(j.content))));
 }
 
-async function ghSave(data){
+async function ghSave(data, retryCount){
+  if(retryCount===undefined)retryCount=0;
   const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+  // 每次尝试都重新获取最新sha，从根本上解决409冲突
+  try{
+    const latest=await ghLoad();
+    // ghLoad成功时fileSha已更新；404时fileSha保持null（新文件）
+  }catch(eGet){
+    // 获取sha失败不阻断，沿用旧sha尝试一次
+  }
   const body={message:'更新家庭健康档案 '+new Date().toISOString(),content,branch:'main'};
   if(fileSha)body.sha=fileSha;
-  const res=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path,{
-    method:'PUT',
-    headers:{'Authorization':'token '+GH.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json','User-Agent':'family-health'},
-    body:JSON.stringify(body)
-  });
+  let res;
+  try{
+    res=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path,{
+      method:'PUT',
+      headers:{'Authorization':'token '+GH.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json','User-Agent':'family-health'},
+      body:JSON.stringify(body)
+    });
+  }catch(networkErr){
+    // 网络错误，指数退避重试
+    if(retryCount<4){await new Promise(r=>setTimeout(r,1000*Math.pow(2,retryCount)));return ghSave(data,retryCount+1);}
+    throw new Error('网络错误，无法连接GitHub（数据已保存在本地）');
+  }
   if(!res.ok){
     let msg='GitHub '+res.status;
     try{const j=await res.json();if(j&&j.message)msg='GitHub '+res.status+'：'+j.message;}catch(e){}
+    // 409冲突或5xx服务器错误，重试
+    if(retryCount<4&&(res.status===409||res.status>=500)){
+      await new Promise(r=>setTimeout(r,1000*Math.pow(2,retryCount)));
+      return ghSave(data,retryCount+1);
+    }
     throw new Error(msg);
   }
   const j=await res.json();
   fileSha=j.content.sha;
   return true;
 }
+// 网络恢复后自动补传
+window.addEventListener('online',function(){if(GH.token&&localStorage.getItem(HEALTH_DIRTY_KEY)){setSyncStatus('网络恢复，同步中...','#f59e0b');saveData(true);}});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&GH.token&&localStorage.getItem(HEALTH_DIRTY_KEY)){saveData(true);}});
 
 // 本地 localStorage 为权威来源，云端仅作备份
 const LOCAL_KEY='family_health_data';
+const HEALTH_DIRTY_KEY='family_health_dirty';
 function readLocalMembers(){
   try{
     const raw=localStorage.getItem(LOCAL_KEY);
@@ -421,7 +448,10 @@ function readLocalMembers(){
   return null;
 }
 function writeLocalMembers(){
-  try{localStorage.setItem(LOCAL_KEY,JSON.stringify({members:state.members}));}catch(e){console.error('写入本地数据失败',e)}
+  try{
+    localStorage.setItem(LOCAL_KEY,JSON.stringify({members:state.members}));
+    localStorage.setItem(HEALTH_DIRTY_KEY,'1');
+  }catch(e){console.error('写入本地数据失败',e)}
 }
 
 function openTokenModal(){
@@ -520,11 +550,12 @@ async function saveData(immediate){
       setSyncStatus('同步中...','#f59e0b');
       try{
         await ghSave({members:state.members});
+        try{localStorage.removeItem(HEALTH_DIRTY_KEY);}catch(e){}
         setSyncStatus('已同步 '+new Date().toLocaleTimeString(),'#22c55e');
       }catch(e){
         console.error('保存失败',e);
-        setSyncStatus('同步失败','#ef4444');
-        toast('同步失败：'+e.message+'（数据已保存在本地，稍后可手动点同步重试）');
+        setSyncStatus('待同步（数据在本地）','#c77d00');
+        toast('同步失败：'+e.message+'（数据在本地没丢，联网后自动重试）');
       }
     }else{
       setSyncStatus('已本地保存（未设Token）','#f59e0b');
@@ -746,7 +777,12 @@ function delMember(id){
   saveData();renderList();renderDetail();toast('已删除');
 }
 
-loadData();
+// 初始化：本地优先；若上次有未同步成功的数据，加载后自动补传
+loadData().then(function(){
+  if(GH.token&&localStorage.getItem(HEALTH_DIRTY_KEY)){
+    setTimeout(function(){saveData(true);},1500);
+  }
+});
 </script>
 </body>
 </html>
