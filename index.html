@@ -3113,27 +3113,44 @@ function b64ToUtf8(b64) {
   return decodeURIComponent(escape(atob(b64)));
 }
 
+// ===== 本地优先模式：初始化不再自动拉取云端，避免覆盖本地数据 =====
+let _cloudPushTimer = null;
+
 async function saveState() {
+  // 本地优先：先写入 localStorage（本地是权威来源）
   const data = buildDataPayload();
-  syncStatus = 'syncing';
-  updateSyncIndicator('同步中…', '#999');
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
 
   if (!hasToken()) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
     updateSyncIndicator('本地模式', '#999');
     return;
   }
 
+  // 防抖 3 秒后自动上传到云端
+  updateSyncIndicator('同步中…', '#999');
+  if (_cloudPushTimer) clearTimeout(_cloudPushTimer);
+  _cloudPushTimer = setTimeout(() => { pushToCloud(); }, 3000);
+}
+
+// 立即推送云端（用于保存Token后、刷新价格后等需要立即同步的场景）
+async function pushToCloud() {
+  if (!hasToken()) return;
+  const data = buildDataPayload();
+  const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
+
   try {
-    const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
     // 获取文件sha（如果已存在）
     let sha = null;
-    const getRes = await fetch(url, { headers: getGhHeaders() });
+    const getRes = await fetch(url + '?ref=' + GH_BRANCH, { headers: getGhHeaders() });
     if (getRes.ok) {
       const existing = await getRes.json();
       sha = existing.sha;
+    } else if (getRes.status !== 404) {
+      // 非404错误，解析错误响应体
+      const errData = await getRes.json().catch(() => ({}));
+      throw new Error(getRes.status + ' ' + (errData.message || getRes.statusText));
     }
-    // 写入文件
+
     const content = utf8ToB64(JSON.stringify(data, null, 2));
     const putRes = await fetch(url, {
       method: 'PUT',
@@ -3148,24 +3165,40 @@ async function saveState() {
     if (putRes.ok) {
       syncStatus = 'ok';
       updateSyncIndicator('已同步', '#2d6a4f');
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
       return;
     }
-    throw new Error('HTTP ' + putRes.status);
+    // 解析GitHub API错误响应体，显示详细message
+    const errData = await putRes.json().catch(() => ({}));
+    throw new Error(putRes.status + ' ' + (errData.message || putRes.statusText));
   } catch (e) {
-    console.warn('GitHub保存失败，降级本地:', e);
+    console.warn('云端上传失败（数据已保存在本地）:', e);
     syncStatus = 'error';
     updateSyncIndicator('离线模式', '#c77d00');
-  }
-  // 本地降级
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.warn('本地保存失败:', e);
+    // 409冲突时重试一次
+    if (e.message && e.message.includes('409')) {
+      updateSyncIndicator('同步冲突，重试中…', '#c77d00');
+      setTimeout(() => pushToCloud(), 1000);
+      return;
+    }
+    alert('同步失败：' + e.message + '（数据已保存在本地，稍后可手动点同步重试）');
   }
 }
 
+// 本地优先模式：初始化只从 localStorage 读取，不自动拉取云端
 async function loadState() {
+  // 优先从 localStorage 读取本地数据（本地是权威来源）
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      applyData(JSON.parse(raw));
+      updateSyncIndicator(hasToken() ? '本地模式' : '未配置Token', '#999');
+      return;
+    }
+  } catch (e) {
+    console.warn('本地读取失败:', e);
+  }
+
+  // 本地完全为空时，才尝试从云端拉取（首次使用或换设备）
   if (hasToken()) {
     try {
       const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH + '?ref=' + GH_BRANCH;
@@ -3177,31 +3210,54 @@ async function loadState() {
           const data = JSON.parse(content);
           if (data && Object.keys(data).length > 0) {
             applyData(data);
-            updateSyncIndicator('已同步', '#2d6a4f');
+            // 拉取到云端数据后立即写入本地
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+            updateSyncIndicator('已从云端恢复', '#2d6a4f');
             return;
           }
         }
       }
     } catch (e) {
-      console.warn('GitHub读取失败，尝试本地缓存:', e);
+      console.warn('云端首次拉取失败:', e);
     }
   }
-
-  // 降级到本地localStorage
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      applyData(JSON.parse(raw));
-    }
-    updateSyncIndicator(hasToken() ? '本地模式' : '未配置Token', '#999');
-  } catch (e) {
-    console.warn('本地读取失败:', e);
-  }
+  updateSyncIndicator(hasToken() ? '本地模式' : '未配置Token', '#999');
 }
 
 // 手动刷新（从GitHub重新拉取）
 async function refreshFromCloud() {
-  await loadState();
+  // 本地已有数据时弹确认，防止误覆盖
+  let hasLocalData = false;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      hasLocalData = parsed && Object.keys(parsed).length > 0;
+    }
+  } catch (e) {}
+  if (hasLocalData) {
+    if (!confirm('本地已有数据，从云端拉取会覆盖当前所有内容，确定继续吗？')) return;
+  }
+
+  try {
+    const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH + '?ref=' + GH_BRANCH;
+    const res = await fetch(url, { headers: getGhHeaders() });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      alert('拉取失败：' + res.status + ' ' + (errData.message || res.statusText));
+      return;
+    }
+    const fileData = await res.json();
+    if (!fileData.content) { alert('云端暂无数据'); return; }
+    const content = b64ToUtf8(fileData.content);
+    const data = JSON.parse(content);
+    applyData(data);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+    updateSyncIndicator('已从云端恢复', '#2d6a4f');
+  } catch (e) {
+    alert('拉取失败：' + e.message);
+    return;
+  }
   populateAccountSelects();
   renderOverview();
   renderIncomeTable();
@@ -4910,7 +4966,7 @@ document.getElementById('opinionModal').addEventListener('click', (e) => {
 
 /* ===== 初始化 ===== */
 async function init() {
-  // 加载数据（云端优先，本地降级）
+  // 本地优先模式：初始化只从 localStorage 读取，不自动拉取云端
   await loadState();
 
   // 为旧版交易记录补全id
@@ -4968,16 +5024,14 @@ async function saveToken() {
   saveGhToken(token);
   closeTokenModal();
   updateSyncIndicator('验证中…', '#999');
-  // 验证Token并加载数据
-  await loadState();
+  // 本地优先模式：保存Token后立即把本地数据推送到云端（不从云端拉取覆盖本地）
+  await pushToCloud();
   populateAccountSelects();
   renderOverview();
   renderIncomeTable();
   renderExpenseTable();
   renderHoldings();
   renderOpinions();
-  // 立即保存一次（把本地数据同步到云端）
-  await saveState();
 }
 
 init();
